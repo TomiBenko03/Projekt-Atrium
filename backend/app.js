@@ -5,6 +5,7 @@ const cors = require('cors');
 
 // Import routes
 const agentRoutes = require('./routes/agentRoutes');
+const sellerRoutes = require('./routes/sellerRoutes');
 
 const app = express();
 
@@ -34,6 +35,11 @@ mongoose
 
 // Routes
 app.use('/api/agents', agentRoutes);
+app.use('/api/sellers', sellerRoutes);
+
+app.get('/api', (req, res) => {
+  res.json({ message: " " });
+}); // Added to prevent Json parse error.
 
 // Start the server
 const PORT = process.env.PORT || 3001;
