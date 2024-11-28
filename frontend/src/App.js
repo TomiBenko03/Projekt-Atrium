@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import AgentPage from './Components/AgentPage'; // Adjust the path based on where you saved AgentPage.js
+import AgentPage from './Components/AgentPage';
+import BuyerPage from './Components/BuyerPage'; // Adjust the path based on where you saved AgentPage.js
 
 function App() {
     const [data, setData] = useState(null);
@@ -17,6 +18,7 @@ function App() {
                 <ul>
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/agent">Agent Page</Link></li>
+                    <li><Link to="/buyer">Buyer Page</Link></li>
                 </ul>
             </nav>
             <Routes>
@@ -27,6 +29,7 @@ function App() {
                     </div>
                 } />
                 <Route path="/agent" element={<AgentPage />} />
+                <Route path="/buyer" element={<BuyerPage />} />
             </Routes>
         </Router>
     );
