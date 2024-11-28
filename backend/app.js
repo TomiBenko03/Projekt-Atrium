@@ -6,6 +6,7 @@ const cors = require('cors');
 // Import routes
 const agentRoutes = require('./routes/agentRoutes');
 const buyerRoutes = require('./routes/buyerRoutes');
+const propertyRoutes = require('./routes/propertyRoutes');
 
 const app = express();
 
@@ -36,6 +37,7 @@ mongoose
 // Routes
 app.use('/api/agents', agentRoutes);
 app.use('/api/buyer', buyerRoutes);
+app.use('/api/property', propertyRoutes);
 app.get('/api', (req, res) => {
   res.json({ message: "Hello from the server!" });
 });
