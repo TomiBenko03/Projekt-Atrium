@@ -34,6 +34,9 @@ function App() {
                 } />
                 <Route path="/agent" element={<AgentPage />} />
                 <Route path="/buyer" element={<BuyerPage />} />
+                <Route path="/seller" element={<SellerPage />} />
+                <Route path="/property" element={<PropertyPage/>} />
+
             </Routes>
         </Router>
     );
