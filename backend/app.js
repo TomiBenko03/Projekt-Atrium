@@ -7,6 +7,7 @@ const cors = require('cors');
 const agentRoutes = require('./routes/agentRoutes');
 const buyerRoutes = require('./routes/buyerRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
+const sellerRoutes = require('./routes/sellerRoutes');
 
 const app = express();
 
@@ -28,7 +29,7 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // MongoDB connection
-const mongoURI = 'mongodb://localhost:27017'; // Replace with your MongoDB URI
+const mongoURI = 'mongodb://127.0.0.1:27017'; // Replace with your MongoDB URI
 mongoose
     .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
@@ -38,6 +39,8 @@ mongoose
 app.use('/api/agents', agentRoutes);
 app.use('/api/buyer', buyerRoutes);
 app.use('/api/property', propertyRoutes);
+app.use('/api/sellers', sellerRoutes);
+
 app.get('/api', (req, res) => {
   res.json({ message: "Hello from the server!" });
 });
