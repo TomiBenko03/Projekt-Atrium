@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const AgentPage = () => {
+const SellerPage = () => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -10,6 +10,8 @@ const AgentPage = () => {
         email: '',
         emso: '',
         taxNumber: '',
+        bankAccount: '',
+        bankName: '',
     });
 
     const [message, setMessage] = useState('');
@@ -24,8 +26,8 @@ const AgentPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3001/api/agents', formData);
-            setMessage(`Agent created successfully: ${response.data.agent.firstName} ${response.data.agent.lastName}`);
+            const response = await axios.post('http://localhost:3001/api/sellers', formData);
+            setMessage(`Seller created successfully: ${response.data.seller.firstName} ${response.data.seller.lastName}`);
             // Reset form
             setFormData({
                 firstName: '',
@@ -35,16 +37,18 @@ const AgentPage = () => {
                 email: '',
                 emso: '',
                 taxNumber: '',
+                bankAccount: '',
+                bankName: '',
             });
         } catch (error) {
-            console.error('Error creating agent:', error);
-            setMessage('Failed to create agent. error.');
+            console.error('Error creating seller:', error);
+            setMessage('Failed to create seller. error.');
         }
     };
 
     return (
         <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
-            <h1>Agent Registration</h1>
+            <h1>Seller Registration</h1>
             {message && <p style={{ color: message.includes('successfully') ? 'green' : 'red' }}>{message}</p>}
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '10px' }}>
@@ -152,4 +156,4 @@ const AgentPage = () => {
     );
 };
 
-export default AgentPage;
+export default SellerPage;

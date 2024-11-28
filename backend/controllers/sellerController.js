@@ -5,7 +5,7 @@ const createSeller = async(req, res) => {
         const { firstName, lastName, address, gsm, email, emso, taxNumber, bankAccount, bankName } = req.body;
 
         // Create a new seller document
-        const newSeller = new Agent({
+        const newSeller = new Seller({
             firstName,
             lastName,
             address,

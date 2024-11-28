@@ -28,7 +28,7 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // MongoDB connection
-const mongoURI = 'mongodb://localhost:27017'; // Replace with your MongoDB URI
+const mongoURI = 'mongodb://127.0.0.1:27017'; // Replace with your MongoDB URI
 mongoose
     .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
