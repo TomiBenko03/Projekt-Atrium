@@ -5,7 +5,7 @@ const createProperty = async (req, res) => {
     try {
         const {
             mainPropertyId,
-            lesserProperties,
+            lesserProperties, // These are the propertyId strings to search for
             address,
             price,
             type,
@@ -32,68 +32,68 @@ const createProperty = async (req, res) => {
             contractDeadline,
         } = req.body;
 
-        // Validate and convert `lesserProperties` to ObjectIds
+        // Step 1: Find the properties with matching `propertyId`s
         let lesserPropertiesArray = [];
         if (Array.isArray(lesserProperties) && lesserProperties.length > 0) {
-            lesserPropertiesArray = lesserProperties
-                .filter((id) => id && mongoose.Types.ObjectId.isValid(id))
-                .map((id) => mongoose.Types.ObjectId(id));
+            const foundProperties = await Property.find({
+                mainPropertyId: { $in: lesserProperties } // Search by `mainPropertyId`
+            });
+
+            // Extract the `_id` of the found properties
+            lesserPropertiesArray = foundProperties.map((property) => property._id);
         }
 
-        // Ensure `equipmentIncluded` is an array
-        let equipmentIncludedArray = [];
-        if (typeof equipmentIncluded === 'string') {
-            // If `equipmentIncluded` is a comma-separated string, split it into an array
-            equipmentIncludedArray = equipmentIncluded.split(',').map((item) => item.trim());
-        } else if (Array.isArray(equipmentIncluded)) {
-            // If `equipmentIncluded` is already an array, use it directly
-            equipmentIncludedArray = equipmentIncluded;
-        }
+        // Step 2: Convert `equipmentIncluded` to an array
+        const equipmentIncludedArray = Array.isArray(equipmentIncluded)
+            ? equipmentIncluded
+            : typeof equipmentIncluded === 'string'
+            ? equipmentIncluded.split(',').map((item) => item.trim())
+            : [];
 
-        // Create a new property document
+        // Step 3: Create a new property document
         const newProperty = new Property({
             mainPropertyId,
             lesserProperties: lesserPropertiesArray,
             address,
-            price,
+            price: Number(price),
             type,
             isNewBuild,
             isAgriculturalLand,
             preemptionRight,
             sellingPrice: {
-                property: sellingPriceProperty,
-                equipment: sellingPriceEquipment,
-                other: sellingPriceOther,
+                property: Number(sellingPriceProperty) || 0,
+                equipment: Number(sellingPriceEquipment) || 0,
+                other: Number(sellingPriceOther) || 0,
             },
             deposit: {
-                amount: depositAmount,
-                paymentDeadline: depositDeadline,
-                account: depositAccount,
+                amount: Number(depositAmount) || 0,
+                paymentDeadline: depositDeadline || null,
+                account: depositAccount || '',
             },
             remainingPayment: {
-                amount: remainingAmount,
-                paymentDeadline: remainingDeadline,
-                account: remainingAccount,
+                amount: Number(remainingAmount) || 0,
+                paymentDeadline: remainingDeadline || null,
+                account: remainingAccount || '',
             },
-            buyerMortgage,
-            mortgageAmount,
+            buyerMortgage: buyerMortgage || false,
+            mortgageAmount: Number(mortgageAmount) || 0,
             equipmentIncluded: equipmentIncludedArray,
-            transferDeadlineAfterFullPayment: transferDeadline,
+            transferDeadlineAfterFullPayment: transferDeadline || null,
             sellerExpenses: {
-                description: sellerExpensesDescription,
-                amount: sellerExpensesAmount,
+                description: sellerExpensesDescription || '',
+                amount: Number(sellerExpensesAmount) || 0,
             },
             buyerExpenses: {
-                description: buyerExpensesDescription,
-                amount: buyerExpensesAmount,
+                description: buyerExpensesDescription || '',
+                amount: Number(buyerExpensesAmount) || 0,
             },
-            contractPreparationDeadline: contractDeadline,
+            contractPreparationDeadline: contractDeadline || null,
         });
 
-        // Save the property to the database
+        // Step 4: Save the property to the database
         const savedProperty = await newProperty.save();
 
-        // Send success response
+        // Step 5: Send success response
         res.status(201).json({
             message: 'Property created successfully',
             property: savedProperty,
