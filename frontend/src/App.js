@@ -4,6 +4,7 @@ import AgentPage from './Components/AgentPage';
 import BuyerPage from './Components/BuyerPage';
 import PropertyPage from './Components/PropertyPage'; // Adjust the path based on where you saved AgentPage.js
 import SellerPage from './Components/SellerPage';
+import TransactionPage from './Components/TransactionPage';
 
 function App() {
     const [data, setData] = useState(null);
@@ -23,6 +24,7 @@ function App() {
                     <li><Link to="/buyer">Buyer Page</Link></li>
                     <li><Link to="/seller">Seller Page</Link></li>
                     <li><Link to="/property">Property Page</Link></li>
+                    <li><Link to="/transaction">Transaction Page</Link></li>
                 </ul>
             </nav>
             <Routes>
@@ -36,7 +38,7 @@ function App() {
                 <Route path="/buyer" element={<BuyerPage />} />
                 <Route path="/seller" element={<SellerPage />} />
                 <Route path="/property" element={<PropertyPage/>} />
-
+                <Route path="/transaction" element={<TransactionPage/>} />
             </Routes>
         </Router>
     );

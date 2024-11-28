@@ -8,6 +8,7 @@ const agentRoutes = require('./routes/agentRoutes');
 const buyerRoutes = require('./routes/buyerRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/agents', agentRoutes);
 app.use('/api/buyer', buyerRoutes);
 app.use('/api/property', propertyRoutes);
 app.use('/api/sellers', sellerRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 app.get('/api', (req, res) => {
   res.json({ message: "Hello from the server!" });
