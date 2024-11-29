@@ -25,6 +25,17 @@ const createAgent = async (req, res) => {
     }
 };
 
+const getAllAgents = async (req, res) => {
+    try {
+        const agents = await Agent.find({});
+        res.status(200).json(agents);
+    } catch (error) {
+        console.error('Error fetching agents:', error);
+        res.status(500).json({ message: 'Failed to fetch agents', error });
+    }
+};
+
 module.exports = {
     createAgent,
+    getAllAgents
 };

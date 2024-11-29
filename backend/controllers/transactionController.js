@@ -130,6 +130,28 @@ const createTransaction = async (req, res) => {
     }
 };
 
+const searchTransaction = async (req, res) => {
+    try {
+        console.log('Searching for transaction:', req.params.id); // Debug log
+        const transaction = await Transaction.findById(req.params.id)
+            .populate('agent')
+            .populate('buyers')
+            .populate('sellers')
+            .populate('property');
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        res.json(transaction);
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({ message: 'Error searching transaction', error: error.message });
+    }
+};
+
+
 module.exports = {
     createTransaction,
+    searchTransaction
 };

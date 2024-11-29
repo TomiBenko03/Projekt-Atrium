@@ -127,7 +127,7 @@ const BuyerPage = () => {
                     />
                 </div>
                 <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="bankAccount">bankAccount:</label>
+                    <label htmlFor="bankAccount">Bank Account:</label>
                     <input
                         type="text"
                         id="bankAccount"
@@ -138,7 +138,7 @@ const BuyerPage = () => {
                     />
                 </div>
                 <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="bankName">bankName:</label>
+                    <label htmlFor="bankName">Bank Name:</label>
                     <input
                         type="text"
                         id="bankName"
