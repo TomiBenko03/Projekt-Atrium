@@ -3,10 +3,13 @@ import axios from 'axios';
 
 const TransactionPage = () => {
     const [formData, setFormData] = useState({
-        agent: '',
+        agentFirstName: '',
+        agentLastName: '',
         sellers: '',
+        sellerSurnames: '',
         buyers: '',
-        property: '',
+        buyerSurnames: '',
+        propertyName: '',
         paymentDetailsDepositAmount: '',
         paymentDetailsDepositDeadline: '',
         paymentDetailsDepositAccount: '',
@@ -46,8 +49,10 @@ const TransactionPage = () => {
         try {
             const parsedData = {
                 ...formData,
-                sellers: formData.sellers.split(',').map((id) => id.trim()),
-                buyers: formData.buyers.split(',').map((id) => id.trim()),
+                sellers: formData.sellers.split(',').map((name) => name.trim()),
+                sellerSurnames: formData.sellerSurnames.split(',').map((surname) => surname.trim()),
+                buyers: formData.buyers.split(',').map((name) => name.trim()),
+                buyerSurnames: formData.buyerSurnames.split(',').map((surname) => surname.trim()),
                 sellerExpenses: formData.sellerExpenses
                     .split(';')
                     .map((item) => {
@@ -63,12 +68,15 @@ const TransactionPage = () => {
             };
 
             const response = await axios.post('http://localhost:3001/api/transactions', parsedData);
-            setMessage(`Transaction created successfully with ID: ${response.data.transaction._id}`);
+            setMessage(`Transaction created successfully, prepared by: ${response.data.transaction.contractPreparedBy}`);
             setFormData({
-                agent: '',
+                agentFirstName: '',
+                agentLastName: '',
                 sellers: '',
+                sellerSurnames: '',
                 buyers: '',
-                property: '',
+                buyerSurnames: '',
+                propertyName: '',
                 paymentDetailsDepositAmount: '',
                 paymentDetailsDepositDeadline: '',
                 paymentDetailsDepositAccount: '',
@@ -104,17 +112,27 @@ const TransactionPage = () => {
             {message && <p style={{ color: message.includes('successfully') ? 'green' : 'red' }}>{message}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label>Agent ID:</label>
+                    <label>Agent First Name:</label>
                     <input
                         type="text"
-                        name="agent"
-                        value={formData.agent}
+                        name="agentFirstName"
+                        value={formData.agentFirstName}
                         onChange={handleChange}
                         required
                     />
                 </div>
                 <div>
-                    <label>Sellers (comma-separated IDs):</label>
+                    <label>Agent Last Name:</label>
+                    <input
+                        type="text"
+                        name="agentLastName"
+                        value={formData.agentLastName}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Sellers (comma-separated first names):</label>
                     <input
                         type="text"
                         name="sellers"
@@ -123,7 +141,16 @@ const TransactionPage = () => {
                     />
                 </div>
                 <div>
-                    <label>Buyers (comma-separated IDs):</label>
+                    <label>Sellers (comma-separated last names):</label>
+                    <input
+                        type="text"
+                        name="sellerSurnames"
+                        value={formData.sellerSurnames}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label>Buyers (comma-separated first names):</label>
                     <input
                         type="text"
                         name="buyers"
@@ -132,11 +159,20 @@ const TransactionPage = () => {
                     />
                 </div>
                 <div>
-                    <label>Property ID:</label>
+                    <label>Buyers (comma-separated last names):</label>
                     <input
                         type="text"
-                        name="property"
-                        value={formData.property}
+                        name="buyerSurnames"
+                        value={formData.buyerSurnames}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label>Property Name:</label>
+                    <input
+                        type="text"
+                        name="propertyName"
+                        value={formData.propertyName}
                         onChange={handleChange}
                         required
                     />
@@ -250,7 +286,7 @@ const TransactionPage = () => {
                         onChange={handleChange}
                     />
                 </div>
-                {/* Add more fields here as needed */}
+
                 <button type="submit" style={{ marginTop: '10px' }}>Submit</button>
             </form>
         </div>

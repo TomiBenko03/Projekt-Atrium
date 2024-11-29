@@ -1,13 +1,20 @@
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
+const Agent = require('../models/Agent'); // Import Agent model
+const Seller = require('../models/Seller'); // Import Seller model
+const Buyer = require('../models/Buyer'); // Import Buyer model
+const Property = require('../models/Property'); // Import Property model
 
-const createTransaction = async(req, res) => {
-    try{
+const createTransaction = async (req, res) => {
+    try {
         const {
-            agent,
+            agentFirstName,
+            agentLastName,
             sellers,
+            sellerSurnames,
             buyers,
-            property,
+            buyerSurnames,
+            propertyName,
             paymentDetailsDepositAmount,
             paymentDetailsDepositDeadline,
             paymentDetailsDepositAccount,
@@ -25,17 +32,64 @@ const createTransaction = async(req, res) => {
             legalDocuments,
         } = req.body;
 
-        // Parse `sellers`, `buyers`, `sellerExpenses`, and `buyerExpenses` if provided
-        const sellersArray = Array.isArray(sellers) ? sellers : [];
-        const buyersArray = Array.isArray(buyers) ? buyers : [];
-        const sellerExpensesArray = Array.isArray(sellerExpenses) ? sellerExpenses : [];
-        const buyerExpensesArray = Array.isArray(buyerExpenses) ? buyerExpenses : [];
+        // Ensure sellers and buyer arrays are parsed correctly
+        const sellerNamesArray = Array.isArray(sellers) ? sellers : sellers.split(',');
+        const sellerSurnamesArray = Array.isArray(sellerSurnames) ? sellerSurnames : sellerSurnames.split(',');
+        const buyerNamesArray = Array.isArray(buyers) ? buyers : buyers.split(',');
+        const buyerSurnamesArray = Array.isArray(buyerSurnames) ? buyerSurnames : buyerSurnames.split(',');
+
+        // Resolve agent by firstName and lastName
+        const agent = await Agent.findOne({
+            firstName: agentFirstName,
+            lastName: agentLastName,
+        });
+        if (!agent) {
+            return res.status(404).json({ message: "Agent not found" });
+        }
+
+        // Resolve sellers by firstName and lastName
+        const sellerIds = await Promise.all(
+            sellerNamesArray.map(async (firstName, index) => {
+                const seller = await Seller.findOne({
+                    firstName: firstName.trim(),
+                    lastName: sellerSurnamesArray[index]?.trim(),
+                });
+                if (!seller) throw new Error(`Seller ${firstName} ${sellerSurnamesArray[index]} not found`);
+                return seller._id;
+            })
+        );
+
+        // Resolve buyers by firstName and lastName
+        const buyerIds = await Promise.all(
+            buyerNamesArray.map(async (firstName, index) => {
+                const buyer = await Buyer.findOne({
+                    firstName: firstName.trim(),
+                    lastName: buyerSurnamesArray[index]?.trim(),
+                });
+                if (!buyer) throw new Error(`Buyer ${firstName} ${buyerSurnamesArray[index]} not found`);
+                return buyer._id;
+            })
+        );
+
+        // Resolve property by mainPropertyId
+        const property = await Property.findOne({ mainPropertyId: propertyName });
+        if (!property) {
+            return res.status(404).json({ message: "Property not found" });
+        }
+
+        // Parse expenses arrays
+        const sellerExpensesArray = Array.isArray(sellerExpenses)
+            ? sellerExpenses
+            : [];
+        const buyerExpensesArray = Array.isArray(buyerExpenses)
+            ? buyerExpenses
+            : [];
 
         const newTransaction = new Transaction({
-            agent,
-            sellers: sellersArray,
-            buyers: buyersArray,
-            property,
+            agent: agent._id,
+            sellers: sellerIds,
+            buyers: buyerIds,
+            property: property._id,
             paymentDetails: {
                 deposit: {
                     amount: Number(paymentDetailsDepositAmount) || 0,
@@ -65,18 +119,17 @@ const createTransaction = async(req, res) => {
 
         res.status(201).json({
             message: 'Transaction created successfully',
-            transaction: savedTransaction
+            transaction: savedTransaction,
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error creating transaction: ', error);
         res.status(400).json({
             message: 'Failed to create transaction',
-            error: error.message
+            error: error.message,
         });
     }
 };
 
 module.exports = {
-    createTransaction
+    createTransaction,
 };
