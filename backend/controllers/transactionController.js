@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
-const Agent = require('../models/Agent'); // Import Agent model
-const Seller = require('../models/Seller'); // Import Seller model
-const Buyer = require('../models/Buyer'); // Import Buyer model
-const Property = require('../models/Property'); // Import Property model
+const Agent = require('../models/Agent');
+const Seller = require('../models/Seller');
+const Buyer = require('../models/Buyer');
+const Property = require('../models/Property');
 
 const createTransaction = async (req, res) => {
     try {
@@ -18,12 +18,12 @@ const createTransaction = async (req, res) => {
             paymentDetailsDepositAmount,
             paymentDetailsDepositDeadline,
             paymentDetailsDepositAccount,
-            paymentDetailsDepositAlreadyPaidAmount,
-            paymentDetailsDepositAlreadyPaidAccount,
             paymentDetailsRemainingAmount,
             paymentDetailsRemainingDeadline,
             paymentDetailsRemainingAccount,
-            paymentDetailsRemainingAdditionalNotes,
+            paymentDescriptor,
+            buyerMortgage,
+            mortgageAmount,
             handoverDeadline,
             sellerExpenses,
             buyerExpenses,
@@ -32,59 +32,33 @@ const createTransaction = async (req, res) => {
             legalDocuments,
         } = req.body;
 
-        // Ensure sellers and buyer arrays are parsed correctly
-        const sellerNamesArray = Array.isArray(sellers) ? sellers : sellers.split(',');
-        const sellerSurnamesArray = Array.isArray(sellerSurnames) ? sellerSurnames : sellerSurnames.split(',');
-        const buyerNamesArray = Array.isArray(buyers) ? buyers : buyers.split(',');
-        const buyerSurnamesArray = Array.isArray(buyerSurnames) ? buyerSurnames : buyerSurnames.split(',');
+        // Find the agent by name
+        const agent = await Agent.findOne({ firstName: agentFirstName, lastName: agentLastName });
+        if (!agent) throw new Error('Agent not found');
 
-        // Resolve agent by firstName and lastName
-        const agent = await Agent.findOne({
-            firstName: agentFirstName,
-            lastName: agentLastName,
-        });
-        if (!agent) {
-            return res.status(404).json({ message: "Agent not found" });
-        }
-
-        // Resolve sellers by firstName and lastName
+        // Resolve sellers by names
         const sellerIds = await Promise.all(
-            sellerNamesArray.map(async (firstName, index) => {
-                const seller = await Seller.findOne({
-                    firstName: firstName.trim(),
-                    lastName: sellerSurnamesArray[index]?.trim(),
-                });
-                if (!seller) throw new Error(`Seller ${firstName} ${sellerSurnamesArray[index]} not found`);
+            (sellers || []).map(async (name, index) => {
+                const seller = await Seller.findOne({ firstName: name.trim(), lastName: sellerSurnames[index]?.trim() });
+                if (!seller) throw new Error(`Seller ${name} ${sellerSurnames[index]} not found`);
                 return seller._id;
             })
         );
 
-        // Resolve buyers by firstName and lastName
+        // Resolve buyers by names
         const buyerIds = await Promise.all(
-            buyerNamesArray.map(async (firstName, index) => {
-                const buyer = await Buyer.findOne({
-                    firstName: firstName.trim(),
-                    lastName: buyerSurnamesArray[index]?.trim(),
-                });
-                if (!buyer) throw new Error(`Buyer ${firstName} ${buyerSurnamesArray[index]} not found`);
+            (buyers || []).map(async (name, index) => {
+                const buyer = await Buyer.findOne({ firstName: name.trim(), lastName: buyerSurnames[index]?.trim() });
+                if (!buyer) throw new Error(`Buyer ${name} ${buyerSurnames[index]} not found`);
                 return buyer._id;
             })
         );
 
-        // Resolve property by mainPropertyId
+        // Find the property by its mainPropertyId
         const property = await Property.findOne({ mainPropertyId: propertyName });
-        if (!property) {
-            return res.status(404).json({ message: "Property not found" });
-        }
+        if (!property) throw new Error('Property not found');
 
-        // Parse expenses arrays
-        const sellerExpensesArray = Array.isArray(sellerExpenses)
-            ? sellerExpenses
-            : [];
-        const buyerExpensesArray = Array.isArray(buyerExpenses)
-            ? buyerExpenses
-            : [];
-
+        // Create the transaction
         const newTransaction = new Transaction({
             agent: agent._id,
             sellers: sellerIds,
@@ -95,40 +69,39 @@ const createTransaction = async (req, res) => {
                     amount: Number(paymentDetailsDepositAmount) || 0,
                     deadline: paymentDetailsDepositDeadline || null,
                     account: paymentDetailsDepositAccount || '',
-                    alreadyPaid: {
-                        amount: Number(paymentDetailsDepositAlreadyPaidAmount) || 0,
-                        account: paymentDetailsDepositAlreadyPaidAccount || '',
-                    },
                 },
                 remaining: {
                     amount: Number(paymentDetailsRemainingAmount) || 0,
                     deadline: paymentDetailsRemainingDeadline || null,
                     account: paymentDetailsRemainingAccount || '',
-                    additionalNotes: paymentDetailsRemainingAdditionalNotes || '',
                 },
             },
+            paymentDescriptor: paymentDescriptor || '',
+            buyerMortgage: Boolean(buyerMortgage),
+            mortgageAmount: Number(mortgageAmount) || 0,
             handoverDeadline,
-            sellerExpenses: sellerExpensesArray,
-            buyerExpenses: buyerExpensesArray,
+            sellerExpenses: sellerExpenses || [],
+            buyerExpenses: buyerExpenses || [],
             contractPreparationDeadline,
             contractPreparedBy,
             legalDocuments,
         });
 
+        // Save the transaction
         const savedTransaction = await newTransaction.save();
-
         res.status(201).json({
             message: 'Transaction created successfully',
             transaction: savedTransaction,
         });
     } catch (error) {
-        console.error('Error creating transaction: ', error);
+        console.error('Error creating transaction:', error);
         res.status(400).json({
             message: 'Failed to create transaction',
             error: error.message,
         });
     }
 };
+
 
 const searchTransaction = async (req, res) => {
     try {
@@ -142,7 +115,7 @@ const searchTransaction = async (req, res) => {
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
-
+        console.log('sent for transaction:', req.params.id); // Debug log
         res.json(transaction);
     } catch (error) {
         console.error('Search error:', error);
@@ -150,8 +123,7 @@ const searchTransaction = async (req, res) => {
     }
 };
 
-
 module.exports = {
     createTransaction,
-    searchTransaction
+    searchTransaction,
 };

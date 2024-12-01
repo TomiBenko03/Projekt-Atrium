@@ -19,21 +19,14 @@ const transactionSchema = new mongoose.Schema({
             additionalNotes: String,
         },
     },
+    paymentDescriptor: { type: String }, // Added paymentDescriptor
+    buyerMortgage: { type: Boolean, default: false }, // Added buyerMortgage
+    mortgageAmount: { type: Number }, // Added mortgageAmount
     handoverDeadline: { type: Date, required: true },
     sellerExpenses: [{ description: String, amount: Number }],
     buyerExpenses: [{ description: String, amount: Number }],
     contractPreparationDeadline: { type: Date },
     contractPreparedBy: { type: String },
-    legalDocuments: {
-        accessPublicDomain: { type: Boolean },
-        accessEasement: { type: Boolean },
-        easementDetails: { type: String },
-        deletionConsent: { type: Boolean },
-        buildingPermit: { type: Boolean },
-        usagePermit: { type: Boolean },
-        energyCertificate: { type: Boolean },
-        locationInfo: { type: String },
-    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

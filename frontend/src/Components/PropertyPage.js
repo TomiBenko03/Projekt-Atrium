@@ -14,24 +14,11 @@ const PropertyPage = () => {
         sellingPriceProperty: '',
         sellingPriceEquipment: '',
         sellingPriceOther: '',
-        depositAmount: '',
-        depositDeadline: '',
-        depositAccount: '',
-        remainingAmount: '',
-        remainingDeadline: '',
-        remainingAccount: '',
-        buyerMortgage: false,
-        mortgageAmount: '',
         equipmentIncluded: '',
-        transferDeadline: '',
-        sellerExpensesDescription: '',
-        sellerExpensesAmount: '',
-        buyerExpensesDescription: '',
-        buyerExpensesAmount: '',
-        contractDeadline: '',
     });
 
     const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -44,14 +31,32 @@ const PropertyPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Parse lesserProperties and equipmentIncluded into arrays
             const parsedData = {
                 ...formData,
-                lesserProperties: formData.lesserProperties.split(',').map((id) => id.trim()),
-                equipmentIncluded: formData.equipmentIncluded.split(',').map((item) => item.trim()),
+                lesserProperties: formData.lesserProperties
+                    ? formData.lesserProperties.split(',').map((id) => id.trim())
+                    : [],
+                equipmentIncluded: formData.equipmentIncluded
+                    ? formData.equipmentIncluded.split(',').map((item) => item.trim())
+                    : [],
+                price: parseFloat(formData.price),
+                sellingPrice: {
+                    property: parseFloat(formData.sellingPriceProperty) || 0,
+                    equipment: parseFloat(formData.sellingPriceEquipment) || 0,
+                    other: parseFloat(formData.sellingPriceOther) || 0,
+                },
             };
 
-            const response = await axios.post('http://localhost:3001/api/Property', parsedData);
-            setMessage(`Property created successfully: ${response.data.mainPropertyId}`);
+            // Remove redundant fields before sending
+            delete parsedData.sellingPriceProperty;
+            delete parsedData.sellingPriceEquipment;
+            delete parsedData.sellingPriceOther;
+
+            const response = await axios.post('http://localhost:3001/api/property', parsedData);
+            setMessage(`Property created successfully: ${response.data.property.mainPropertyId}`);
+            setError('');
+            // Reset the form
             setFormData({
                 mainPropertyId: '',
                 lesserProperties: '',
@@ -64,32 +69,20 @@ const PropertyPage = () => {
                 sellingPriceProperty: '',
                 sellingPriceEquipment: '',
                 sellingPriceOther: '',
-                depositAmount: '',
-                depositDeadline: '',
-                depositAccount: '',
-                remainingAmount: '',
-                remainingDeadline: '',
-                remainingAccount: '',
-                buyerMortgage: false,
-                mortgageAmount: '',
                 equipmentIncluded: '',
-                transferDeadline: '',
-                sellerExpensesDescription: '',
-                sellerExpensesAmount: '',
-                buyerExpensesDescription: '',
-                buyerExpensesAmount: '',
-                contractDeadline: '',
             });
         } catch (error) {
             console.error('Error creating property:', error);
-            setMessage('Failed to create property.');
+            setMessage('');
+            setError('Failed to create property. Please check your input.');
         }
     };
 
     return (
         <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
             <h1>Property Registration</h1>
-            {message && <p style={{ color: message.includes('successfully') ? 'green' : 'red' }}>{message}</p>}
+            {message && <p style={{ color: 'green' }}>{message}</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Main Property ID:</label>
@@ -194,135 +187,11 @@ const PropertyPage = () => {
                     />
                 </div>
                 <div>
-                    <label>Deposit Amount:</label>
-                    <input
-                        type="number"
-                        name="depositAmount"
-                        value={formData.depositAmount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Deposit Deadline:</label>
-                    <input
-                        type="date"
-                        name="depositDeadline"
-                        value={formData.depositDeadline}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Deposit Account:</label>
-                    <input
-                        type="text"
-                        name="depositAccount"
-                        value={formData.depositAccount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Remaining Payment Amount:</label>
-                    <input
-                        type="number"
-                        name="remainingAmount"
-                        value={formData.remainingAmount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Remaining Payment Deadline:</label>
-                    <input
-                        type="date"
-                        name="remainingDeadline"
-                        value={formData.remainingDeadline}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Remaining Payment Account:</label>
-                    <input
-                        type="text"
-                        name="remainingAccount"
-                        value={formData.remainingAccount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Buyer Mortgage:</label>
-                    <input
-                        type="checkbox"
-                        name="buyerMortgage"
-                        checked={formData.buyerMortgage}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Mortgage Amount:</label>
-                    <input
-                        type="number"
-                        name="mortgageAmount"
-                        value={formData.mortgageAmount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
                     <label>Equipment Included (comma-separated):</label>
                     <input
                         type="text"
                         name="equipmentIncluded"
                         value={formData.equipmentIncluded}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Transfer Deadline After Full Payment:</label>
-                    <input
-                        type="date"
-                        name="transferDeadline"
-                        value={formData.transferDeadline}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Seller Expenses Description:</label>
-                    <textarea
-                        name="sellerExpensesDescription"
-                        value={formData.sellerExpensesDescription}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Seller Expenses Amount:</label>
-                    <input
-                        type="number"
-                        name="sellerExpensesAmount"
-                        value={formData.sellerExpensesAmount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Buyer Expenses Description:</label>
-                    <textarea
-                        name="buyerExpensesDescription"
-                        value={formData.buyerExpensesDescription}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Buyer Expenses Amount:</label>
-                    <input
-                        type="number"
-                        name="buyerExpensesAmount"
-                        value={formData.buyerExpensesAmount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Contract Preparation Deadline:</label>
-                    <input
-                        type="date"
-                        name="contractDeadline"
-                        value={formData.contractDeadline}
                         onChange={handleChange}
                     />
                 </div>

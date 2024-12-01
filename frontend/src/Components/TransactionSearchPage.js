@@ -283,6 +283,35 @@ Datum zaključka: ${new Date(transaction.handoverDeadline).toLocaleDateString()}
               </tr>
             </tbody>
           </table>
+          <h4>Mortgage Information</h4>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <th style={headerStyle}>Buyer has Mortgage</th>
+                <th style={headerStyle}>Mortgage Amount (€)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={cellStyle}>{transaction.buyerMortgage ? 'Yes' : 'No'}</td>
+                <td style={cellStyle}>{transaction.mortgageAmount || 0}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Payment Description</h4>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <th style={headerStyle}>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={cellStyle}>{transaction.paymentDescription || 'No description provided.'}</td>
+              </tr>
+            </tbody>
+          </table>
 
 <button 
   onClick={generateReport} 

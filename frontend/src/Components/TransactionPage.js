@@ -13,28 +13,21 @@ const TransactionPage = () => {
         paymentDetailsDepositAmount: '',
         paymentDetailsDepositDeadline: '',
         paymentDetailsDepositAccount: '',
-        paymentDetailsDepositAlreadyPaidAmount: '',
-        paymentDetailsDepositAlreadyPaidAccount: '',
         paymentDetailsRemainingAmount: '',
         paymentDetailsRemainingDeadline: '',
         paymentDetailsRemainingAccount: '',
-        paymentDetailsRemainingAdditionalNotes: '',
+        paymentDescriptor: '',
+        buyerMortgage: false,
+        mortgageAmount: '',
         handoverDeadline: '',
         sellerExpenses: '',
         buyerExpenses: '',
         contractPreparationDeadline: '',
         contractPreparedBy: '',
-        legalDocumentsAccessPublicDomain: false,
-        legalDocumentsAccessEasement: false,
-        legalDocumentsEasementDetails: '',
-        legalDocumentsDeletionConsent: false,
-        legalDocumentsBuildingPermit: false,
-        legalDocumentsUsagePermit: false,
-        legalDocumentsEnergyCertificate: false,
-        legalDocumentsLocationInfo: '',
     });
 
     const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -47,6 +40,7 @@ const TransactionPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Parse sellers, buyers, and expenses
             const parsedData = {
                 ...formData,
                 sellers: formData.sellers.split(',').map((name) => name.trim()),
@@ -65,10 +59,13 @@ const TransactionPage = () => {
                         const [description, amount] = item.split(',');
                         return { description: description.trim(), amount: Number(amount) || 0 };
                     }),
+                buyerMortgage: formData.buyerMortgage,
+                mortgageAmount: parseFloat(formData.mortgageAmount) || 0,
             };
 
-            const response = await axios.post('http://localhost:3001/api/transactions', parsedData);
+            const response = await axios.post('/api/transactions', parsedData);
             setMessage(`Transaction created successfully, prepared by: ${response.data.transaction.contractPreparedBy}`);
+            setError('');
             setFormData({
                 agentFirstName: '',
                 agentLastName: '',
@@ -80,36 +77,30 @@ const TransactionPage = () => {
                 paymentDetailsDepositAmount: '',
                 paymentDetailsDepositDeadline: '',
                 paymentDetailsDepositAccount: '',
-                paymentDetailsDepositAlreadyPaidAmount: '',
-                paymentDetailsDepositAlreadyPaidAccount: '',
                 paymentDetailsRemainingAmount: '',
                 paymentDetailsRemainingDeadline: '',
                 paymentDetailsRemainingAccount: '',
-                paymentDetailsRemainingAdditionalNotes: '',
+                paymentDescriptor: '',
+                buyerMortgage: false,
+                mortgageAmount: '',
                 handoverDeadline: '',
                 sellerExpenses: '',
                 buyerExpenses: '',
                 contractPreparationDeadline: '',
                 contractPreparedBy: '',
-                legalDocumentsAccessPublicDomain: false,
-                legalDocumentsAccessEasement: false,
-                legalDocumentsEasementDetails: '',
-                legalDocumentsDeletionConsent: false,
-                legalDocumentsBuildingPermit: false,
-                legalDocumentsUsagePermit: false,
-                legalDocumentsEnergyCertificate: false,
-                legalDocumentsLocationInfo: '',
             });
         } catch (error) {
             console.error('Error creating transaction:', error);
-            setMessage('Failed to create transaction.');
+            setMessage('');
+            setError('Failed to create transaction. Please check the input data.');
         }
     };
 
     return (
         <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
             <h1>Transaction Registration</h1>
-            {message && <p style={{ color: message.includes('successfully') ? 'green' : 'red' }}>{message}</p>}
+            {message && <p style={{ color: 'green' }}>{message}</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Agent First Name:</label>
@@ -196,29 +187,28 @@ const TransactionPage = () => {
                     />
                 </div>
                 <div>
-                    <label>Deposit Account:</label>
-                    <input
-                        type="text"
-                        name="paymentDetailsDepositAccount"
-                        value={formData.paymentDetailsDepositAccount}
+                    <label>Payment Descriptor:</label>
+                    <textarea
+                        name="paymentDescriptor"
+                        value={formData.paymentDescriptor}
                         onChange={handleChange}
                     />
                 </div>
                 <div>
-                    <label>Remaining Payment Amount:</label>
+                    <label>Buyer Mortgage:</label>
+                    <input
+                        type="checkbox"
+                        name="buyerMortgage"
+                        checked={formData.buyerMortgage}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label>Mortgage Amount:</label>
                     <input
                         type="number"
-                        name="paymentDetailsRemainingAmount"
-                        value={formData.paymentDetailsRemainingAmount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Remaining Payment Deadline:</label>
-                    <input
-                        type="date"
-                        name="paymentDetailsRemainingDeadline"
-                        value={formData.paymentDetailsRemainingDeadline}
+                        name="mortgageAmount"
+                        value={formData.mortgageAmount}
                         onChange={handleChange}
                     />
                 </div>
@@ -250,43 +240,6 @@ const TransactionPage = () => {
                         onChange={handleChange}
                     />
                 </div>
-                <div>
-                    <label>Contract Preparation Deadline:</label>
-                    <input
-                        type="date"
-                        name="contractPreparationDeadline"
-                        value={formData.contractPreparationDeadline}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Contract Prepared By:</label>
-                    <input
-                        type="text"
-                        name="contractPreparedBy"
-                        value={formData.contractPreparedBy}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Legal Documents (Access Easement):</label>
-                    <input
-                        type="checkbox"
-                        name="legalDocumentsAccessEasement"
-                        checked={formData.legalDocumentsAccessEasement}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Legal Documents (Building Permit):</label>
-                    <input
-                        type="checkbox"
-                        name="legalDocumentsBuildingPermit"
-                        checked={formData.legalDocumentsBuildingPermit}
-                        onChange={handleChange}
-                    />
-                </div>
-
                 <button type="submit" style={{ marginTop: '10px' }}>Submit</button>
             </form>
         </div>

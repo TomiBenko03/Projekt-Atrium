@@ -23,35 +23,12 @@ const propertySchema = new mongoose.Schema({
         equipment: { type: Number },
         other: { type: Number },
     },
-    deposit: { 
-        amount: { type: Number },
-        paymentDeadline: { type: Date },
-        account: { type: String },
-    },
-    remainingPayment: { 
-        amount: { type: Number },
-        paymentDeadline: { type: Date },
-        account: { type: String },
-        additionalConditions: { type: String }
-    },
-    buyerMortgage: { type: Boolean, default: false },
-    mortgageAmount: { type: Number },
     equipmentIncluded: [{ type: String }],
-    paymentMethodAndDeadlines: { 
-        type: String
+    paymentDescription: { 
+        type: String, 
+        default: '', 
+        maxlength: 500 // Optional: Restrict the length of the description
     },
-    transferDeadlineAfterFullPayment: { 
-        type: Date
-    },
-    sellerExpenses: { 
-        description: { type: String },
-        amount: { type: Number }
-    },
-    buyerExpenses: { 
-        description: { type: String },
-        amount: { type: Number }
-    },
-    contractPreparationDeadline: { type: Date },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Property', propertySchema);
