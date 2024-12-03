@@ -1,348 +1,382 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
 
 const TransactionSearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [transaction, setTransaction] = useState(null);
   const [error, setError] = useState('');
 
+  const [activeTab, setActiveTab] = useState('agent');
+  const [sellers, setSellers] = useState([]);
+  const [buyers, setBuyers] = useState([]);
+
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.get(`http://localhost:3001/api/transactions/search/${searchTerm}`);
       setTransaction(response.data);
+      setSellers(response.data.sellers);
+      setBuyers(response.data.buyers);
       setError('');
     } catch (error) {
       console.error('Error searching transaction:', error);
       setTransaction(null);
+      setSellers([]);
+      setBuyers([]);
       setError('Transaction not found');
     }
   };
 
 
-const formatCheckbox = (value) => {
-  return `${value ? '☒' : '☐'} DA ${!value ? '☒' : '☐'} NE`;
-};
-const generateReport = () => {
+  const formatCheckbox = (value) => {
+    return `${value ? '☒' : '☐'} DA ${!value ? '☒' : '☐'} NE`;
+  };
+
+  const generateReport = () => {
     if (!transaction) return;
 
-     // Existing calculations
-     const commissionPercentage = 4;
-     const totalPrice = transaction.property.price;
-     const commissionAmount = (totalPrice * commissionPercentage) / 100;
-     const kwCaresDeduction = 20;
-     const finalCommissionAmount = commissionAmount - kwCaresDeduction;
- 
-     // Calculate additional services
-     const equipmentPrice = transaction.property.sellingPrice?.equipment || 0;
-     const otherPrice = transaction.property.sellingPrice?.other || 0;
-     const totalAdditionalServices = equipmentPrice + otherPrice;
- 
-     // Format additional services string
-     const additionalServicesString = totalAdditionalServices > 0 
-         ? `Oprema: ${equipmentPrice}€, Ostalo: ${otherPrice}€, Skupaj: ${totalAdditionalServices}€`
-         : 'N/A';
+    // some caluclations needed for the report
+    const commissionPercentage = 4;
+    const totalPrice = transaction.property.price;
+    const commissionAmount = (totalPrice * commissionPercentage) / 100;
+    const kwCaresDeduction = 20;
+    const finalCommissionAmount = commissionAmount - kwCaresDeduction;
+
+    // additional services (if data is available)
+    const equipmentPrice = transaction.property.sellingPrice?.equipment || 0;
+    const otherPrice = transaction.property.sellingPrice?.other || 0;
+    const totalAdditionalServices = equipmentPrice + otherPrice;
+
+    // to string
+    const additionalServicesString = totalAdditionalServices > 0
+      ? `Oprema: ${equipmentPrice}€, Ostalo: ${otherPrice}€, Skupaj: ${totalAdditionalServices}€`
+      : 'N/A';
 
     const today = new Date().toLocaleDateString();
-    const content = `
-Agent: ${transaction.agent.firstName} ${transaction.agent.lastName}
-Datum oddaje obračuna: ${today}
-Naslov nepremičnine in ID znak (št. stanovanja): ${transaction.property.address}, ID: ${transaction.property.mainPropertyId}
 
-Prodajalec: ${transaction.sellers.map(s => `${s.firstName} ${s.lastName}`).join(', ')}
-Plačnik: ${formatCheckbox(transaction.sellers[0]?.isPayer)} 
-št. računa: ${transaction.sellers[0]?.bankAccount || 'N/A'} 
-plačano: ${formatCheckbox(transaction.sellers[0]?.hasPaid)}
+    const doc = new Document({
+      styles: {
+        default: {
+          document: {
+            run: {
+              font: "Calibri",
+              size: 22 //11pt
+            }
+          }
+        }
+      },
 
-Kdo je zastopal prodajalca (ime in priimek agenta): ${transaction.agent.firstName} ${transaction.agent.lastName}
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun(`Agent: ${transaction.agent.firstName} ${transaction.agent.lastName}. `),
+              new TextRun(`Datum oddaje obračuna: ${today}`,),
+              new TextRun({
+                text: `Naslov nepremičnine in ID znak (št. stanovanja): ${transaction.property.address}, ID: ${transaction.property.mainPropertyId}`,
+                break: true
+              }),
+              new TextRun({
+                text: "",
+                break: true
+              })
+            ]
+          }),
 
-Kupec: ${transaction.buyers.map(b => `${b.firstName} ${b.lastName}`).join(', ')}
-Plačnik: ${formatCheckbox(transaction.buyers[0]?.isPayer)} 
-št. računa: ${transaction.buyers[0]?.bankAccount || 'N/A'} 
-plačano: ${formatCheckbox(transaction.buyers[0]?.hasPaid)}
+          new Paragraph({
+            children: [
+              new TextRun(`Prodajalec: ${transaction.sellers.map(s => `${s.firstName} ${s.lastName}`).join(', ')}. `),
+              new TextRun(`Plačnik: ${formatCheckbox(transaction.sellers[0]?.isPayer)}, `),
+              new TextRun(`št. računa: ${transaction.sellers[0]?.bankAccount || 'N/A'}`),
+              new TextRun({
+                text: `plačano: ${formatCheckbox(transaction.sellers[0]?.hasPaid)}.`,
+                break: true
+              }),
+            ]
+          }),
 
-Kdo je zastopal kupca (ime in priimek agenta): ${transaction.agent.firstName} ${transaction.agent.lastName}
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `Kdo je zastopal prodajalca (ime in priimek agenta): ${transaction.agent.firstName} ${transaction.agent.lastName}.`,
+                break: true
+              }),
+            ]
+          }),
 
-Prodajna cena: ${transaction.property.price}€
-Skupaj (%): ${commissionPercentage}%
-Skupaj provizija znesek: ${commissionAmount}€
-(-20 € - KW cares): -${kwCaresDeduction}€
+          new Paragraph({
+            children: [
+              new TextRun(`Kupec: ${transaction.buyers.map(b => `${b.firstName} ${b.lastName}`).join(', ')}. `),
+              new TextRun(`Plačnik: ${formatCheckbox(transaction.buyers[0]?.isPayer)}, `),
+              new TextRun(`št. računa: ${transaction.buyers[0]?.bankAccount || 'N/A'}, `),
+              new TextRun({
+                text: `plačano: ${formatCheckbox(transaction.buyers[0]?.hasPaid)}.`,
+                break: true
+              }),
+            ]
+          }),
 
-Znesek provizije, ki vam ga je potrebno nakazati: ${finalCommissionAmount}€
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `Kdo je zastopal kupca (ime in priimek agenta): ${transaction.agent.firstName} ${transaction.agent.lastName}.`,
+                break: true
+              }),
+            ]
+          }),
 
-REFERRAL/NAPOTITEV: 
-napotitev ste prejeli: ${transaction.referralReceived ? 'DA' : 'NE'}
-Kdo vam ga je posredoval: ${transaction.referralFrom || 'N/A'}
-napotitev ste posredovali: ${transaction.referralGiven ? 'DA' : 'NE'}
-Komu ste ga posredovali: ${transaction.referralTo || 'N/A'}
-Višina dogovorjenega refferal-a za obračun: ${transaction.referralPercentage || '0'}%
+          new Paragraph({
+            children: [
+              new TextRun(`Prodajna cena: ${transaction.property.price}€. `),
+              new TextRun(`Skupaj (%): ${commissionPercentage}%. `),
+              new TextRun(`Skupaj provizija znesek: ${commissionAmount}€, `),
+              new TextRun({
+                text: `(-20 € - KW cares): -${kwCaresDeduction}€`,
+                break: true
+              }),
+            ]
+          }),
 
-Interne dodatne storitve: ${additionalServicesString}
-Zunanji pogodbeni dobavitelji: ${transaction.externalContractors || 'N/A'}
-Provizija od dobavitelja: ${transaction.contractorCommission || 'N/A'}
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `Znesek provizije, ki vam ga je potrebno nakazati: ${finalCommissionAmount}€. (če gre za delitev potem je to 70%, v kolikor ste capper potem odštejete 10% franšize). `,
+                break: true
+              }),
+            ]
+          }),
 
-Kdo je vodil prodajni postopek (ime in priimek): ${transaction.agent.firstName} ${transaction.agent.lastName}
-Odgovoren za prodajno pogodbo (ime, priimek in naziv družbe): ${transaction.contractPreparedBy || 'N/A'}
-Datum zaključka: ${new Date(transaction.handoverDeadline).toLocaleDateString()}
-`;
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `REFERRAL/NAPOTITEV: `,
+                bold: true,
+                underline: true,
+                break: true
+              }),
+            ]
+          }),
 
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-  saveAs(blob, `transaction_report_${transaction.property.mainPropertyId}.txt`);
-};
+          new Paragraph({
+            children: [
+              new TextRun(`napotitev ste prejeli: ${transaction.referralReceived ? 'DA' : 'NE'}. `),
+              new TextRun(`Kdo vam ga je posredoval: ${transaction.referralFrom || 'N/A'}, `),
+              new TextRun(`napotitev ste posredovali: ${transaction.referralGiven ? 'DA' : 'NE'}. `),
+              new TextRun(`Komu ste ga posredovali: ${transaction.referralTo || 'N/A'}. `),
+              new TextRun({
+                text: `Višina dogovorjenega refferal-a za obračun: ${transaction.referralPercentage || '0'}%.`,
+                break: true
+              }),
+            ]
+          }),
+
+          new Paragraph({
+            children: [
+              new TextRun(`Interne dodatne storitve: ${additionalServicesString}. `),
+              new TextRun(`Zunanji pogodbeni dobavitelji: ${transaction.externalContractors || 'N/A'}. `),
+              new TextRun({
+                text: `Provizija od dobavitelja: ${transaction.contractorCommission || 'N/A'}. `,
+                break: true
+              }),
+
+            ]
+          }),
+
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `Kdo je vodil prodajni postopek (ime in priimek): ${transaction.agent.firstName} ${transaction.agent.lastName}`,
+                break: true
+              }),
+
+            ]
+          }),
+
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `Odgovoren za prodajno pogodbo (ime, priimek in naziv družbe): ${transaction.contractPreparedBy || 'N/A'}`,
+                break: true
+              }),
+            ]
+          }),
+
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `Datum zaključka: ${new Date(transaction.handoverDeadline).toLocaleDateString()}`,
+                break: true
+              }),
+            ]
+          }),
+        ]
+      }]
+    })
+
+    Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, `transakcija_${transaction.property.mainPropertyId}.docx`);
+    });
+  };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '20' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Enter transaction ID"
+            style={{
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #ddd',
+              flex: 1,
+              maxWidth: '600px'
+            }}
+          />
+          <button type="submit"
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#b40101',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}>Search</button>
+        </form>
+      </div>
       <h2>Transaction Search</h2>
-      
-      <form onSubmit={handleSearch}>
-        <input 
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Enter transaction ID"
-          style={{ padding: '5px', marginRight: '10px' }}
-        />
-        <button type="submit">Search</button>
-      </form>
+
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {transaction && (
-        <div style={{ marginTop: '20px', width: '80%', margin: '0 auto' }}>
-          <h3>Transaction Details</h3>
-          
-          <h4>Agent Information</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>Name</th>
-                <th style={headerStyle}>Address</th>
-                <th style={headerStyle}>GSM</th>
-                <th style={headerStyle}>Email</th>
-                <th style={headerStyle}>EMSO</th>
-                <th style={headerStyle}>Tax Number</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={cellStyle}>{`${transaction.agent.firstName} ${transaction.agent.lastName}`}</td>
-                <td style={cellStyle}>{transaction.agent.address}</td>
-                <td style={cellStyle}>{transaction.agent.gsm}</td>
-                <td style={cellStyle}>{transaction.agent.email}</td>
-                <td style={cellStyle}>{transaction.agent.emso}</td>
-                <td style={cellStyle}>{transaction.agent.taxNumber}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div>
+          {/* headers */}
+          <div style={{
+            display: 'flex',
+            borderBottom: '2px solid #ddd',
+            marginBottom: '20px'
+          }}>
+            { /* creates a clickable tab of each input */}
+            {['agent', 'sellers', 'buyers', 'property'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  padding: '10px 20px',
+                  border: 'none',
+                  background: 'none',
+                  borderBottom: activeTab === tab ? '2px solid #b40101' : 'none',
+                  color: activeTab === tab ? '#b40101' : '#333',
+                  fontWeight: activeTab === tab ? 'bold' : 'normal',
+                  cursor: 'pointer',
+                  marginBottom: '-2px'
+                }}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
 
-          <h4>Sellers Information</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>Name</th>
-                <th style={headerStyle}>Address</th>
-                <th style={headerStyle}>GSM</th>
-                <th style={headerStyle}>Email</th>
-                <th style={headerStyle}>EMSO</th>
-                <th style={headerStyle}>Tax Number</th>
-                <th style={headerStyle}>Bank Account</th>
-                <th style={headerStyle}>Bank Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transaction.sellers.map((seller, index) => (
-                <tr key={index}>
-                  <td style={cellStyle}>{`${seller.firstName} ${seller.lastName}`}</td>
-                  <td style={cellStyle}>{seller.address}</td>
-                  <td style={cellStyle}>{seller.gsm}</td>
-                  <td style={cellStyle}>{seller.email}</td>
-                  <td style={cellStyle}>{seller.emso}</td>
-                  <td style={cellStyle}>{seller.taxNumber}</td>
-                  <td style={cellStyle}>{seller.bankAccount}</td>
-                  <td style={cellStyle}>{seller.bankName}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* content for each tab */}
+          <div style={{ padding: '20px' }}>
+            {activeTab === 'agent' && (
+              <div>
+                <h3>Agent Information</h3>
+                <div style={{ marginTop: '15px' }}>
+                  <p><strong>Name:</strong> {transaction.agent.firstName} {transaction.agent.lastName} </p>
+                  <p><strong>Address:</strong> {transaction.agent.address} </p>
+                  <p><strong>GSM:</strong> {transaction.agent.gsm} </p>
+                  <p><strong>Email:</strong> {transaction.agent.email} </p>
+                  <p><strong>EMSO:</strong> {transaction.agent.emso} </p>
+                </div>
+              </div>
+            )}
 
-          <h4>Buyers Information</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>Name</th>
-                <th style={headerStyle}>Address</th>
-                <th style={headerStyle}>GSM</th>
-                <th style={headerStyle}>Email</th>
-                <th style={headerStyle}>EMSO</th>
-                <th style={headerStyle}>Tax Number</th>
-                <th style={headerStyle}>Bank Account</th>
-                <th style={headerStyle}>Bank Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transaction.buyers.map((buyer, index) => (
-                <tr key={index}>
-                  <td style={cellStyle}>{`${buyer.firstName} ${buyer.lastName}`}</td>
-                  <td style={cellStyle}>{buyer.address}</td>
-                  <td style={cellStyle}>{buyer.gsm}</td>
-                  <td style={cellStyle}>{buyer.email}</td>
-                  <td style={cellStyle}>{buyer.emso}</td>
-                  <td style={cellStyle}>{buyer.taxNumber}</td>
-                  <td style={cellStyle}>{buyer.bankAccount}</td>
-                  <td style={cellStyle}>{buyer.bankName}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            {activeTab === 'sellers' && (
+              sellers.map((seller, index) => (
+              <div key={index}>
+                <h3>Seller Information</h3>
+                <div style={{ marginTop: '15px' }}>
+                  <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`} </p>
+                  <p><strong>Address:</strong> {seller.address} </p>
+                  <p><strong>GSM:</strong> {seller.gsm} </p>
+                  <p><strong>Email:</strong> {seller.email} </p>
+                  <p><strong>Emso:</strong> {seller.emso} </p>
+                  <p><strong>Tax Number:</strong> {seller.taxNumber} </p>
+                  <p><strong>Bank Account:</strong> {seller.bankAccount} </p>
+                  <p><strong>Bank Name:</strong> {seller.bankName} </p>
+                </div>
+              </div>
+              ))
+            )}
 
-          <h4>Property Information</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>ID</th>
-                <th style={headerStyle}>Address</th>
-                <th style={headerStyle}>Type</th>
-                <th style={headerStyle}>Price</th>
-                <th style={headerStyle}>New Build</th>
-                <th style={headerStyle}>Agricultural</th>
-                <th style={headerStyle}>Preemption</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={cellStyle}>{transaction.property.mainPropertyId}</td>
-                <td style={cellStyle}>{transaction.property.address}</td>
-                <td style={cellStyle}>{transaction.property.type}</td>
-                <td style={cellStyle}>{transaction.property.price}</td>
-                <td style={cellStyle}>{transaction.property.isNewBuild ? 'Yes' : 'No'}</td>
-                <td style={cellStyle}>{transaction.property.isAgriculturalLand ? 'Yes' : 'No'}</td>
-                <td style={cellStyle}>{transaction.property.preemptionRight ? 'Yes' : 'No'}</td>
-              </tr>
-            </tbody>
-          </table>
+            {activeTab === 'buyers' && (
+              buyers.map((buyer, index) => (
+              <div key={index}>
+                <h3>Buyer Information</h3>
+                <div style={{ marginTop: '15px' }}>
+                  <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
+                  <p><strong>Address:</strong> {buyer.address} </p>
+                  <p><strong>GSM:</strong> {buyer.gsm} </p>
+                  <p><strong>Email:</strong> {buyer.email} </p>
+                  <p><strong>Emso:</strong> {buyer.emso} </p>
+                  <p><strong>Tax Number:</strong> {buyer.taxNumber} </p>
+                  <p><strong>Bank Account:</strong> {buyer.bankAccount} </p>
+                  <p><strong>Bank Name:</strong> {buyer.bankName} </p>
+                </div>
+              </div>
+              ))
+            )}
 
-          <h4>Property Pricing Details</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>Property Price</th>
-                <th style={headerStyle}>Equipment Price</th>
-                <th style={headerStyle}>Other Price</th>
-                <th style={headerStyle}>Total Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={cellStyle}>{transaction.property.sellingPrice?.property || 0}</td>
-                <td style={cellStyle}>{transaction.property.sellingPrice?.equipment || 0}</td>
-                <td style={cellStyle}>{transaction.property.sellingPrice?.other || 0}</td>
-                <td style={cellStyle}>
-                  {(transaction.property.sellingPrice?.property || 0) + 
-                   (transaction.property.sellingPrice?.equipment || 0) + 
-                   (transaction.property.sellingPrice?.other || 0)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            {activeTab === 'property' && (
+              <div>
+                <h3>Property Information</h3>
+                <div style={{ marginTop: '15px' }}>
+                  <p><strong>ID:</strong> {transaction.property.mainPropertyId} </p>
+                  <p><strong>Address:</strong> {transaction.property.address} </p>
+                  <p><strong>Type:</strong> {transaction.property.type} </p>
+                  <p><strong>Price:</strong> €{transaction.property.price} </p>
+                  <p><strong>New build</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'} </p>
+                  <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'} </p>
+                  <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'} </p>
+                </div>
+              </div>
+            )}
 
-          <h4>Payment Details</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>Type</th>
-                <th style={headerStyle}>Amount</th>
-                <th style={headerStyle}>Deadline</th>
-                <th style={headerStyle}>Account</th>
-                <th style={headerStyle}>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={cellStyle}>Deposit</td>
-                <td style={cellStyle}>{transaction.paymentDetails.deposit.amount}</td>
-                <td style={cellStyle}>
-                  {transaction.paymentDetails.deposit.deadline && 
-                   new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
-                </td>
-                <td style={cellStyle}>{transaction.paymentDetails.deposit.account}</td>
-                <td style={cellStyle}>
-                  Already paid: {transaction.paymentDetails.deposit.alreadyPaid?.amount || 0} to 
-                  {transaction.paymentDetails.deposit.alreadyPaid?.account}
-                </td>
-              </tr>
-              <tr>
-                <td style={cellStyle}>Remaining</td>
-                <td style={cellStyle}>{transaction.paymentDetails.remaining.amount}</td>
-                <td style={cellStyle}>
-                  {transaction.paymentDetails.remaining.deadline && 
-                   new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
-                </td>
-                <td style={cellStyle}>{transaction.paymentDetails.remaining.account}</td>
-                <td style={cellStyle}>{transaction.paymentDetails.remaining.additionalNotes}</td>
-              </tr>
-            </tbody>
-          </table>
-          <h4>Mortgage Information</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>Buyer has Mortgage</th>
-                <th style={headerStyle}>Mortgage Amount (€)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={cellStyle}>{transaction.buyerMortgage ? 'Yes' : 'No'}</td>
-                <td style={cellStyle}>{transaction.mortgageAmount || 0}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <h4>Payment Description</h4>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={headerStyle}>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={cellStyle}>{transaction.paymentDescription || 'No description provided.'}</td>
-              </tr>
-            </tbody>
-          </table>
-
-<button 
-  onClick={generateReport} 
-  style={{ 
-    marginTop: '10px',
-    padding: '8px 16px',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer'
-  }}
-  disabled={!transaction}
->
-  Generate Report
-</button>
-
+            <button
+              onClick={generateReport}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#b40101',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: 'fit-content'
+              }}
+            >
+              Generate Report
+            </button>
+          </div>
         </div>
       )}
     </div>
-    
   );
 };
 
 const tableStyle = {
-  width: '80%', 
-  maxWidth: '1000px', 
+  width: '80%',
+  maxWidth: '1000px',
   borderCollapse: 'collapse',
   marginBottom: '20px',
-  marginLeft: 'auto', 
-  marginRight: 'auto' 
+  marginLeft: 'auto',
+  marginRight: 'auto'
 };
 
 const headerStyle = {
