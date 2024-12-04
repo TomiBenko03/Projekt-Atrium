@@ -222,20 +222,32 @@ const TransactionSearchPage = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ 
+      padding: '20px', 
+      maxWidth: '1200px', 
+      margin: '40px auto',
+      backgroundColor: '#f8f8f8',
+      borderRadius: '8px',
+      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)'
+
+      }}>
       <div style={{ marginBottom: '20' }}>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+        <h1 style={{ color: '#333', textAlign: 'center', marginBottom: '20px' }}>Search Transactions</h1>
+        <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Enter transaction ID"
             style={{
-              padding: '8px 12px',
+              padding: '10px 15px',
               borderRadius: '4px',
               border: '1px solid #ddd',
               flex: 1,
-              maxWidth: '600px'
+              maxWidth: '600px',
+              width: '40%',
+              marginBottom: '10px',
+              boxSizing: 'border-box'
             }}
           />
           <button type="submit"
@@ -245,11 +257,12 @@ const TransactionSearchPage = () => {
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              width: '40%',
+              marginBottom: '10px'
             }}>Search</button>
         </form>
       </div>
-      <h2>Search Transactions</h2>
 
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
