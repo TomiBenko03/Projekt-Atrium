@@ -3,7 +3,7 @@ const Agent = require('../models/Agent');
 // Create a new agent
 const createAgent = async (req, res) => {
     try {
-        const { firstName, lastName, address, gsm, email, emso, taxNumber } = req.body;
+        const { firstName, lastName, address, gsm, email, emso, taxNumber, password } = req.body;
 
         // Create a new agent document
         const newAgent = new Agent({
@@ -14,6 +14,7 @@ const createAgent = async (req, res) => {
             email,
             emso,
             taxNumber,
+            password
         });
 
         // Save the agent to the database
@@ -35,7 +36,42 @@ const getAllAgents = async (req, res) => {
     }
 };
 
+const login = async (req, res, next) => {
+    try{
+        const agent = await Agent.authenticate(req.body.email, req.body.password);
+
+        req.session.agentId = agent._id;
+        return res.json(agent);
+    }
+    catch (err) {
+        const error = new Error('Wrong email or password');
+        error.status = 401;
+        return next(error);
+    }
+};
+
+const logout = (req, res, next) => {
+    if(req.session) {
+        req.session.destroy(function (err) {
+            if(err) {
+                console.error('Error destroying session: ', err);
+                return next(err);
+            }
+            else{
+                console.log('Session destroyed successfully');
+                return res.status(201).json({ message: 'Logged out successfully' });
+            }
+        });
+    }
+    else{
+        console.log('No sessions to destroy');
+        return res.status(400).json({ message: 'No session to destroy' });
+    }
+};
+
 module.exports = {
     createAgent,
-    getAllAgents
+    getAllAgents,
+    login,
+    logout
 };

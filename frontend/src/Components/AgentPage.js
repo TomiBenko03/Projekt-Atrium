@@ -10,6 +10,7 @@ const AgentPage = () => {
         email: '',
         emso: '',
         taxNumber: '',
+        password: ''
     });
 
     const [message, setMessage] = useState('');
@@ -25,7 +26,7 @@ const AgentPage = () => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:3001/api/agents', formData);
-            setMessage(`Agent created successfully: ${response.data.agent.firstName} ${response.data.agent.lastName}`);
+            setMessage(`Agent registered successfully: ${response.data.agent.firstName} ${response.data.agent.lastName}`);
             // Reset form
             setFormData({
                 firstName: '',
@@ -35,10 +36,11 @@ const AgentPage = () => {
                 email: '',
                 emso: '',
                 taxNumber: '',
+                password: ''
             });
         } catch (error) {
-            console.error('Error creating agent:', error);
-            setMessage('Failed to create agent. error.');
+            console.error('Error registering agent:', error);
+            setMessage('Failed to register agent. error.');
         }
     };
 
@@ -120,6 +122,17 @@ const AgentPage = () => {
                         id="taxNumber"
                         name="taxNumber"
                         value={formData.taxNumber}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                    <label htmlFor="password">Password:</label>
+                    <input
+                        type="text"
+                        id="password"
+                        name="password"
+                        value={formData.password}
                         onChange={handleChange}
                         required
                     />

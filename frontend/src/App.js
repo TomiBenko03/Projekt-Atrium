@@ -6,6 +6,9 @@ import PropertyPage from './Components/PropertyPage'; // Adjust the path based o
 import SellerPage from './Components/SellerPage';
 import TransactionPage from './Components/TransactionPage';
 import TransactionSearchPage from './Components/TransactionSearchPage';
+import LoginPage from './Components/LoginPage';
+import { UserContext } from './userContext';
+import LogoutPage from './Components/LogoutPage';
 
 function App() {
     const [data, setData] = useState(null);
@@ -16,17 +19,46 @@ function App() {
             .then((data) => setData(data.message));
     }, []);
 
+    const [user, setUser] = useState(localStorage.user ? JSON.parse(localStorage.user) : null);
+    const updateUserData = (userInfo) => {
+        localStorage.setItem("user", JSON.stringify(userInfo));
+        setUser(userInfo);
+    };
+
     return (
         <Router>
+            <UserContext.Provider value = {{
+                user: user,
+                setUserContext: updateUserData
+            }}>
+                
             <nav>
                 <ul>
-                    <li><Link to="/">Home</Link></li>
-                    <li><Link to="/agent">Agent Page</Link></li>
-                    <li><Link to="/buyer">Buyer Page</Link></li>
-                    <li><Link to="/seller">Seller Page</Link></li>
-                    <li><Link to="/property">Property Page</Link></li>
-                    <li><Link to="/transaction">Transaction Page</Link></li>
-                    <li><Link to="/transaction/search">Transaction Search</Link></li>
+                    {user ? (
+                        <>
+                        <span className="username">Welcome, {user.firstName} {user.lastName}</span>
+
+                        <li><Link to="/">Home</Link></li>
+                        <li><Link to="/logout">Logout</Link></li>
+                        <li><Link to="/buyer">Buyer Page</Link></li>
+                        <li><Link to="/seller">Seller Page</Link></li>
+                        <li><Link to="/property">Property Page</Link></li>
+                        <li><Link to="/transaction">Transaction Page</Link></li>
+                        <li><Link to="/transaction/search">Transaction Search</Link></li>
+                        </>
+                    ) : (
+                        <>
+                        <li><Link to="/">Home</Link></li>
+                        <li><Link to="/agent">Register</Link></li>
+                        <li><Link to="/login">Login</Link></li>
+                        <li><Link to="/buyer">Buyer Page</Link></li>
+                        <li><Link to="/seller">Seller Page</Link></li>
+                        <li><Link to="/property">Property Page</Link></li>
+                        <li><Link to="/transaction">Transaction Page</Link></li>
+                        <li><Link to="/transaction/search">Transaction Search</Link></li>
+                        </>
+                    )}
+                   
                 </ul>
             </nav>
             <Routes>
@@ -37,12 +69,16 @@ function App() {
                     </div>
                 } />
                 <Route path="/agent" element={<AgentPage />} />
+                <Route path="/login" element={<LoginPage />}  />
+                <Route path="/logout" element={<LogoutPage />}  />
                 <Route path="/buyer" element={<BuyerPage />} />
                 <Route path="/seller" element={<SellerPage />} />
                 <Route path="/property" element={<PropertyPage/>} />
                 <Route path="/transaction" element={<TransactionPage/>} />
                 <Route path="/transaction/search" element={<TransactionSearchPage/>} />
             </Routes>
+
+            </UserContext.Provider>
         </Router>
     );
 }

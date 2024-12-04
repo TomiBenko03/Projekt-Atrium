@@ -36,6 +36,23 @@ mongoose
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Error connecting to MongoDB:', err));
 
+
+// Enables session support
+var session = require('express-session');
+var MongoStore = require('connect-mongo');
+app.use(session({
+  secret: 'black mold on my ceiling',
+  resave: true,
+  saveUninitialized: false,
+  store: MongoStore.create({mongoUrl: mongoURI})
+}));
+
+// Make session available in all views
+app.use(function (req, res, next) {
+  res.locals.sessions = req.session;
+  next();
+});
+
 // Routes
 app.use('/api/agents', agentRoutes);
 app.use('/api/buyer', buyerRoutes);
