@@ -249,7 +249,7 @@ const TransactionSearchPage = () => {
             }}>Search</button>
         </form>
       </div>
-      <h2>Transaction Search</h2>
+      <h2>Search Transactions</h2>
 
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -263,7 +263,7 @@ const TransactionSearchPage = () => {
             marginBottom: '20px'
           }}>
             { /* creates a clickable tab of each input */}
-            {['agent', 'sellers', 'buyers', 'property'].map((tab) => (
+            {['agent', 'sellers', 'buyers', 'property', 'payment Details', 'buyer Mortgage'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -300,37 +300,37 @@ const TransactionSearchPage = () => {
 
             {activeTab === 'sellers' && (
               sellers.map((seller, index) => (
-              <div key={index}>
-                <h3>Seller Information</h3>
-                <div style={{ marginTop: '15px' }}>
-                  <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`} </p>
-                  <p><strong>Address:</strong> {seller.address} </p>
-                  <p><strong>GSM:</strong> {seller.gsm} </p>
-                  <p><strong>Email:</strong> {seller.email} </p>
-                  <p><strong>Emso:</strong> {seller.emso} </p>
-                  <p><strong>Tax Number:</strong> {seller.taxNumber} </p>
-                  <p><strong>Bank Account:</strong> {seller.bankAccount} </p>
-                  <p><strong>Bank Name:</strong> {seller.bankName} </p>
+                <div key={index}>
+                  <h3>Seller Information</h3>
+                  <div style={{ marginTop: '15px' }}>
+                    <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`} </p>
+                    <p><strong>Address:</strong> {seller.address} </p>
+                    <p><strong>GSM:</strong> {seller.gsm} </p>
+                    <p><strong>Email:</strong> {seller.email} </p>
+                    <p><strong>Emso:</strong> {seller.emso} </p>
+                    <p><strong>Tax Number:</strong> {seller.taxNumber} </p>
+                    <p><strong>Bank Account:</strong> {seller.bankAccount} </p>
+                    <p><strong>Bank Name:</strong> {seller.bankName} </p>
+                  </div>
                 </div>
-              </div>
               ))
             )}
 
             {activeTab === 'buyers' && (
               buyers.map((buyer, index) => (
-              <div key={index}>
-                <h3>Buyer Information</h3>
-                <div style={{ marginTop: '15px' }}>
-                  <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
-                  <p><strong>Address:</strong> {buyer.address} </p>
-                  <p><strong>GSM:</strong> {buyer.gsm} </p>
-                  <p><strong>Email:</strong> {buyer.email} </p>
-                  <p><strong>Emso:</strong> {buyer.emso} </p>
-                  <p><strong>Tax Number:</strong> {buyer.taxNumber} </p>
-                  <p><strong>Bank Account:</strong> {buyer.bankAccount} </p>
-                  <p><strong>Bank Name:</strong> {buyer.bankName} </p>
+                <div key={index}>
+                  <h3>Buyer Information</h3>
+                  <div style={{ marginTop: '15px' }}>
+                    <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
+                    <p><strong>Address:</strong> {buyer.address} </p>
+                    <p><strong>GSM:</strong> {buyer.gsm} </p>
+                    <p><strong>Email:</strong> {buyer.email} </p>
+                    <p><strong>Emso:</strong> {buyer.emso} </p>
+                    <p><strong>Tax Number:</strong> {buyer.taxNumber} </p>
+                    <p><strong>Bank Account:</strong> {buyer.bankAccount} </p>
+                    <p><strong>Bank Name:</strong> {buyer.bankName} </p>
+                  </div>
                 </div>
-              </div>
               ))
             )}
 
@@ -345,6 +345,43 @@ const TransactionSearchPage = () => {
                   <p><strong>New build</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'} </p>
                   <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'} </p>
                   <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'} </p>
+
+                  <h3 style={{ marginTop: '20px', marginBottom: '-10px', textDecoration: 'underline' }}>Price Details</h3>
+                  <p><strong>Property:</strong> €{transaction.property.sellingPrice.property} </p>
+                  <p><strong>Equipment:</strong> €{transaction.property.sellingPrice.equipment} </p>
+                  <p><strong>Other:</strong> €{transaction.property.sellingPrice.other} </p>
+                  <p><strong>Total:</strong> €{(
+                    (transaction.property.sellingPrice.property || 0) +
+                    (transaction.property.sellingPrice.equipment || 0) +
+                    (transaction.property.sellingPrice.other || 0))} </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'payment Details' && (
+              <div>
+                <h3>Payment Details</h3>
+                <div style={{ marginTop: '15px' }}>
+                  <h3 style={{ marginTop: '20px', marginBottom: '-10px', textDecoration: 'underline' }}>Deposit</h3>
+                  <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount} </p>
+                  <p><strong>Deadline:</strong> {transaction.paymentDetails.deposit.deadline && new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()} </p>
+                  <p><strong>Account:</strong> {transaction.paymentDetails.deposit.account} </p>
+                  
+
+                  <h3 style={{ marginTop: '20px', marginBottom: '-10px', textDecoration: 'underline' }}>Remaining</h3>
+                  <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount} </p>
+                  <p><strong>Deadline:</strong> {transaction.paymentDetails.remaining.deadline && new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()} </p>
+                  <p><strong>Account:</strong> {transaction.paymentDetails.remaining.account} </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'buyer Mortgage' && (
+              <div>
+                <h3>Mortgage Information</h3>
+                <div style={{ marginTop: '15px' }}>
+                  <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No' } </p>
+                  <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0} </p>
                 </div>
               </div>
             )}
