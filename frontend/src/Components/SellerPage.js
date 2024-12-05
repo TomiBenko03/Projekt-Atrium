@@ -27,7 +27,9 @@ const SellerPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3001/api/sellers', formData);
+            const response = await axios.post('http://localhost:3001/api/sellers', formData, {
+                withCredentials: true
+            });
             setMessage(`Seller created successfully: ${response.data.seller.firstName} ${response.data.seller.lastName}`);
             // Reset form
             setFormData({

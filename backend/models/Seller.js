@@ -10,6 +10,7 @@ const sellerSchema = new mongoose.Schema({
     taxNumber: { type: String, required: true },
     bankAccount: { type: String, required: true },
     bankName: { type: String, required: true },
+    agentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Agent' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Seller', sellerSchema);

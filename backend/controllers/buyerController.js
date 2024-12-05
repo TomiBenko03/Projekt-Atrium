@@ -1,11 +1,10 @@
 const Buyer = require('../models/Buyer');
 
-// Create a new agent
 const createBuyer = async (req, res) => {
     try {
         const { firstName, lastName, address, gsm, email, emso, taxNumber, bankAccount, bankName } = req.body;
+        const agentId = req.session.agentId;
 
-        // Create a new agent document
         const newBuyer = new Buyer({
             firstName,
             lastName,
@@ -16,9 +15,9 @@ const createBuyer = async (req, res) => {
             taxNumber,
             bankAccount,
             bankName,
+            agentId
         });
 
-        // Save the agent to the database
         const savedBuyer = await newBuyer.save();
         res.status(201).json({ message: 'Buyer created successfully', buyer: savedBuyer });
     } catch (error) {
@@ -27,6 +26,18 @@ const createBuyer = async (req, res) => {
     }
 };
 
+const getAgentBuyers = async(req, res) => {
+    try {
+        const agentId = req.session.agentId;
+        const buyers = await Buyer.find({ agentId });
+        res.status(200).json(buyers);
+    } catch (error) {
+        console.error('Error fetching buyers:', error);
+        res.status(500).json({ message: 'Failed to fetch buyers', error });
+    }
+};
+
 module.exports = {
     createBuyer,
+    getAgentBuyers
 };

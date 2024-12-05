@@ -24,11 +24,12 @@ const LoginPage = () => {
     const handleLogin = async(e) => {
         e.preventDefault();
         try{
-            const response = await axios.post('http://localhost:3001/api/agents/login', formData);
+            const response = await axios.post('http://localhost:3001/api/agents/login', formData, {
+                withCredentials: true
+            });
 
-            const data = response.data;
-            if(data._id !== undefined){
-                userContext.setUserContext(data);
+            if(response.data._id){
+                userContext.setUserContext(response.data);
                 navigate('/');
             }
             else{

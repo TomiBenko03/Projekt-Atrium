@@ -1,11 +1,9 @@
 const Agent = require('../models/Agent');
 
-// Create a new agent
 const createAgent = async (req, res) => {
     try {
         const { firstName, lastName, address, gsm, email, emso, taxNumber, password } = req.body;
 
-        // Create a new agent document
         const newAgent = new Agent({
             firstName,
             lastName,
@@ -14,10 +12,9 @@ const createAgent = async (req, res) => {
             email,
             emso,
             taxNumber,
-            password
+            password,
         });
 
-        // Save the agent to the database
         const savedAgent = await newAgent.save();
         res.status(201).json({ message: 'Agent created successfully', agent: savedAgent });
     } catch (error) {
@@ -68,6 +65,7 @@ const logout = (req, res, next) => {
         return res.status(400).json({ message: 'No session to destroy' });
     }
 };
+
 
 module.exports = {
     createAgent,

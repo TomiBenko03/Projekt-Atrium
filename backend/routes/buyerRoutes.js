@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { createBuyer } = require('../controllers/buyerController');
+const { createBuyer, getAgentBuyers } = require('../controllers/buyerController');
+const authMiddleware = require('../middleware/auth');
 
-// POST /api/agents - Create a new agent
-router.post('/', createBuyer);
+router.post('/', authMiddleware, createBuyer);
+router.post('/agentBuyers', authMiddleware, getAgentBuyers);
 
 module.exports = router;

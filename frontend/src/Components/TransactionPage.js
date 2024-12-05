@@ -4,8 +4,6 @@ import '../App.css';
 
 const TransactionPage = () => {
     const [formData, setFormData] = useState({
-        agentFirstName: '',
-        agentLastName: '',
         sellers: '',
         sellerSurnames: '',
         buyers: '',
@@ -64,12 +62,12 @@ const TransactionPage = () => {
                 mortgageAmount: parseFloat(formData.mortgageAmount) || 0,
             };
 
-            const response = await axios.post('/api/transactions', parsedData);
+            const response = await axios.post('http://localhost:3001/api/transactions', parsedData, {
+                withCredentials: true
+            });
             setMessage(`Transaction created successfully, prepared by: ${response.data.transaction.contractPreparedBy}`);
             setError('');
             setFormData({
-                agentFirstName: '',
-                agentLastName: '',
                 sellers: '',
                 sellerSurnames: '',
                 buyers: '',
@@ -103,26 +101,6 @@ const TransactionPage = () => {
             {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
 
             <form onSubmit={handleSubmit}>
-                <div className='form-group'>
-                    <label>Agent First Name:</label>
-                    <input
-                        type="text"
-                        name="agentFirstName"
-                        value={formData.agentFirstName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Agent Last Name:</label>
-                    <input
-                        type="text"
-                        name="agentLastName"
-                        value={formData.agentLastName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
                 <div className='form-group'>
                     <label>Sellers (comma-separated first names):</label>
                     <input

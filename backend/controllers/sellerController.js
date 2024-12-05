@@ -1,10 +1,11 @@
+const Agent = require('../models/Agent');
 const Seller = require('../models/Seller');
 
 const createSeller = async(req, res) => {
     try {
         const { firstName, lastName, address, gsm, email, emso, taxNumber, bankAccount, bankName } = req.body;
+        const agentId = req.session.agentId;
 
-        // Create a new seller document
         const newSeller = new Seller({
             firstName,
             lastName,
@@ -14,10 +15,10 @@ const createSeller = async(req, res) => {
             emso,
             taxNumber,
             bankAccount,
-            bankName
+            bankName,
+            agentId
         });
 
-        // Save the seller to the database
         const savedSeller = await newSeller.save();
         res.status(201).json({ message: 'Seller created successfully', seller: savedSeller });
     } catch (error) {
@@ -26,7 +27,19 @@ const createSeller = async(req, res) => {
     }
 };
 
+const getAgentSellers = async(req, res) => {
+    try {
+        const agentId = req.session.agentId;
+        const sellers = await Seller.find({ agentId });
+        res.status(200).json(sellers);
+    } catch (error) {
+        console.error('Error fetching sellers:', error);
+        res.status(500).json({ message: 'Failed to fetch sellers', error });
+    }
+};
+
 module.exports = {
     createSeller,
+    getAgentSellers
 };
 

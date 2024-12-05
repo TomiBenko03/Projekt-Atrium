@@ -26,7 +26,9 @@ const BuyerPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3001/api/Buyer', formData);
+            const response = await axios.post('http://localhost:3001/api/buyer', formData, {
+                withCredentials: true
+            });
             setMessage(`buyer created successfully: ${response.data.buyer.firstName} ${response.data.buyer.lastName}`);
             // Reset form
             setFormData({
@@ -42,6 +44,9 @@ const BuyerPage = () => {
             });
         } catch (error) {
             console.error('Error creating buyer:', error);
+            if(error.response.status === 401) {
+                setMessage('Unauthorized. Please login.');
+            }
             setMessage('Failed to create buyer. error.');
         }
     };

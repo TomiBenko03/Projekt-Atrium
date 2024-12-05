@@ -8,8 +8,6 @@ const Property = require('../models/Property');
 const createTransaction = async (req, res) => {
     try {
         const {
-            agentFirstName,
-            agentLastName,
             sellers,
             sellerSurnames,
             buyers,
@@ -32,14 +30,15 @@ const createTransaction = async (req, res) => {
             legalDocuments,
         } = req.body;
 
-        // Find the agent by name
-        const agent = await Agent.findOne({ firstName: agentFirstName, lastName: agentLastName });
+        // Find the agent by id
+        const agentId = req.session.agentId;
+        const agent = await Agent.findById(agentId);
         if (!agent) throw new Error('Agent not found');
 
         // Resolve sellers by names
         const sellerIds = await Promise.all(
             (sellers || []).map(async (name, index) => {
-                const seller = await Seller.findOne({ firstName: name.trim(), lastName: sellerSurnames[index]?.trim() });
+                const seller = await Seller.findOne({ firstName: name.trim(), lastName: sellerSurnames[index]?.trim(), agentId: agent._id });
                 if (!seller) throw new Error(`Seller ${name} ${sellerSurnames[index]} not found`);
                 return seller._id;
             })
@@ -48,7 +47,7 @@ const createTransaction = async (req, res) => {
         // Resolve buyers by names
         const buyerIds = await Promise.all(
             (buyers || []).map(async (name, index) => {
-                const buyer = await Buyer.findOne({ firstName: name.trim(), lastName: buyerSurnames[index]?.trim() });
+                const buyer = await Buyer.findOne({ firstName: name.trim(), lastName: buyerSurnames[index]?.trim(), agentId: agent._id });
                 if (!buyer) throw new Error(`Buyer ${name} ${buyerSurnames[index]} not found`);
                 return buyer._id;
             })
@@ -102,7 +101,6 @@ const createTransaction = async (req, res) => {
     }
 };
 
-
 const searchTransaction = async (req, res) => {
     try {
         console.log('Searching for transaction:', req.params.id); // Debug log
@@ -123,7 +121,23 @@ const searchTransaction = async (req, res) => {
     }
 };
 
+const getAgentTransactions = async (req, res) => {
+    try {
+        const agentId = req.session.agentId;
+        const transactions = await Transaction.find({ agent: agentId })
+            .populate('agent')
+            .populate('buyers')
+            .populate('sellers')
+            .populate('property');
+        res.status(200).json(transactions);
+    } catch (error) {
+        console.error('Error fetching transactions:', error);
+        res.status(500).json({ message: 'Failed to fetch transactions', error });
+    }
+};
+
 module.exports = {
     createTransaction,
     searchTransaction,
+    getAgentTransactions,
 };
