@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
+import '../App.css';
 
 const TransactionSearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -222,17 +223,10 @@ const TransactionSearchPage = () => {
   };
 
   return (
-    <div style={{ 
-      padding: '20px', 
-      maxWidth: '1200px', 
-      margin: '40px auto',
-      backgroundColor: '#f8f8f8',
-      borderRadius: '8px',
-      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)'
+    <div className='transaction-form-container'>
 
-      }}>
       <div style={{ marginBottom: '20' }}>
-        <h1 style={{ color: '#333', textAlign: 'center', marginBottom: '20px' }}>Search Transactions</h1>
+        <h1 className='form-header'>Search Transactions</h1>
         <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <input
             type="text"

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import '../App.css';
 
 const TransactionPage = () => {
     const [formData, setFormData] = useState({
@@ -97,212 +98,110 @@ const TransactionPage = () => {
     };
 
     return (
-        <div style={{
-            padding: '20px', 
-            maxWidth: '600px', 
-            margin: 'auto',
-            backgroundColor: "#f8f8f8",
-            borderRadius: '8px',
-            boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)'
-       }}>
-            <h1 style={{ color: '#333', textAlign: 'center', marginBottom: '20px' }}>Transaction Registration</h1>
-            {message && 
-            <p style={{ 
-                color: message.includes('successfully') ? 'green' : 'red',
-                textAlign: 'center',
-                fontWeight: 'bold'
-            }}>
-                {message}
-            </p>}
+        <div className='form-container'>
+            <h1 className='form-header'>Transaction Registration</h1>
+            {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+
             <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Agent First Name:</label>
+                <div className='form-group'>
+                    <label>Agent First Name:</label>
                     <input
                         type="text"
                         name="agentFirstName"
                         value={formData.agentFirstName}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Agent Last Name:</label>
+                <div className='form-group'>
+                    <label>Agent Last Name:</label>
                     <input
                         type="text"
                         name="agentLastName"
                         value={formData.agentLastName}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Sellers (comma-separated first names):</label>
+                <div className='form-group'>
+                    <label>Sellers (comma-separated first names):</label>
                     <input
                         type="text"
                         name="sellers"
                         value={formData.sellers}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
+                        
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Sellers (comma-separated last names):</label>
+                <div className='form-group'>
+                    <label>Sellers (comma-separated last names):</label>
                     <input
                         type="text"
                         name="sellerSurnames"
                         value={formData.sellerSurnames}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Buyers (comma-separated first names):</label>
+                <div className='form-group'>
+                    <label>Buyers (comma-separated first names):</label>
                     <input
                         type="text"
                         name="buyers"
                         value={formData.buyers}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
+                     
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Buyers (comma-separated last names):</label>
+                <div className='form-group'>
+                    <label>Buyers (comma-separated last names):</label>
                     <input
                         type="text"
                         name="buyerSurnames"
                         value={formData.buyerSurnames}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
+                     
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Property Name:</label>
+                <div className='form-group'>
+                    <label>Property Name:</label>
                     <input
                         type="text"
                         name="propertyName"
                         value={formData.propertyName}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Deposit Amount:</label>
+                <div className='form-group'>
+                    <label>Deposit Amount:</label>
                     <input
                         type="number"
                         name="paymentDetailsDepositAmount"
                         value={formData.paymentDetailsDepositAmount}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
+                        
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Deposit Deadline:</label>
+                <div className='form-group'>
+                    <label>Deposit Deadline:</label>
                     <input
                         type="date"
                         name="paymentDetailsDepositDeadline"
                         value={formData.paymentDetailsDepositDeadline}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%',
-                            backgroundColor: '#fff',
-                            boxSizing: 'border-box',
-                            cursor: 'pointer'
-                        }}
+
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Payment Descriptor:</label>
+                <div className='form-group'>
+                    <label>Payment Descriptor:</label>
                     <textarea
                         name="paymentDescriptor"
                         value={formData.paymentDescriptor}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Buyer Mortgage:</label>
+                <div className='form-group'>
+                    <label>Buyer Mortgage:</label>
                     <input
                         type="checkbox"
                         name="buyerMortgage"
@@ -318,95 +217,45 @@ const TransactionPage = () => {
                          }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Mortgage Amount:</label>
+                <div className='form-group'>
+                    <label>Mortgage Amount:</label>
                     <input
                         type="number"
                         name="mortgageAmount"
                         value={formData.mortgageAmount}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Handover Deadline:</label>
+                <div className='form-group'>
+                    <label>Handover Deadline:</label>
                     <input
                         type="date"
                         name="handoverDeadline"
                         value={formData.handoverDeadline}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%',
-                            backgroundColor: '#fff',
-                            boxSizing: 'border-box',
-                            cursor: 'pointer'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Seller Expenses (semicolon-separated, format: description,amount):</label>
+                <div className='form-group'>
+                    <label>Seller Expenses (semicolon-separated, format: description,amount):</label>
                     <input
                         type="text"
                         name="sellerExpenses"
                         value={formData.sellerExpenses}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Buyer Expenses (semicolon-separated, format: description,amount):</label>
+                <div className='form-group'>
+                    <label>Buyer Expenses (semicolon-separated, format: description,amount):</label>
                     <input
                         type="text"
                         name="buyerExpenses"
                         value={formData.buyerExpenses}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <button type="login" 
-                style={{ 
-                    width: '100%',
-                    padding: '8px 16px',
-                    backgroundColor: '#b40101',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                }}>
-                    Log in
+                <button type="login" className='button-primary'>
+                    Add transaction
                 </button>
             </form>
         </div>

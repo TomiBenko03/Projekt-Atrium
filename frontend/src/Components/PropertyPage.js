@@ -79,121 +79,61 @@ const PropertyPage = () => {
     };
 
     return (
-        <div style={{
-            padding: '20px', 
-            maxWidth: '600px', 
-            margin: 'auto',
-            backgroundColor: "#f8f8f8",
-            borderRadius: '8px',
-            boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)'
-       }}>
-            <h1 style={{ color: '#333', textAlign: 'center', marginBottom: '20px' }}>Property Registration</h1>
-            {message && 
-            <p style={{ 
-                color: message.includes('successfully') ? 'green' : 'red',
-                textAlign: 'center',
-                fontWeight: 'bold'
-            }}>
-                {message}
-            </p>}
+        <div className='form-container'>
+            <h1 className='form-header'>Property Registration</h1>
+            {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+
             <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label 
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Main Property ID:</label>
                     <input
                         type="text"
                         name="mainPropertyId"
                         value={formData.mainPropertyId}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Lesser Property IDs (comma-separated):</label>
                     <input
                         type="text"
                         name="lesserProperties"
                         value={formData.lesserProperties}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Address:</label>
                     <input
                         type="text"
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Price:</label>
                     <input
                         type="number"
                         name="price"
                         value={formData.price}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label 
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label >
                         Type:</label>
                     <select 
                     name="type" 
                     value={formData.type} 
                     onChange={handleChange}
-                    style={{
-                        padding: '8px 12px',
-                        borderRadius: '4px',
-                        border: '1px solid #ddd',
-                        flex: 1,
-                        maxWidth: '600px',
-                        width: '96%',
-                        backgroundColor: '#fff',
-                        boxSizing: 'border-box'
-                    }}
                     >
                         <option value="Apartment">Apartment</option>
                         <option value="House">House</option>
@@ -201,9 +141,8 @@ const PropertyPage = () => {
                         <option value="Commercial">Commercial</option>
                     </select>
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Is New Build:</label>
                     <input
                         type="checkbox"
@@ -220,9 +159,8 @@ const PropertyPage = () => {
                         }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Is Agricultural Land:</label>
                     <input
                         type="checkbox"
@@ -239,10 +177,8 @@ const PropertyPage = () => {
                          }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
-                        Preemption Right:</label>
+                <div className='form-group'>
+                    <label>Preemption Right:</label>
                     <input
                         type="checkbox"
                         name="preemptionRight"
@@ -258,95 +194,47 @@ const PropertyPage = () => {
                          }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Selling Price (Property):</label>
                     <input
                         type="number"
                         name="sellingPriceProperty"
                         value={formData.sellingPriceProperty}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Selling Price (Equipment):</label>
                     <input
                         type="number"
                         name="sellingPriceEquipment"
                         value={formData.sellingPriceEquipment}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
-                        Selling Price (Other):</label>
+                <div className='form-group'>
+                    <label>Selling Price (Other):</label>
                     <input
                         type="number"
                         name="sellingPriceOther"
                         value={formData.sellingPriceOther}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+                <div className='form-group'>
+                    <label>
                         Equipment Included (comma-separated):</label>
                     <input
                         type="text"
                         name="equipmentIncluded"
                         value={formData.equipmentIncluded}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                     />
                 </div>
-                <button type="login" 
-                style={{ 
-                    width: '100%',
-                    padding: '8px 16px',
-                    backgroundColor: '#b40101',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                }}>
-                    Log in
+                <button type="login" className='button-primary'>
+                    Add property
                 </button>
             </form>
         </div>

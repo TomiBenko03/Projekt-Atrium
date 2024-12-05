@@ -44,76 +44,33 @@ const LoginPage = () => {
     };
 
     return (
-        <div style={{
-            padding: '20px', 
-            maxWidth: '600px', 
-            margin: 'auto',
-            backgroundColor: "#f8f8f8",
-            borderRadius: '8px',
-            boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)'
-       }}>
-            <h1 style={{ color: '#333', textAlign: 'center', marginBottom: '20px' }}>Agent Login</h1>
-            {message && 
-            <p style={{ 
-                color: message.includes('successfully') ? 'green' : 'red',
-                textAlign: 'center',
-                fontWeight: 'bold'
-            }}>
-                {message}
-            </p>}
+        <div className='form-container'>
+            <h1 className='form-header'>Agent Login</h1>
+            {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
             <form onSubmit={handleLogin}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor='email'
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Email: </label>
+                <div className='form-group'>
+                    <label htmlFor='email'>Email: </label>
                     <input 
                         type='email'
                         id='email'
                         name='email'
                         value={formData.email}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor='password'
-                    style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Password: </label>
+                <div className='form-group'>
+                    <label htmlFor='password'>Password: </label>
                     <input 
                         type='text'
                         id='password'
                         name='password'
                         value={formData.passowrd}
                         onChange={handleChange}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            flex: 1,
-                            maxWidth: '600px',
-                            width: '96%'
-                        }}
                         required
                     />
                 </div>
-                <button type="login" 
-                style={{ 
-                    width: '100%',
-                    padding: '8px 16px',
-                    backgroundColor: '#b40101',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                }}>
+                <button type="login" className='button-primary'>
                     Log in
                 </button>
             </form>
