@@ -30,7 +30,6 @@ const TransactionSearchPage = () => {
     }
   };
 
-
   const formatCheckbox = (value) => {
     return `${value ? '☒' : '☐'} DA ${!value ? '☒' : '☐'} NE`;
   };
@@ -38,7 +37,7 @@ const TransactionSearchPage = () => {
   const generateReport = () => {
     if (!transaction) return;
 
-    // some caluclations needed for the report
+    // some calculations needed for the report
     const commissionPercentage = 4;
     const totalPrice = transaction.property.price;
     const commissionAmount = (totalPrice * commissionPercentage) / 100;
@@ -223,67 +222,35 @@ const TransactionSearchPage = () => {
   };
 
   return (
-    <div className='transaction-form-container'>
-
-      <div style={{ marginBottom: '20' }}>
+    
+      <div className='form-container'>
         <h1 className='form-header'>Search Transactions</h1>
-        <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <form onSubmit={handleSearch} className='search-form'>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Enter transaction ID"
-            style={{
-              padding: '10px 15px',
-              borderRadius: '4px',
-              border: '1px solid #ddd',
-              flex: 1,
-              maxWidth: '600px',
-              width: '40%',
-              marginBottom: '10px',
-              boxSizing: 'border-box'
-            }}
+            className='search-input'
           />
-          <button type="submit"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#b40101',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              width: '40%',
-              marginBottom: '10px'
-            }}>Search</button>
+          <button type="submit" className='button-primary'>
+            Search
+          </button>
         </form>
-      </div>
+    
 
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className='error-message'>{error}</p>}
 
       {transaction && (
         <div>
           {/* headers */}
-          <div style={{
-            display: 'flex',
-            borderBottom: '2px solid #ddd',
-            marginBottom: '20px'
-          }}>
-            { /* creates a clickable tab of each input */}
+          <div className='tab-buttons'>
+            {/* creates a clickable tab of each input */}
             {['agent', 'sellers', 'buyers', 'property', 'payment Details', 'buyer Mortgage'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                style={{
-                  padding: '10px 20px',
-                  border: 'none',
-                  background: 'none',
-                  borderBottom: activeTab === tab ? '2px solid #b40101' : 'none',
-                  color: activeTab === tab ? '#b40101' : '#333',
-                  fontWeight: activeTab === tab ? 'bold' : 'normal',
-                  cursor: 'pointer',
-                  marginBottom: '-2px'
-                }}
+                className={`tab-button ${activeTab === tab ? 'active' : ''}`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -291,11 +258,11 @@ const TransactionSearchPage = () => {
           </div>
 
           {/* content for each tab */}
-          <div style={{ padding: '20px' }}>
-            {activeTab === 'agent' && (
+          <div className={`tab-content ${activeTab === "agent" ? "active" : ""}`}>
+          {activeTab === "agent" && (
               <div>
                 <h3>Agent Information</h3>
-                <div style={{ marginTop: '15px' }}>
+                <div className='tab-details'>
                   <p><strong>Name:</strong> {transaction.agent.firstName} {transaction.agent.lastName} </p>
                   <p><strong>Address:</strong> {transaction.agent.address} </p>
                   <p><strong>GSM:</strong> {transaction.agent.gsm} </p>
@@ -304,12 +271,13 @@ const TransactionSearchPage = () => {
                 </div>
               </div>
             )}
-
-            {activeTab === 'sellers' && (
+           </div>
+           <div className={`tab-content ${activeTab === "sellers" ? "active" : ""}`}>
+           {activeTab === "sellers" && (
               sellers.map((seller, index) => (
-                <div key={index}>
+                <div key={index} className='tab-details'>
                   <h3>Seller Information</h3>
-                  <div style={{ marginTop: '15px' }}>
+                  <div className='tab-details'>
                     <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`} </p>
                     <p><strong>Address:</strong> {seller.address} </p>
                     <p><strong>GSM:</strong> {seller.gsm} </p>
@@ -322,12 +290,14 @@ const TransactionSearchPage = () => {
                 </div>
               ))
             )}
+              </div>
 
+          <div className={`tab-content ${activeTab === "buyers" ? "active" : ""}`}>
             {activeTab === 'buyers' && (
               buyers.map((buyer, index) => (
-                <div key={index}>
+                <div key={index} className='tab-details'>
                   <h3>Buyer Information</h3>
-                  <div style={{ marginTop: '15px' }}>
+                  <div className='tab-details'>
                     <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
                     <p><strong>Address:</strong> {buyer.address} </p>
                     <p><strong>GSM:</strong> {buyer.gsm} </p>
@@ -340,20 +310,22 @@ const TransactionSearchPage = () => {
                 </div>
               ))
             )}
-
+            </div>
+            <div className={`tab-content ${activeTab === "property" ? "active" : ""}`}>
+            
             {activeTab === 'property' && (
-              <div>
+              <div className='tab-details'>
                 <h3>Property Information</h3>
-                <div style={{ marginTop: '15px' }}>
+                <div className='tab-details'>
                   <p><strong>ID:</strong> {transaction.property.mainPropertyId} </p>
                   <p><strong>Address:</strong> {transaction.property.address} </p>
                   <p><strong>Type:</strong> {transaction.property.type} </p>
                   <p><strong>Price:</strong> €{transaction.property.price} </p>
-                  <p><strong>New build</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'} </p>
+                  <p><strong>New build:</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'} </p>
                   <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'} </p>
                   <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'} </p>
 
-                  <h3 style={{ marginTop: '20px', marginBottom: '-10px', textDecoration: 'underline' }}>Price Details</h3>
+                  <h3 className='tab-details'>Price Details</h3>
                   <p><strong>Property:</strong> €{transaction.property.sellingPrice.property} </p>
                   <p><strong>Equipment:</strong> €{transaction.property.sellingPrice.equipment} </p>
                   <p><strong>Other:</strong> €{transaction.property.sellingPrice.other} </p>
@@ -364,75 +336,49 @@ const TransactionSearchPage = () => {
                 </div>
               </div>
             )}
-
+          </div>
+          <div className={`tab-content ${activeTab === "payment Details" ? "active" : ""}`}>
+    
             {activeTab === 'payment Details' && (
-              <div>
+              <div className='tab-details'>
                 <h3>Payment Details</h3>
-                <div style={{ marginTop: '15px' }}>
-                  <h3 style={{ marginTop: '20px', marginBottom: '-10px', textDecoration: 'underline' }}>Deposit</h3>
+                <div className='tab-details'>
+                  <h3>Deposit</h3>
                   <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount} </p>
                   <p><strong>Deadline:</strong> {transaction.paymentDetails.deposit.deadline && new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()} </p>
                   <p><strong>Account:</strong> {transaction.paymentDetails.deposit.account} </p>
                   
-
-                  <h3 style={{ marginTop: '20px', marginBottom: '-10px', textDecoration: 'underline' }}>Remaining</h3>
+                  <h3>Remaining</h3>
                   <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount} </p>
                   <p><strong>Deadline:</strong> {transaction.paymentDetails.remaining.deadline && new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()} </p>
                   <p><strong>Account:</strong> {transaction.paymentDetails.remaining.account} </p>
                 </div>
               </div>
             )}
-
+          </div>
+          <div className={`tab-content ${activeTab === "buyer Mortgage" ? "active" : ""}`}>
+    
             {activeTab === 'buyer Mortgage' && (
-              <div>
+              <div className='tab-details'>
                 <h3>Mortgage Information</h3>
-                <div style={{ marginTop: '15px' }}>
+                <div className='tab-details'>
                   <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No' } </p>
                   <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0} </p>
                 </div>
               </div>
             )}
-
+          </div>
             <button
               onClick={generateReport}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#b40101',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                width: 'fit-content'
-              }}
+              className='button-primary'
             >
               Generate Report
             </button>
-          </div>
+          
         </div>
       )}
     </div>
   );
-};
-
-const tableStyle = {
-  width: '80%',
-  maxWidth: '1000px',
-  borderCollapse: 'collapse',
-  marginBottom: '20px',
-  marginLeft: 'auto',
-  marginRight: 'auto'
-};
-
-const headerStyle = {
-  backgroundColor: '#f4f4f4',
-  padding: '8px',
-  borderBottom: '2px solid #ddd',
-  textAlign: 'left'
-};
-
-const cellStyle = {
-  padding: '6px',
-  borderBottom: '1px solid #ddd'
 };
 
 export default TransactionSearchPage;
