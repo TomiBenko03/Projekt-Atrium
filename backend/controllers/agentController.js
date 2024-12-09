@@ -2,8 +2,14 @@ const Agent = require('../models/Agent');
 
 const createAgent = async (req, res) => {
     try {
-        const { firstName, lastName, address, gsm, email, emso, taxNumber, password } = req.body;
+        const { firstName, lastName, address, gsm, email, emso, taxNumber, password, role } = req.body;
 
+        // Validate the role
+        if (!['agent', 'odvetnik'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role. Must be either "agent" or "odvetnik".' });
+        }
+
+        // Create a new user with the specified role
         const newAgent = new Agent({
             firstName,
             lastName,
@@ -13,15 +19,17 @@ const createAgent = async (req, res) => {
             emso,
             taxNumber,
             password,
+            role, // Assign the role
         });
 
         const savedAgent = await newAgent.save();
-        res.status(201).json({ message: 'Agent created successfully', agent: savedAgent });
+        res.status(201).json({ message: `${role.charAt(0).toUpperCase() + role.slice(1)} created successfully`, agent: savedAgent });
     } catch (error) {
-        console.error('Error creating agent:', error);
-        res.status(500).json({ message: 'Failed to create agent', error });
+        console.error('Error creating user:', error);
+        res.status(500).json({ message: 'Failed to create user', error });
     }
 };
+
 
 const getAllAgents = async (req, res) => {
     try {
@@ -38,6 +46,8 @@ const login = async (req, res, next) => {
         const agent = await Agent.authenticate(req.body.email, req.body.password);
 
         req.session.agentId = agent._id;
+        req.session.role=agent.role;
+        console.log('Session after login:', req.session);
         return res.json(agent);
     }
     catch (err) {

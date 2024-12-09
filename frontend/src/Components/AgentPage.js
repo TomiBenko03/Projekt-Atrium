@@ -11,7 +11,8 @@ const AgentPage = () => {
         email: '',
         emso: '',
         taxNumber: '',
-        password: ''
+        password: '',
+        role: 'agent', // Default to 'agent'
     });
 
     const [message, setMessage] = useState('');
@@ -27,7 +28,7 @@ const AgentPage = () => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:3001/api/agents', formData);
-            setMessage(`Agent registered successfully: ${response.data.agent.firstName} ${response.data.agent.lastName}`);
+            setMessage(`User registered successfully as ${formData.role}: ${response.data.agent.firstName} ${response.data.agent.lastName}`);
             // Reset form
             setFormData({
                 firstName: '',
@@ -37,21 +38,35 @@ const AgentPage = () => {
                 email: '',
                 emso: '',
                 taxNumber: '',
-                password: ''
+                password: '',
+                role: 'agent',
             });
         } catch (error) {
-            console.error('Error registering agent:', error);
-            setMessage('Failed to register agent. error.');
+            console.error('Error registering user:', error);
+            setMessage('Failed to register user. Please try again.');
         }
     };
 
     return (
         <div className='form-container'>
 
-            <h1 className='form-header'>Agent Registration</h1>
+            <h1 className='form-header'>User Registration</h1>
             {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
 
             <form onSubmit={handleSubmit}>
+                <div className='form-group'>
+                    <label htmlFor="role">Role:</label>
+                    <select
+                        id="role"
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        required
+                    >
+                        <option value="agent">Agent</option>
+                        <option value="odvetnik">Odvetnik</option>
+                    </select>
+                </div>
                 <div className='form-group'>
                     <label htmlFor="firstName">First Name:</label>
                     <input
@@ -132,7 +147,7 @@ const AgentPage = () => {
                 <div className='form-group'>
                     <label htmlFor="password">Password:</label>
                     <input
-                        type="text"
+                        type="password"
                         id="password"
                         name="password"
                         value={formData.password}
@@ -141,7 +156,7 @@ const AgentPage = () => {
                     />
                 </div>
                 <button type="submit" className='button-primary'>
-                    Register agent
+                    Register
                 </button>
             </form>
         </div>

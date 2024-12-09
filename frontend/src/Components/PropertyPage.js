@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const PropertyPage = () => {
@@ -17,7 +17,7 @@ const PropertyPage = () => {
         equipmentIncluded: '',
     });
 
-    const [message, setMessage] = useState('');
+    //const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
@@ -27,7 +27,31 @@ const PropertyPage = () => {
             [name]: type === 'checkbox' ? checked : value,
         });
     };
+    const [message, setMessage] = useState('');
+    const [userRole, setUserRole] = useState(null); // Store user role
+    const [loading, setLoading] = useState(true); // To handle loading state
 
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/api/session', {
+                    withCredentials: true,
+                });
+                setUserRole(response.data.role);
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+                setUserRole(null); // In case of error, no role
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserRole();
+    }, []);
+
+
+
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -78,6 +102,20 @@ const PropertyPage = () => {
         }
     };
 
+
+    
+    if (loading) {
+        return <div>Loading...</div>; // Display a loading message while fetching user role
+    }
+
+    if (userRole === 'odvetnik') {
+        return (
+            <div className="restricted-container">
+                <h1>Access Denied</h1>
+                <p>You do not have permission to add new buyers.</p>
+            </div>
+        );
+    }
     return (
         <div className='form-container'>
             <h1 className='form-header'>Property Registration</h1>

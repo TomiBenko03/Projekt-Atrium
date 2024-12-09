@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import '../App.css';
 
@@ -27,7 +27,8 @@ const TransactionPage = () => {
 
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
-
+    const [userRole, setUserRole] = useState(null); // Store user role
+    const [loading, setLoading] = useState(true); // To handle loading state
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -35,7 +36,23 @@ const TransactionPage = () => {
             [name]: type === 'checkbox' ? checked : value,
         });
     };
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/api/session', {
+                    withCredentials: true,
+                });
+                setUserRole(response.data.role);
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+                setUserRole(null); // In case of error, no role
+            } finally {
+                setLoading(false);
+            }
+        };
 
+        fetchUserRole();
+    }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -94,6 +111,22 @@ const TransactionPage = () => {
             setError('Failed to create transaction. Please check the input data.');
         }
     };
+
+
+    if (loading) {
+        return <div>Loading...</div>; // Display a loading message while fetching user role
+    }
+
+    if (userRole === 'odvetnik') {
+        return (
+            <div className="restricted-container">
+                <h1>Access Denied</h1>
+                <p>You do not have permission to add new buyers.</p>
+            </div>
+        );
+    }
+
+
 
     return (
         <div className='form-container'>

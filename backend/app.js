@@ -60,8 +60,14 @@ app.use('/api/property', propertyRoutes);
 app.use('/api/sellers', sellerRoutes);
 app.use('/api/transactions', transactionRoutes);
 
-app.get('/api', (req, res) => {
-  res.json({ message: "Hello from the server!" });
+app.get('/api/session', (req, res) => {
+  if (req.session.agentId) {
+    console.log(`bruh`);
+      return res.status(200).json({ role: req.session.role });
+      
+  }
+  console.log(`bruh2`);
+  res.status(401).json({ message: 'User not logged in' });
 });
 // Start the server
 const PORT = process.env.PORT || 3001;

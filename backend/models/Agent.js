@@ -9,7 +9,13 @@ const agentSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     emso: { type: String, required: true },
     taxNumber: { type: String, required: true },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    role: { 
+        type: String, 
+        enum: ['agent', 'odvetnik'], 
+        required: true,
+        default: 'agent' // Default role
+    }
 }, { timestamps: true });
 
 agentSchema.pre('save', async function(next){
@@ -25,15 +31,15 @@ agentSchema.pre('save', async function(next){
 
 agentSchema.statics.authenticate = async function(email, password) {
     try {
-        const agent = await this.findOne({ email }).exec();
-        if(!agent) {
-            const err = new Error('Agent not found');
+        const user = await this.findOne({ email }).exec();
+        if(!user) {
+            const err = new Error('User not found');
             err.status = 401;
             throw err;
         }
-        const result = await bcrypt.compare(password, agent.password);
+        const result = await bcrypt.compare(password, user.password);
         if(result === true){
-            return agent;
+            return user;
         }
         else{
             throw new Error('Incorrect password');
@@ -44,5 +50,4 @@ agentSchema.statics.authenticate = async function(email, password) {
     }
 };
 
-
-module.exports = mongoose.model('Agent', agentSchema);
+module.exports = mongoose.model('agent', agentSchema);
