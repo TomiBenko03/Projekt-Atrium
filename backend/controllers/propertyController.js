@@ -18,6 +18,8 @@ const createProperty = async (req, res) => {
             equipmentIncluded,
         } = req.body;
 
+        const agentId = req.session.agentId;
+
         // Step 1: Find `lesserProperties` by their `mainPropertyId`
         const lesserPropertiesArray = Array.isArray(lesserProperties)
             ? await Property.find({ mainPropertyId: { $in: lesserProperties } }).select('_id')
@@ -44,6 +46,7 @@ const createProperty = async (req, res) => {
                 other: Number(sellingPriceOther) || 0,
             },
             equipmentIncluded: equipmentIncludedArray,
+            agentId
         });
 
         const savedProperty = await newProperty.save();
@@ -61,6 +64,34 @@ const createProperty = async (req, res) => {
     }
 };
 
+const getAgentProperties = async(req, res) => {
+    try{
+        const agentId = req.session.agentId;
+        const properties = await Property.find({ agentId });
+        res.status(200).json(properties);
+    }
+    catch(error) {
+        console.error('Error fetching properties: ', error);
+        res.status(500).json({ message: 'Failed to fetch properties', error });
+    }
+};
+
+const searchProperties = async(req, res) => {
+    try{
+        const { query } = req.body;
+        const properties = await Property.find({
+            mainPropertyId: { $regex: query, $options: 'i' }
+        });
+        res.status(200).json(properties);
+    }
+    catch(error) {
+        console.error('Error searching properties: ', error);
+        res.status(500).json({ message: 'Failed to search properties', error });
+    }
+};
+
 module.exports = {
     createProperty,
+    getAgentProperties,
+    searchProperties
 };

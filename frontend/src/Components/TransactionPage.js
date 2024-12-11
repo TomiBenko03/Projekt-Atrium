@@ -29,6 +29,7 @@ const TransactionPage = () => {
     const [error, setError] = useState('');
     const [userRole, setUserRole] = useState(null); // Store user role
     const [loading, setLoading] = useState(true); // To handle loading state
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -112,7 +113,6 @@ const TransactionPage = () => {
         }
     };
 
-
     if (loading) {
         return <div>Loading...</div>; // Display a loading message while fetching user role
     }
@@ -125,8 +125,6 @@ const TransactionPage = () => {
             </div>
         );
     }
-
-
 
     return (
         <div className='form-container'>

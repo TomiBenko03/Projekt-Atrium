@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { createProperty } = require('../controllers/propertyController');
+const { createProperty, getAgentProperties, searchProperties } = require('../controllers/propertyController');
+const authMiddleware = require('../middleware/auth');
 
-// POST /api/agents - Create a new agent
 router.post('/', createProperty);
+router.post('/agentProperties', authMiddleware, getAgentProperties);
+router.post('/searchProperties', authMiddleware, searchProperties);
 
 module.exports = router;

@@ -31,6 +31,10 @@ const PropertyPage = () => {
     const [userRole, setUserRole] = useState(null); // Store user role
     const [loading, setLoading] = useState(true); // To handle loading state
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchMode, setSearchMode] = useState('name');
+
     useEffect(() => {
         const fetchUserRole = async () => {
             try {
@@ -48,9 +52,6 @@ const PropertyPage = () => {
 
         fetchUserRole();
     }, []);
-
-
-
     
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -116,6 +117,27 @@ const PropertyPage = () => {
             </div>
         );
     }
+
+    const handleSearch = async() => {
+        try{
+            const endpoint = 
+                searchMode === 'name'
+                    ? 'http://localhost:3001/api/property/searchProperties'
+                    : 'http://localhost:3001/api/property/agentProperties';
+            
+            const response = await axios.post(
+                endpoint,
+                searchMode === 'name' ? { query: searchQuery } : {}, 
+                { withCredentials: true }
+            );
+            setSearchResults(response.data || []);
+        }
+        catch(error) {
+            console.error('Error searching properties: ', error);
+            setSearchResults([]);
+        }
+    }
+
     return (
         <div className='form-container'>
             <h1 className='form-header'>Property Registration</h1>
@@ -275,6 +297,58 @@ const PropertyPage = () => {
                     Add property
                 </button>
             </form>
+
+            <div className='search-container'>
+                <h2 className='form-header'>Property Search</h2>
+                <div className='search-options'>
+                    <label>
+                        <input 
+                            type="radio"
+                            name="searchMode"
+                            value="name"
+                            checked={searchMode === 'name'}
+                            onChange={() => setSearchMode('name')}
+                        />
+                        Search by Name
+                    </label>
+                    <label>
+                        <input 
+                            type="radio"
+                            name="searchMode"
+                            value="name"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search by Logged-in Agent
+                    </label>
+                </div>
+
+                {searchMode === 'name' && (
+                    <input 
+                        type='text'
+                        placeholder='Search properties by name...'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+            </div>
+
+            {searchResults.length > 0 && (
+                <div className='search-results'>
+                    <h2>Search Results</h2>
+                    <ul>
+                        {searchResults.map((property) => (
+                            <li key={property._id}>
+                                {property.mainPropertyId}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 };

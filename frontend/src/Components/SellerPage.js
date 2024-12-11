@@ -18,6 +18,11 @@ const SellerPage = () => {
     const [message, setMessage] = useState('');
     const [userRole, setUserRole] = useState(null); // Store user role
     const [loading, setLoading] = useState(true); // To handle loading state
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const[searchResults, setSearchResults] = useState([]);
+    const [searchMode, setSearchMode] = useState('name');
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -77,6 +82,26 @@ const SellerPage = () => {
                 <p>You do not have permission to add new buyers.</p>
             </div>
         );
+    }
+
+    const handleSearch = async() => {
+        try{
+            const endpoint = 
+                searchMode === 'name'
+                    ? 'http://localhost:3001/api/sellers/searchSellers'
+                    : 'http://localhost:3001/api/sellers/agentSellers';
+            
+            const response = await axios.post(
+                endpoint,
+                searchMode === 'name' ? { query: searchQuery } : {},
+                { withCredentials: true }
+            );
+            setSearchResults(response.data || []);
+        }
+        catch(error) {
+            console.error('Error searching sellers: ', error);
+            setSearchResults([]);
+        }
     }
 
     return (
@@ -189,6 +214,56 @@ const SellerPage = () => {
                     Add seller
                 </button>
             </form>
+
+            <div className='search-container'>
+                <h2 className='form-header'>Seller Search</h2>
+                <div className='search-options'>
+                    <label >
+                        <input 
+                            type="radio"
+                            name="searchMode"
+                            value="name"
+                            checked={searchMode === 'name'}
+                            onChange={() => setSearchMode('name')}
+                        />
+                        Search by Name/Surname
+                    </label>
+                    <label>
+                        <input 
+                            type="radio"
+                            name="searchMode"
+                            value="agent"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search by Logged-in Agent
+                    </label>
+                </div>
+                {searchMode === 'name' && (
+                    <input 
+                        type='text'
+                        placeholder='Search sellers by name or surname...'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+            </div>
+
+            {searchResults.length > 0 && (
+                <div className='search-results'>
+                    <h2>Search Results</h2>
+                    <ul>
+                        {searchResults.map((seller) => (
+                            <li key={seller._id}>
+                                {seller.firstName} {seller.lastName} ({seller.email})
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 };

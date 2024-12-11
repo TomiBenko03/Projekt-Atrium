@@ -29,6 +29,7 @@ const propertySchema = new mongoose.Schema({
         default: '', 
         maxlength: 500 // Optional: Restrict the length of the description
     },
+    agentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Agent' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Property', propertySchema);

@@ -38,8 +38,26 @@ const getAgentSellers = async(req, res) => {
     }
 };
 
+const searchSellers = async(req, res) => {
+    try{
+        const { query } = req.body;
+        const sellers = await Seller.find({
+            $or: [
+                {firstName: { $regex: query, $options: 'i' } },
+                {lastName: { $regex: query, $options: 'i' } }
+            ]
+        });
+        res.status(200).json(sellers);
+    }
+    catch(error) {
+        console.error('Error searching sellers: ', error);
+        res.status(500).json({ message: 'Failed to search sellers', error });
+    }
+};
+
 module.exports = {
     createSeller,
-    getAgentSellers
+    getAgentSellers,
+    searchSellers
 };
 

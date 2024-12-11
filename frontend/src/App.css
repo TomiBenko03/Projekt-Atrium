@@ -359,3 +359,67 @@ table tr:hover {
   transform: scale(1.05);
 }
 
+.search-container {
+  margin: 50px 0px 20px 0px;
+  padding: 0 15px 15px 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 15px;
+}
+
+.search-options label {
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.search-results {
+  margin-top: 20px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 15px;
+}
+
+.search-results h2 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.search-results ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-results li {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+  color: #333;
+}
+
+.search-results li:last-child {
+  border-bottom: none;
+}
+
+.search-results li:hover {
+  background-color: #f4f4f4;
+}
+
+.page-container {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
