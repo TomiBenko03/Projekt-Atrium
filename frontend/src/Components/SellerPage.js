@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../App.css';
 
@@ -20,7 +20,7 @@ const SellerPage = () => {
     const [loading, setLoading] = useState(true); // To handle loading state
 
     const [searchQuery, setSearchQuery] = useState('');
-    const[searchResults, setSearchResults] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
     const [searchMode, setSearchMode] = useState('name');
 
     const handleChange = (e) => {
@@ -70,27 +70,13 @@ const SellerPage = () => {
             setMessage('Failed to create seller. error.');
         }
     };
-
-    if (loading) {
-        return <div>Loading...</div>; // Display a loading message while fetching user role
-    }
-
-    if (userRole === 'odvetnik') {
-        return (
-            <div className="restricted-container">
-                <h1>Access Denied</h1>
-                <p>You do not have permission to add new buyers.</p>
-            </div>
-        );
-    }
-
-    const handleSearch = async() => {
-        try{
-            const endpoint = 
+    const handleSearch = async () => {
+        try {
+            const endpoint =
                 searchMode === 'name'
                     ? 'http://localhost:3001/api/sellers/searchSellers'
                     : 'http://localhost:3001/api/sellers/agentSellers';
-            
+
             const response = await axios.post(
                 endpoint,
                 searchMode === 'name' ? { query: searchQuery } : {},
@@ -98,19 +84,81 @@ const SellerPage = () => {
             );
             setSearchResults(response.data || []);
         }
-        catch(error) {
+        catch (error) {
             console.error('Error searching sellers: ', error);
             setSearchResults([]);
         }
     }
+    if (loading) {
+        return <div>Loading...</div>; // Display a loading message while fetching user role
+    }
+
+    if (userRole === 'odvetnik') {
+        return (
+            <div className='page-container'>
+            <div className="restricted-container">
+                <div className='search-container'>
+                <h2 className='form-header'>Seller Search</h2>
+                <div className='search-options'>
+                    <label >
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="name"
+                            checked={searchMode === 'name'}
+                            onChange={() => setSearchMode('name')}
+                        />
+                        Search by Name/Surname
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="agent"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search by Logged-in Agent
+                    </label>
+                </div>
+                {searchMode === 'name' && (
+                    <input
+                        type='text'
+                        placeholder='Search sellers by name or surname...'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+                {searchResults.length > 0 && (
+                    <div className='search-results'>
+                        <h2>Search Results</h2>
+                        <ul>
+                            {searchResults.map((seller) => (
+                                <li key={seller._id}>
+                                    {seller.firstName} {seller.lastName} ({seller.email})
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+        </div>
+            </div>
+        );
+    }
+
+
 
     return (
-        <div className='page-container'> 
+        <div className='page-container'>
 
             <div className='form-container'>
                 <h1 className='form-header'>Seller Registration</h1>
                 {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
-        
+
                 <form onSubmit={handleSubmit}>
                     <div className='form-group'>
                         <label htmlFor="firstName">First Name:</label>
@@ -217,41 +265,41 @@ const SellerPage = () => {
                 </form>
             </div>
             <div className='search-container'>
-                    <h2 className='form-header'>Seller Search</h2>
-                    <div className='search-options'>
-                        <label >
-                            <input 
-                                type="radio"
-                                name="searchMode"
-                                value="name"
-                                checked={searchMode === 'name'}
-                                onChange={() => setSearchMode('name')}
-                            />
-                            Search by Name/Surname
-                        </label>
-                        <label>
-                            <input 
-                                type="radio"
-                                name="searchMode"
-                                value="agent"
-                                checked={searchMode === 'agent'}
-                                onChange={() => setSearchMode('agent')}
-                            />
-                            Search by Logged-in Agent
-                        </label>
-                    </div>
-                    {searchMode === 'name' && (
-                        <input 
-                            type='text'
-                            placeholder='Search sellers by name or surname...'
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                <h2 className='form-header'>Seller Search</h2>
+                <div className='search-options'>
+                    <label >
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="name"
+                            checked={searchMode === 'name'}
+                            onChange={() => setSearchMode('name')}
                         />
-                    )}
-                    <button onClick={handleSearch} className='button-primary'>
-                        Search
-                    </button>
-                    {searchResults.length > 0 && (
+                        Search by Name/Surname
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="agent"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search by Logged-in Agent
+                    </label>
+                </div>
+                {searchMode === 'name' && (
+                    <input
+                        type='text'
+                        placeholder='Search sellers by name or surname...'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+                {searchResults.length > 0 && (
                     <div className='search-results'>
                         <h2>Search Results</h2>
                         <ul>
@@ -263,7 +311,7 @@ const SellerPage = () => {
                         </ul>
                     </div>
                 )}
-                </div>    
+            </div>
         </div>
     );
 };

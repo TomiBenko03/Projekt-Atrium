@@ -75,23 +75,9 @@ const BuyerPage = () => {
             setMessage('Failed to create buyer.');
         }
     };
-
-    if (loading) {
-        return <div>Loading...</div>; // Display a loading message while fetching user role
-    }
-
-    if (userRole === 'odvetnik') {
-        return (
-            <div className="restricted-container">
-                <h1>Access Denied</h1>
-                <p>You do not have permission to add new buyers.</p>
-            </div>
-        );
-    }
-
-    const handleSearch = async() => {
-        try{
-            const endpoint = 
+    const handleSearch = async () => {
+        try {
+            const endpoint =
                 searchMode === 'name'
                     ? 'http://localhost:3001/api/buyer/searchBuyers'
                     : 'http://localhost:3001/api/buyer/agentBuyers';
@@ -103,11 +89,74 @@ const BuyerPage = () => {
             );
             setSearchResults(response.data || []);
         }
-        catch(error) {
+        catch (error) {
             console.error('Error searching buyers: ', error);
             setSearchResults([]);
         }
     }
+    if (loading) {
+        return <div>Loading...</div>; // Display a loading message while fetching user role
+    }
+
+    if (userRole === 'odvetnik') {
+        return (
+            <div className='page-container'>
+            <div className="restricted-container">
+                 <div className='search-container'>
+                <h2 className="form-header">Buyer Search</h2>
+                <div className='search-options'>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="name"
+                            checked={searchMode === 'name'}
+                            onChange={() => setSearchMode('name')}
+                        />
+                        Search by Name/Surname
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="agent"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search by Logged-in Agent
+                    </label>
+                </div>
+                {searchMode === 'name' && (
+                    <input
+                        type="text"
+                        placeholder="Search buyers by name or surname..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+
+                {searchResults.length > 0 && (
+                    <div className='search-results'>
+                        <h2>Search Results</h2>
+                        <ul>
+                            {searchResults.map((buyer) => (
+                                <li key={buyer._id}>
+                                    {buyer.firstName} {buyer.lastName} ({buyer.email})
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+        </div>
+            </div>
+        );
+    }
+
+    
 
     return (
         <div className='page-container'>
@@ -222,54 +271,54 @@ const BuyerPage = () => {
                 </form>
             </div>
             <div className='search-container'>
-                    <h2 className="form-header">Buyer Search</h2>
-                    <div className='search-options'>
-                        <label>
-                            <input 
-                                type="radio"
-                                name="searchMode"
-                                value="name"
-                                checked={searchMode === 'name'}
-                                onChange={() => setSearchMode('name')}
-                            />
-                            Search by Name/Surname
-                        </label>
-                        <label>
-                            <input 
-                                type="radio"
-                                name="searchMode"
-                                value="agent"
-                                checked={searchMode === 'agent'}
-                                onChange={() => setSearchMode('agent')}
-                            />
-                            Search by Logged-in Agent
-                        </label>
-                    </div>
-                    {searchMode === 'name' && (
-                        <input 
-                            type="text"
-                            placeholder="Search buyers by name or surname..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                <h2 className="form-header">Buyer Search</h2>
+                <div className='search-options'>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="name"
+                            checked={searchMode === 'name'}
+                            onChange={() => setSearchMode('name')}
                         />
-                    )}
-                    <button onClick={handleSearch} className='button-primary'>
-                        Search
-                    </button>
-                    
-                    {searchResults.length > 0 && (
-                        <div className='search-results'>
-                            <h2>Search Results</h2>
-                            <ul>
-                                {searchResults.map((buyer) => (
-                                    <li key={buyer._id}>
-                                        {buyer.firstName} {buyer.lastName} ({buyer.email})
-                                    </li>   
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                        Search by Name/Surname
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="agent"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search by Logged-in Agent
+                    </label>
                 </div>
+                {searchMode === 'name' && (
+                    <input
+                        type="text"
+                        placeholder="Search buyers by name or surname..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+
+                {searchResults.length > 0 && (
+                    <div className='search-results'>
+                        <h2>Search Results</h2>
+                        <ul>
+                            {searchResults.map((buyer) => (
+                                <li key={buyer._id}>
+                                    {buyer.firstName} {buyer.lastName} ({buyer.email})
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

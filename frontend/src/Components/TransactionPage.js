@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../App.css';
 
@@ -117,39 +117,98 @@ const TransactionPage = () => {
         }
     };
 
+    const handleSearch = async () => {
+        try {
+            let requestData = {};
+
+            const endpoint =
+                searchMode === 'transactionId'
+                    ? `http://localhost:3001/api/transactions/search/${searchQuery}`
+                    : 'http://localhost:3001/api/transactions/agentTransactions';
+
+            const response = await axios.get(endpoint, { withCredentials: true });
+            setSearchResults(searchMode === 'transactionId' ? [response.data] : response.data);
+        }
+        catch (error) {
+            console.error('Error searching transaction: ', error);
+            setSearchResults([]);
+        }
+    }
+    
+
     if (loading) {
         return <div>Loading...</div>; // Display a loading message while fetching user role
     }
 
     if (userRole === 'odvetnik') {
         return (
+        <div className='page-container'>
             <div className="restricted-container">
-                <h1>Access Denied</h1>
-                <p>You do not have permission to add new buyers.</p>
+                            <div className='search-container'>
+                <h2 className='form-header'>Transaction Search</h2>
+                <div className='search-options'>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="transactionId"
+                            checked={searchMode === 'transactionId'}
+                            onChange={() => setSearchMode('transactionId')}
+                        />
+                        Search by Transaction ID
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="agentTransactions"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search Transactions by Agent
+                    </label>
+                </div>
+
+                {searchMode === 'transactionId' && (
+                    <input
+                        type="text"
+                        placeholder="Search by Transaction ID"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+
+                {searchResults.length > 0 && (
+                    <div className='search-results'>
+                        <h2>Search Results</h2>
+                        <ul>
+                            {searchResults.map((transaction) => (
+                                <li key={transaction._id}>
+                                    <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
+                                    <strong>Buyers: </strong> {
+                                        transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ')
+                                        || 'No buyers found'}<br />
+                                    <strong>Sellers: </strong> {
+                                        transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ')
+                                        || 'No sellers found'}<br />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+            </div>
             </div>
         );
     }
 
-    const handleSearch = async () => {
-        try{
-            let requestData = {};
-
-            const endpoint = 
-                searchMode === 'transactionId'
-                    ? `http://localhost:3001/api/transactions/search/${searchQuery}`
-                    : 'http://localhost:3001/api/transactions/agentTransactions';
-            
-            const response = await axios.get(endpoint, { withCredentials: true });
-            setSearchResults(searchMode === 'transactionId' ? [response.data] : response.data);
-        }
-        catch(error) {
-            console.error('Error searching transaction: ', error);
-            setSearchResults([]);
-        }
-    }
+    
 
     return (
-        <div className='page-container'> 
+        <div className='page-container'>
 
             <div className='form-container'>
                 <h1 className='form-header'>Transaction Registration</h1>
@@ -163,7 +222,7 @@ const TransactionPage = () => {
                             name="sellers"
                             value={formData.sellers}
                             onChange={handleChange}
-                            
+
                         />
                     </div>
                     <div className='form-group'>
@@ -182,7 +241,7 @@ const TransactionPage = () => {
                             name="buyers"
                             value={formData.buyers}
                             onChange={handleChange}
-                        
+
                         />
                     </div>
                     <div className='form-group'>
@@ -192,7 +251,7 @@ const TransactionPage = () => {
                             name="buyerSurnames"
                             value={formData.buyerSurnames}
                             onChange={handleChange}
-                        
+
                         />
                     </div>
                     <div className='form-group'>
@@ -212,7 +271,7 @@ const TransactionPage = () => {
                             name="paymentDetailsDepositAmount"
                             value={formData.paymentDetailsDepositAmount}
                             onChange={handleChange}
-                            
+
                         />
                     </div>
                     <div className='form-group'>
@@ -290,45 +349,45 @@ const TransactionPage = () => {
                     <button type="login" className='button-primary'>
                         Add transaction
                     </button>
-                </form>      
+                </form>
             </div>
             <div className='search-container'>
-                    <h2 className='form-header'>Transaction Search</h2>
-                    <div className='search-options'>
-                        <label>
-                            <input 
-                                type="radio"
-                                name="searchMode"
-                                value="transactionId"
-                                checked={searchMode === 'transactionId'}
-                                onChange={() => setSearchMode('transactionId')}
-                            />
-                            Search by Transaction ID
-                        </label>
-                        <label>
-                            <input 
-                                type="radio"
-                                name="searchMode"
-                                value="agentTransactions"
-                                checked={searchMode === 'agent'}
-                                onChange={() => setSearchMode('agent')}
-                            />
-                            Search Transactions by Agent
-                        </label>
-                    </div>
-
-                    {searchMode === 'transactionId' && (
-                        <input 
-                            type="text"
-                            placeholder="Search by Transaction ID"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                <h2 className='form-header'>Transaction Search</h2>
+                <div className='search-options'>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="transactionId"
+                            checked={searchMode === 'transactionId'}
+                            onChange={() => setSearchMode('transactionId')}
                         />
-                    )}
-                    <button onClick={handleSearch} className='button-primary'>
-                        Search
-                    </button>
-                    
+                        Search by Transaction ID
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="searchMode"
+                            value="agentTransactions"
+                            checked={searchMode === 'agent'}
+                            onChange={() => setSearchMode('agent')}
+                        />
+                        Search Transactions by Agent
+                    </label>
+                </div>
+
+                {searchMode === 'transactionId' && (
+                    <input
+                        type="text"
+                        placeholder="Search by Transaction ID"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+                <button onClick={handleSearch} className='button-primary'>
+                    Search
+                </button>
+
                 {searchResults.length > 0 && (
                     <div className='search-results'>
                         <h2>Search Results</h2>
@@ -337,7 +396,7 @@ const TransactionPage = () => {
                                 <li key={transaction._id}>
                                     <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
                                     <strong>Buyers: </strong> {
-                                        transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ') 
+                                        transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ')
                                         || 'No buyers found'}<br />
                                     <strong>Sellers: </strong> {
                                         transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ')
@@ -347,7 +406,7 @@ const TransactionPage = () => {
                         </ul>
                     </div>
                 )}
-                </div>
+            </div>
         </div>
     );
 };
