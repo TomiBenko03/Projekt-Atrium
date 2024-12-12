@@ -13,70 +13,68 @@ const LoginPage = () => {
     const userContext = useContext(UserContext);
     const navigate = useNavigate();
 
-
-    const handleChange = (e) =>{
+    const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
 
-    const handleLogin = async(e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        try{
+        try {
             const response = await axios.post('http://localhost:3001/api/agents/login', formData, {
                 withCredentials: true
             });
 
-            if(response.data._id){
+            if (response.data._id) {
                 userContext.setUserContext(response.data);
                 navigate('/');
-            }
-            else{
+            } else {
                 setFormData({
                     email: '',
                     password: ''
                 });
+                setMessage('Invalid credentials. Please try again.');
             }
         } catch (error) {
             console.error('Error logging in: ', error);
-            setMessage('Failed to log in agent. error');
+            setMessage('Failed to log in. Please check your credentials and try again.');
         }
     };
 
     return (
-        <div className='form-container'>
-            <h1 className='form-header'>Agent Login</h1>
-            {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
-            <form onSubmit={handleLogin}>
-                <div className='form-group'>
-                    <label htmlFor='email'>Email: </label>
-                    <input 
-                        type='email'
-                        id='email'
-                        name='email'
+        <div className="registration-container">
+            <form className="registration-form" onSubmit={handleLogin}>
+                <h1 className="form-header">Agent Login</h1>
+                {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+                <div className="form-group">
+                    <label htmlFor="email">Email:</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
                         value={formData.email}
                         onChange={handleChange}
                         required
                     />
                 </div>
-                <div className='form-group'>
-                    <label htmlFor='password'>Password: </label>
-                    <input 
-                        type='text'
-                        id='password'
-                        name='password'
-                        value={formData.passowrd}
+                <div className="form-group">
+                    <label htmlFor="password">Password:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
                         onChange={handleChange}
                         required
                     />
                 </div>
-                <button type="login" className='button-primary'>
+                <button type="submit" className="button-primary">
                     Log in
                 </button>
             </form>
         </div>
-         
     );
 };
 

@@ -322,3 +322,86 @@ table tr:hover {
 .search-results li:hover {
   background-color: #f4f4f4;
 }
+
+.registration-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.registration-form {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.registration-form h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+.registration-form .form-group {
+  margin-bottom: 15px;
+}
+
+.registration-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333333;
+}
+
+.registration-form input,
+.registration-form select {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.registration-form input:focus,
+.registration-form select:focus {
+  border-color: #b40101;
+  box-shadow: 0px 4px 8px rgba(180, 1, 1, 0.2);
+  outline: none;
+}
+
+.registration-form .button-primary {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #b40101;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.registration-form .button-primary:hover {
+  background-color: #9d0101;
+  transform: scale(1.05);
+}
+
+.registration-form .message {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.registration-form .message.success {
+  color: green;
+}
+
+.registration-form .message.error {
+  color: red;
+}
