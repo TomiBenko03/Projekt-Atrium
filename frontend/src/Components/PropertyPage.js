@@ -139,216 +139,217 @@ const PropertyPage = () => {
     }
 
     return (
-        <div className='form-container'>
-            <h1 className='form-header'>Property Registration</h1>
-            {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+        <div className='page-container'> 
 
-            <form onSubmit={handleSubmit}>
-                <div className='form-group'>
-                    <label>
-                        Main Property ID:</label>
-                    <input
-                        type="text"
-                        name="mainPropertyId"
-                        value={formData.mainPropertyId}
+            <div className='form-container'>
+                <h1 className='form-header'>Property Registration</h1>
+                {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+
+                <form onSubmit={handleSubmit}>
+                    <div className='form-group'>
+                        <label>
+                            Main Property ID:</label>
+                        <input
+                            type="text"
+                            name="mainPropertyId"
+                            value={formData.mainPropertyId}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Lesser Property IDs (comma-separated):</label>
+                        <input
+                            type="text"
+                            name="lesserProperties"
+                            value={formData.lesserProperties}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Address:</label>
+                        <input
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Price:</label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label >
+                            Type:</label>
+                        <select 
+                        name="type" 
+                        value={formData.type} 
                         onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Lesser Property IDs (comma-separated):</label>
-                    <input
-                        type="text"
-                        name="lesserProperties"
-                        value={formData.lesserProperties}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Address:</label>
-                    <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Price:</label>
-                    <input
-                        type="number"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='form-group'>
-                    <label >
-                        Type:</label>
-                    <select 
-                    name="type" 
-                    value={formData.type} 
-                    onChange={handleChange}
-                    >
-                        <option value="Apartment">Apartment</option>
-                        <option value="House">House</option>
-                        <option value="Land">Land</option>
-                        <option value="Commercial">Commercial</option>
-                    </select>
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Is New Build:</label>
-                    <input
-                        type="checkbox"
-                        name="isNewBuild"
-                        checked={formData.isNewBuild}
-                        onChange={handleChange}
-                        style={{
-                           marginRight: '10px',
-                           width: '16px',
-                           height: '16px',
-                           cursor: 'pointer',
-                           borderRadius: '4px',
-                           border: '1px solid #ddd'
-                        }}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Is Agricultural Land:</label>
-                    <input
-                        type="checkbox"
-                        name="isAgriculturalLand"
-                        checked={formData.isAgriculturalLand}
-                        onChange={handleChange}
-                        style={{
+                        >
+                            <option value="Apartment">Apartment</option>
+                            <option value="House">House</option>
+                            <option value="Land">Land</option>
+                            <option value="Commercial">Commercial</option>
+                        </select>
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Is New Build:</label>
+                        <input
+                            type="checkbox"
+                            name="isNewBuild"
+                            checked={formData.isNewBuild}
+                            onChange={handleChange}
+                            style={{
                             marginRight: '10px',
                             width: '16px',
                             height: '16px',
                             cursor: 'pointer',
                             borderRadius: '4px',
                             border: '1px solid #ddd'
-                         }}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Preemption Right:</label>
-                    <input
-                        type="checkbox"
-                        name="preemptionRight"
-                        checked={formData.preemptionRight}
-                        onChange={handleChange}
-                        style={{
-                            marginRight: '10px',
-                            width: '16px',
-                            height: '16px',
-                            cursor: 'pointer',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd'
-                         }}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Selling Price (Property):</label>
-                    <input
-                        type="number"
-                        name="sellingPriceProperty"
-                        value={formData.sellingPriceProperty}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Selling Price (Equipment):</label>
-                    <input
-                        type="number"
-                        name="sellingPriceEquipment"
-                        value={formData.sellingPriceEquipment}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Selling Price (Other):</label>
-                    <input
-                        type="number"
-                        name="sellingPriceOther"
-                        value={formData.sellingPriceOther}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>
-                        Equipment Included (comma-separated):</label>
-                    <input
-                        type="text"
-                        name="equipmentIncluded"
-                        value={formData.equipmentIncluded}
-                        onChange={handleChange}
-                    />
-                </div>
-                <button type="login" className='button-primary'>
-                    Add property
-                </button>
-            </form>
-
-            <div className='search-container'>
-                <h2 className='form-header'>Property Search</h2>
-                <div className='search-options'>
-                    <label>
-                        <input 
-                            type="radio"
-                            name="searchMode"
-                            value="name"
-                            checked={searchMode === 'name'}
-                            onChange={() => setSearchMode('name')}
+                            }}
                         />
-                        Search by Name
-                    </label>
-                    <label>
-                        <input 
-                            type="radio"
-                            name="searchMode"
-                            value="name"
-                            checked={searchMode === 'agent'}
-                            onChange={() => setSearchMode('agent')}
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Is Agricultural Land:</label>
+                        <input
+                            type="checkbox"
+                            name="isAgriculturalLand"
+                            checked={formData.isAgriculturalLand}
+                            onChange={handleChange}
+                            style={{
+                                marginRight: '10px',
+                                width: '16px',
+                                height: '16px',
+                                cursor: 'pointer',
+                                borderRadius: '4px',
+                                border: '1px solid #ddd'
+                            }}
                         />
-                        Search by Logged-in Agent
-                    </label>
-                </div>
-
-                {searchMode === 'name' && (
-                    <input 
-                        type='text'
-                        placeholder='Search properties by name...'
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                )}
-
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+                    </div>
+                    <div className='form-group'>
+                        <label>Preemption Right:</label>
+                        <input
+                            type="checkbox"
+                            name="preemptionRight"
+                            checked={formData.preemptionRight}
+                            onChange={handleChange}
+                            style={{
+                                marginRight: '10px',
+                                width: '16px',
+                                height: '16px',
+                                cursor: 'pointer',
+                                borderRadius: '4px',
+                                border: '1px solid #ddd'
+                            }}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Selling Price (Property):</label>
+                        <input
+                            type="number"
+                            name="sellingPriceProperty"
+                            value={formData.sellingPriceProperty}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Selling Price (Equipment):</label>
+                        <input
+                            type="number"
+                            name="sellingPriceEquipment"
+                            value={formData.sellingPriceEquipment}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Selling Price (Other):</label>
+                        <input
+                            type="number"
+                            name="sellingPriceOther"
+                            value={formData.sellingPriceOther}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>
+                            Equipment Included (comma-separated):</label>
+                        <input
+                            type="text"
+                            name="equipmentIncluded"
+                            value={formData.equipmentIncluded}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <button type="login" className='button-primary'>
+                        Add property
+                    </button>
+                </form>
             </div>
+            <div className='search-container'>
+                    <h2 className='form-header'>Property Search</h2>
+                    <div className='search-options'>
+                        <label>
+                            <input 
+                                type="radio"
+                                name="searchMode"
+                                value="name"
+                                checked={searchMode === 'name'}
+                                onChange={() => setSearchMode('name')}
+                            />
+                            Search by Name
+                        </label>
+                        <label>
+                            <input 
+                                type="radio"
+                                name="searchMode"
+                                value="name"
+                                checked={searchMode === 'agent'}
+                                onChange={() => setSearchMode('agent')}
+                            />
+                            Search by Logged-in Agent
+                        </label>
+                    </div>
 
-            {searchResults.length > 0 && (
-                <div className='search-results'>
-                    <h2>Search Results</h2>
-                    <ul>
-                        {searchResults.map((property) => (
-                            <li key={property._id}>
-                                {property.mainPropertyId}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+                    {searchMode === 'name' && (
+                        <input 
+                            type='text'
+                            placeholder='Search properties by name...'
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    )}
+
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                    {searchResults.length > 0 && (
+                    <div className='search-results'>
+                        <h2>Search Results</h2>
+                        <ul>
+                            {searchResults.map((property) => (
+                                <li key={property._id}>
+                                    {property.mainPropertyId}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                </div>    
         </div>
     );
 };

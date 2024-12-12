@@ -30,6 +30,10 @@ const TransactionPage = () => {
     const [userRole, setUserRole] = useState(null); // Store user role
     const [loading, setLoading] = useState(true); // To handle loading state
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchMode, setSearchMode] = useState('transactionId');
+    const [searchResults, setSearchResults] = useState([]);
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -83,7 +87,7 @@ const TransactionPage = () => {
             const response = await axios.post('http://localhost:3001/api/transactions', parsedData, {
                 withCredentials: true
             });
-            setMessage(`Transaction created successfully, prepared by: ${response.data.transaction.contractPreparedBy}`);
+            setMessage(`Transaction created successfully, for property: ${response.data.transaction.property.mainPropertyId}`);
             setError('');
             setFormData({
                 sellers: '',
@@ -126,147 +130,224 @@ const TransactionPage = () => {
         );
     }
 
+    const handleSearch = async () => {
+        try{
+            let requestData = {};
+
+            const endpoint = 
+                searchMode === 'transactionId'
+                    ? `http://localhost:3001/api/transactions/search/${searchQuery}`
+                    : 'http://localhost:3001/api/transactions/agentTransactions';
+            
+            const response = await axios.get(endpoint, { withCredentials: true });
+            setSearchResults(searchMode === 'transactionId' ? [response.data] : response.data);
+        }
+        catch(error) {
+            console.error('Error searching transaction: ', error);
+            setSearchResults([]);
+        }
+    }
+
     return (
-        <div className='form-container'>
-            <h1 className='form-header'>Transaction Registration</h1>
-            {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+        <div className='page-container'> 
 
-            <form onSubmit={handleSubmit}>
-                <div className='form-group'>
-                    <label>Sellers (comma-separated first names):</label>
-                    <input
-                        type="text"
-                        name="sellers"
-                        value={formData.sellers}
-                        onChange={handleChange}
-                        
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Sellers (comma-separated last names):</label>
-                    <input
-                        type="text"
-                        name="sellerSurnames"
-                        value={formData.sellerSurnames}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Buyers (comma-separated first names):</label>
-                    <input
-                        type="text"
-                        name="buyers"
-                        value={formData.buyers}
-                        onChange={handleChange}
-                     
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Buyers (comma-separated last names):</label>
-                    <input
-                        type="text"
-                        name="buyerSurnames"
-                        value={formData.buyerSurnames}
-                        onChange={handleChange}
-                     
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Property Name:</label>
-                    <input
-                        type="text"
-                        name="propertyName"
-                        value={formData.propertyName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Deposit Amount:</label>
-                    <input
-                        type="number"
-                        name="paymentDetailsDepositAmount"
-                        value={formData.paymentDetailsDepositAmount}
-                        onChange={handleChange}
-                        
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Deposit Deadline:</label>
-                    <input
-                        type="date"
-                        name="paymentDetailsDepositDeadline"
-                        value={formData.paymentDetailsDepositDeadline}
-                        onChange={handleChange}
+            <div className='form-container'>
+                <h1 className='form-header'>Transaction Registration</h1>
+                {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
 
-                    />
+                <form onSubmit={handleSubmit}>
+                    <div className='form-group'>
+                        <label>Sellers (comma-separated first names):</label>
+                        <input
+                            type="text"
+                            name="sellers"
+                            value={formData.sellers}
+                            onChange={handleChange}
+                            
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Sellers (comma-separated last names):</label>
+                        <input
+                            type="text"
+                            name="sellerSurnames"
+                            value={formData.sellerSurnames}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Buyers (comma-separated first names):</label>
+                        <input
+                            type="text"
+                            name="buyers"
+                            value={formData.buyers}
+                            onChange={handleChange}
+                        
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Buyers (comma-separated last names):</label>
+                        <input
+                            type="text"
+                            name="buyerSurnames"
+                            value={formData.buyerSurnames}
+                            onChange={handleChange}
+                        
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Property Name:</label>
+                        <input
+                            type="text"
+                            name="propertyName"
+                            value={formData.propertyName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Deposit Amount:</label>
+                        <input
+                            type="number"
+                            name="paymentDetailsDepositAmount"
+                            value={formData.paymentDetailsDepositAmount}
+                            onChange={handleChange}
+                            
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Deposit Deadline:</label>
+                        <input
+                            type="date"
+                            name="paymentDetailsDepositDeadline"
+                            value={formData.paymentDetailsDepositDeadline}
+                            onChange={handleChange}
+
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Payment Descriptor:</label>
+                        <textarea
+                            name="paymentDescriptor"
+                            value={formData.paymentDescriptor}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Buyer Mortgage:</label>
+                        <input
+                            type="checkbox"
+                            name="buyerMortgage"
+                            checked={formData.buyerMortgage}
+                            onChange={handleChange}
+                            style={{
+                                marginRight: '10px',
+                                width: '16px',
+                                height: '16px',
+                                cursor: 'pointer',
+                                borderRadius: '4px',
+                                border: '1px solid #ddd'
+                            }}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Mortgage Amount:</label>
+                        <input
+                            type="number"
+                            name="mortgageAmount"
+                            value={formData.mortgageAmount}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Handover Deadline:</label>
+                        <input
+                            type="date"
+                            name="handoverDeadline"
+                            value={formData.handoverDeadline}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Seller Expenses (semicolon-separated, format: description,amount):</label>
+                        <input
+                            type="text"
+                            name="sellerExpenses"
+                            value={formData.sellerExpenses}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label>Buyer Expenses (semicolon-separated, format: description,amount):</label>
+                        <input
+                            type="text"
+                            name="buyerExpenses"
+                            value={formData.buyerExpenses}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <button type="login" className='button-primary'>
+                        Add transaction
+                    </button>
+                </form>      
+            </div>
+            <div className='search-container'>
+                    <h2 className='form-header'>Transaction Search</h2>
+                    <div className='search-options'>
+                        <label>
+                            <input 
+                                type="radio"
+                                name="searchMode"
+                                value="transactionId"
+                                checked={searchMode === 'transactionId'}
+                                onChange={() => setSearchMode('transactionId')}
+                            />
+                            Search by Transaction ID
+                        </label>
+                        <label>
+                            <input 
+                                type="radio"
+                                name="searchMode"
+                                value="agentTransactions"
+                                checked={searchMode === 'agent'}
+                                onChange={() => setSearchMode('agent')}
+                            />
+                            Search Transactions by Agent
+                        </label>
+                    </div>
+
+                    {searchMode === 'transactionId' && (
+                        <input 
+                            type="text"
+                            placeholder="Search by Transaction ID"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    )}
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                    
+                {searchResults.length > 0 && (
+                    <div className='search-results'>
+                        <h2>Search Results</h2>
+                        <ul>
+                            {searchResults.map((transaction) => (
+                                <li key={transaction._id}>
+                                    <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
+                                    <strong>Buyers: </strong> {
+                                        transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ') 
+                                        || 'No buyers found'}<br />
+                                    <strong>Sellers: </strong> {
+                                        transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ')
+                                        || 'No sellers found'}<br />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
                 </div>
-                <div className='form-group'>
-                    <label>Payment Descriptor:</label>
-                    <textarea
-                        name="paymentDescriptor"
-                        value={formData.paymentDescriptor}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Buyer Mortgage:</label>
-                    <input
-                        type="checkbox"
-                        name="buyerMortgage"
-                        checked={formData.buyerMortgage}
-                        onChange={handleChange}
-                        style={{
-                            marginRight: '10px',
-                            width: '16px',
-                            height: '16px',
-                            cursor: 'pointer',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd'
-                         }}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Mortgage Amount:</label>
-                    <input
-                        type="number"
-                        name="mortgageAmount"
-                        value={formData.mortgageAmount}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Handover Deadline:</label>
-                    <input
-                        type="date"
-                        name="handoverDeadline"
-                        value={formData.handoverDeadline}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Seller Expenses (semicolon-separated, format: description,amount):</label>
-                    <input
-                        type="text"
-                        name="sellerExpenses"
-                        value={formData.sellerExpenses}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='form-group'>
-                    <label>Buyer Expenses (semicolon-separated, format: description,amount):</label>
-                    <input
-                        type="text"
-                        name="buyerExpenses"
-                        value={formData.buyerExpenses}
-                        onChange={handleChange}
-                    />
-                </div>
-                <button type="login" className='button-primary'>
-                    Add transaction
-                </button>
-            </form>
         </div>
     );
 };

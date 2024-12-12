@@ -34,7 +34,7 @@ body {
 
 /* Header Style */
 .App-header {
-  background-color: #fafafa; /* Soft white for a cleaner look */
+  background-color: #fafafa;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -47,7 +47,7 @@ body {
 }
 
 .App-header h1 {
-  color: #262a41; /* Dark blue-gray */
+  color: #262a41;
   margin: 0;
   font-size: 2rem;
 }
@@ -57,20 +57,25 @@ body {
   color: #61dafb;
 }
 
-/* Form Container */
-.form-container,
-.transaction-form-container {
-  padding: 20px;
+/* Page Layout */
+.page-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 0 auto;
   max-width: 1200px;
-  margin: auto;
+  padding: 40px 20px;
+  gap: 40px; /* Space between the boxes */
+}
+
+/* Form Container */
+.form-container {
+  flex: 1;
+  padding: 20px;
   background-color: #f8f8f8;
   border-radius: 8px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.form-container {
-  max-width: 600px;
-  padding: 40px;
+  max-width: 45%;
 }
 
 .form-header {
@@ -96,10 +101,6 @@ body {
 
 /* Form Group */
 .form-group {
-  margin-bottom: 15px;
-}
-
-.transaction-form-group {
   margin-bottom: 15px;
 }
 
@@ -131,17 +132,6 @@ input[type="text"]:focus,
   box-shadow: 0px 4px 8px rgba(180, 1, 1, 0.2);
 }
 
-.form-group.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Adds spacing between checkbox and label */
-}
-
-.form-group.checkbox-group label {
-  font-weight: bold;
-  margin-bottom: 0;
-}
-
 /* Buttons */
 .button-primary {
   width: 100%;
@@ -158,13 +148,13 @@ input[type="text"]:focus,
 }
 
 .button-primary:hover {
-  background-color: #9d0101; /* Slightly darker red on hover */
+  background-color: #9d0101;
   transform: scale(1.05);
 }
 
 /* Navigation Bar Enhancements */
 .nav-bar {
-  background-color: #262a41; /* Dark blue-gray */
+  background-color: #262a41;
   color: #f4f4f4;
   padding: 15px 20px;
   display: flex;
@@ -197,7 +187,7 @@ input[type="text"]:focus,
 }
 
 .nav-link {
-  color: #ffffff; /* White for links */
+  color: #ffffff;
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
@@ -207,14 +197,14 @@ input[type="text"]:focus,
 }
 
 .nav-link:hover {
-  color: #ffffff; /* Keep white text */
-  background-color: #b40101; /* Red hover effect */
-  box-shadow: 0px 2px 8px rgba(180, 1, 1, 0.2); /* Subtle hover shadow */
+  color: #ffffff;
+  background-color: #b40101;
+  box-shadow: 0px 2px 8px rgba(180, 1, 1, 0.2);
 }
 
 /* Footer */
 .app-footer {
-  background-color: #262a41; /* Dark blue-gray to match nav bar */
+  background-color: #262a41;
   color: white;
   text-align: center;
   padding: 15px;
@@ -227,7 +217,7 @@ table {
   border-collapse: collapse;
   margin: 20px 0;
   font-size: 1rem;
-  border-radius: 8px; /* Optional rounded edges */
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -266,122 +256,37 @@ table tr:hover {
   table {
     font-size: 0.9rem;
   }
+
+  .page-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-container,
+  .search-container {
+    width: 90%;
+    margin: 10px;
+  }
 }
 
-/* Transaction Search Page */
-.transaction-form-container {
+/* Search Container */
+.search-container {
+  flex: 1;
   padding: 20px;
-  max-width: 1200px;
-  margin: auto;
   background-color: #f8f8f8;
   border-radius: 8px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.search-section {
-  margin-bottom: 20px;
-}
-
-.form-header {
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.search-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.search-input {
-  padding: 10px 15px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  max-width: 600px;
-  width: 40%;
-  margin-bottom: 10px;
-}
-
-.error-message {
-  color: red;
-  text-align: center;
-}
-
-.tab-buttons {
-  display: flex;
-  border-bottom: 2px solid #ddd;
-  margin-bottom: 20px;
-}
-
-.tab-button {
-  padding: 10px 20px;
-  border: none;
-  background: none;
-  font-size: 16px;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.tab-button:hover {
-  color: #b40101;
-}
-
-.tab-button.active {
- 
-  color: #b40101;
-  border-bottom: 2px solid #b40101;
-}
-
-
-.tab-content {
-  padding: 0px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-  display: block; /* Hide inactive content */
-}
-
-.tab-content.active {
-  opacity:1;
-  transform: translateY(0);
-  display: block; /* Show the active content */
-}
-
-.tab-details p {
-  margin: 5px 0;
-}
-
-
-.button-primary:hover {
-  background-color: #9d0101;
-  transform: scale(1.05);
-}
-
-.search-container {
-  margin: 50px 0px 20px 0px;
-  padding: 0 15px 15px 15px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 45%;
 }
 
 .search-options {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
   gap: 15px;
+  margin-bottom: 15px;
 }
 
-.search-options label {
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
+/* Search Results */
 .search-results {
   margin-top: 20px;
   background-color: #ffffff;
@@ -416,10 +321,4 @@ table tr:hover {
 
 .search-results li:hover {
   background-color: #f4f4f4;
-}
-
-.page-container {
-  display: flex;
-  margin: 0;
-  padding: 0;
 }

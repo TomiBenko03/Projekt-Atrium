@@ -110,167 +110,166 @@ const BuyerPage = () => {
     }
 
     return (
-        <div className="form-container">
-            <h1 className="form-header">Buyer Registration</h1>
-            {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+        <div className='page-container'>
+            <div className="form-container">
+                <h1 className="form-header">Buyer Registration</h1>
+                {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
 
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="firstName">First Name:</label>
-                    <input
-                        type="text"
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="lastName">Last Name:</label>
-                    <input
-                        type="text"
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="address">Address:</label>
-                    <input
-                        type="text"
-                        id="address"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="gsm">GSM:</label>
-                    <input
-                        type="text"
-                        id="gsm"
-                        name="gsm"
-                        value={formData.gsm}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="emso">EMSO:</label>
-                    <input
-                        type="text"
-                        id="emso"
-                        name="emso"
-                        value={formData.emso}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="taxNumber">Tax Number:</label>
-                    <input
-                        type="text"
-                        id="taxNumber"
-                        name="taxNumber"
-                        value={formData.taxNumber}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="bankAccount">Bank Account:</label>
-                    <input
-                        type="text"
-                        id="bankAccount"
-                        name="bankAccount"
-                        value={formData.bankAccount}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="bankName">Bank Name:</label>
-                    <input
-                        type="text"
-                        id="bankName"
-                        name="bankName"
-                        value={formData.bankName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <button type="submit" className="button-primary">
-                    Add Buyer
-                </button>
-            </form>
-
-
-            <div className='search-container'>
-                <h2 className="form-header">Buyer Search</h2>
-                <div className='search-options'>
-                    <label>
-                        <input 
-                            type="radio"
-                            name="searchMode"
-                            value="name"
-                            checked={searchMode === 'name'}
-                            onChange={() => setSearchMode('name')}
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="firstName">First Name:</label>
+                        <input
+                            type="text"
+                            id="firstName"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            required
                         />
-                        Search by Name/Surname
-                    </label>
-                    <label>
-                        <input 
-                            type="radio"
-                            name="searchMode"
-                            value="agent"
-                            checked={searchMode === 'agent'}
-                            onChange={() => setSearchMode('agent')}
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="lastName">Last Name:</label>
+                        <input
+                            type="text"
+                            id="lastName"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            required
                         />
-                        Search by Logged-in Agent
-                    </label>
-                </div>
-                {searchMode === 'name' && (
-                    <input 
-                        type="text"
-                        placeholder="Search buyers by name or surname..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                )}
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="address">Address:</label>
+                        <input
+                            type="text"
+                            id="address"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="gsm">GSM:</label>
+                        <input
+                            type="text"
+                            id="gsm"
+                            name="gsm"
+                            value={formData.gsm}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="email">Email:</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="emso">EMSO:</label>
+                        <input
+                            type="text"
+                            id="emso"
+                            name="emso"
+                            value={formData.emso}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="taxNumber">Tax Number:</label>
+                        <input
+                            type="text"
+                            id="taxNumber"
+                            name="taxNumber"
+                            value={formData.taxNumber}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="bankAccount">Bank Account:</label>
+                        <input
+                            type="text"
+                            id="bankAccount"
+                            name="bankAccount"
+                            value={formData.bankAccount}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="bankName">Bank Name:</label>
+                        <input
+                            type="text"
+                            id="bankName"
+                            name="bankName"
+                            value={formData.bankName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <button type="submit" className="button-primary">
+                        Add Buyer
+                    </button>
+                </form>
             </div>
-
-            {searchResults.length > 0 && (
-                <div className='search-results'>
-                    <h2>Search Results</h2>
-                    <ul>
-                        {searchResults.map((buyer) => (
-                            <li key={buyer._id}>
-                                {buyer.firstName} {buyer.lastName} ({buyer.email})
-                            </li>   
-                        ))}
-                    </ul>
+            <div className='search-container'>
+                    <h2 className="form-header">Buyer Search</h2>
+                    <div className='search-options'>
+                        <label>
+                            <input 
+                                type="radio"
+                                name="searchMode"
+                                value="name"
+                                checked={searchMode === 'name'}
+                                onChange={() => setSearchMode('name')}
+                            />
+                            Search by Name/Surname
+                        </label>
+                        <label>
+                            <input 
+                                type="radio"
+                                name="searchMode"
+                                value="agent"
+                                checked={searchMode === 'agent'}
+                                onChange={() => setSearchMode('agent')}
+                            />
+                            Search by Logged-in Agent
+                        </label>
+                    </div>
+                    {searchMode === 'name' && (
+                        <input 
+                            type="text"
+                            placeholder="Search buyers by name or surname..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    )}
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                    
+                    {searchResults.length > 0 && (
+                        <div className='search-results'>
+                            <h2>Search Results</h2>
+                            <ul>
+                                {searchResults.map((buyer) => (
+                                    <li key={buyer._id}>
+                                        {buyer.firstName} {buyer.lastName} ({buyer.email})
+                                    </li>   
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
-            )}
-
         </div>
     );
 };

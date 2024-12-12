@@ -50,4 +50,4 @@ agentSchema.statics.authenticate = async function(email, password) {
     }
 };
 
-module.exports = mongoose.model('agent', agentSchema);
+module.exports = mongoose.model('Agent', agentSchema);

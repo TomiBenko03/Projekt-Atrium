@@ -103,7 +103,7 @@ const createTransaction = async (req, res) => {
 
 const searchTransaction = async (req, res) => {
     try {
-        console.log('Searching for transaction:', req.params.id); // Debug log
+        console.log('Searching for transaction:', req.params.id); // Debug log¸
         const transaction = await Transaction.findById(req.params.id)
             .populate('agent')
             .populate('buyers')
