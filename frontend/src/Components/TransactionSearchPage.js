@@ -46,6 +46,22 @@ const TransactionSearchPage = () => {
     }
   }
 
+  const fetchBindingOffer = async () => {
+    try{
+      const response = await axios.get(
+        `http://localhost:3001/api/transactions/bindingOffer/${transaction._id}`,
+        {
+          withCredentials: true,
+          responseType: 'blob'
+        }
+      );
+      const filename = transaction.agent.firstName + "_zavezujoca_ponudba_za_nakup_nepremicnine.docx";
+      saveAs(new Blob([response.data]), filename)
+    } catch (error){
+      console.error('Error generating report: ', error);
+    }
+  }
+
   return (
     
       <div className='form-container'>
@@ -193,12 +209,25 @@ const TransactionSearchPage = () => {
               </div>
             )}
           </div>
+          <div>
             <button
               onClick={fetchCommissionReport}
               className='button-primary'
             >
               Generate Report
             </button>
+          </div>
+          
+            <br></br>
+
+          <div>
+            <button
+              onClick={fetchBindingOffer}
+              className='button-primary'
+            >
+              Generate Binding Offer
+            </button>
+          </div>
           
         </div>
       )}
