@@ -10,7 +10,7 @@ import LoginPage from "./Components/LoginPage";
 import LogoutPage from "./Components/LogoutPage";
 import { UserContext } from "./userContext";
 import "./App.css";
-import Logo from "./logo.svg"; // Adjust the path based on where you save the logo
+import Logo from "./logo.svg"; // Adjust the path if needed
 
 function App() {
   const [user, setUser] = useState(localStorage.user ? JSON.parse(localStorage.user) : null);
@@ -22,12 +22,7 @@ function App() {
 
   return (
     <Router>
-      <UserContext.Provider
-        value={{
-          user: user,
-          setUserContext: updateUserData,
-        }}
-      >
+      <UserContext.Provider value={{ user: user, setUserContext: updateUserData }}>
         {/* Premium Navigation Bar with Logo */}
         <nav className="nav-bar fade-in">
           <div className="nav-brand">
@@ -59,6 +54,7 @@ function App() {
         {/* Main Container */}
         <main className="main-container fade-in">
           <Routes>
+            <Route path="/" element={<TransactionPage />} />
             <Route path="/agent" element={<AgentPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/logout" element={<LogoutPage />} />
@@ -67,6 +63,7 @@ function App() {
             <Route path="/property" element={<PropertyPage />} />
             <Route path="/transaction" element={<TransactionPage />} />
             <Route path="/transaction/search" element={<TransactionSearchPage />} />
+            <Route path="/transaction/:transactionId" element={<TransactionSearchPage />} />
           </Routes>
         </main>
 

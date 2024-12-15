@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../App.css';
@@ -23,6 +25,7 @@ const TransactionPage = () => {
         buyerExpenses: '',
         contractPreparationDeadline: '',
         contractPreparedBy: '',
+        status: 'v pripravi'
     });
 
     const [message, setMessage] = useState('');
@@ -109,6 +112,7 @@ const TransactionPage = () => {
                 buyerExpenses: '',
                 contractPreparationDeadline: '',
                 contractPreparedBy: '',
+                status: 'v pripravi'
             });
         } catch (error) {
             console.error('Error creating transaction:', error);
@@ -134,7 +138,7 @@ const TransactionPage = () => {
             setSearchResults([]);
         }
     }
-    
+
 
     if (loading) {
         return <div>Loading...</div>; // Display a loading message while fetching user role
@@ -142,70 +146,70 @@ const TransactionPage = () => {
 
     if (userRole === 'odvetnik') {
         return (
-        <div className='page-container'>
-            <div className="restricted-container">
-                            <div className='search-container'>
-                <h2 className='form-header'>Transaction Search</h2>
-                <div className='search-options'>
-                    <label>
-                        <input
-                            type="radio"
-                            name="searchMode"
-                            value="transactionId"
-                            checked={searchMode === 'transactionId'}
-                            onChange={() => setSearchMode('transactionId')}
-                        />
-                        Search by Transaction ID
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="searchMode"
-                            value="agentTransactions"
-                            checked={searchMode === 'agent'}
-                            onChange={() => setSearchMode('agent')}
-                        />
-                        Search Transactions by Agent
-                    </label>
-                </div>
+            <div className='page-container'>
+                <div className="restricted-container">
+                    <div className='search-container'>
+                        <h2 className='form-header'>Transaction Search</h2>
+                        <div className='search-options'>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="searchMode"
+                                    value="transactionId"
+                                    checked={searchMode === 'transactionId'}
+                                    onChange={() => setSearchMode('transactionId')}
+                                />
+                                Search by Transaction ID
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="searchMode"
+                                    value="agentTransactions"
+                                    checked={searchMode === 'agent'}
+                                    onChange={() => setSearchMode('agent')}
+                                />
+                                Search Transactions by Agent
+                            </label>
+                        </div>
 
-                {searchMode === 'transactionId' && (
-                    <input
-                        type="text"
-                        placeholder="Search by Transaction ID"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                )}
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+                        {searchMode === 'transactionId' && (
+                            <input
+                                type="text"
+                                placeholder="Search by Transaction ID"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        )}
+                        <button onClick={handleSearch} className='button-primary'>
+                            Search
+                        </button>
 
-                {searchResults.length > 0 && (
-                    <div className='search-results'>
-                        <h2>Search Results</h2>
-                        <ul>
-                            {searchResults.map((transaction) => (
-                                <li key={transaction._id}>
-                                    <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
-                                    <strong>Buyers: </strong> {
-                                        transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ')
-                                        || 'No buyers found'}<br />
-                                    <strong>Sellers: </strong> {
-                                        transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ')
-                                        || 'No sellers found'}<br />
-                                </li>
-                            ))}
-                        </ul>
+                        {searchResults.length > 0 && (
+                            <div className='search-results'>
+                                <h2>Search Results</h2>
+                                <ul>
+                                    {searchResults.map((transaction) => (
+                                        <li key={transaction._id}>
+                                            <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
+                                            <strong>Buyers: </strong> {
+                                                transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ')
+                                                || 'No buyers found'}<br />
+                                            <strong>Sellers: </strong> {
+                                                transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ')
+                                                || 'No sellers found'}<br />
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-            </div>
+                </div>
             </div>
         );
     }
 
-    
+
 
     return (
         <div className='page-container'>
@@ -346,6 +350,23 @@ const TransactionPage = () => {
                             onChange={handleChange}
                         />
                     </div>
+                    <div className='form-group'>
+                        <label>Status:</label>
+                        <select
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="v pripravi">v pripravi</option>
+                            <option value="aktivno">aktivno</option>
+                            <option value="prodajalni postopek">prodajalni postopek</option>
+                            <option value="pripravljanje pogodbe">pripravljanje pogodbe</option>
+                            <option value="podpisovaje pogodbe">podpisovaje pogodbe</option>
+                            <option value="FURS">FURS</option>
+                            <option value="zakljuceno">zakljuceno</option>
+                        </select>
+                    </div>
                     <button type="login" className='button-primary'>
                         Add transaction
                     </button>
@@ -389,25 +410,38 @@ const TransactionPage = () => {
                 </button>
 
                 {searchResults.length > 0 && (
-                    <div className='search-results'>
-                        <h2>Search Results</h2>
-                        <ul>
-                            {searchResults.map((transaction) => (
-                                <li key={transaction._id}>
-                                    <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
-                                    <strong>Buyers: </strong> {
-                                        transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ')
-                                        || 'No buyers found'}<br />
-                                    <strong>Sellers: </strong> {
-                                        transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ')
-                                        || 'No sellers found'}<br />
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-            </div>
-        </div>
+  <div className='search-results'>
+    <h2>Search Results</h2>
+    <ul style={{ listStyleType: 'none', padding: 0 }}>
+      {searchResults.map((transaction) => (
+        <li key={transaction._id} style={{ marginBottom: '1em' }}>
+          <Link 
+            to={`/transaction/${transaction._id}`} 
+            style={{ 
+              display: 'block', 
+              padding: '1em', 
+              textDecoration: 'none', 
+              color: '#333', 
+              cursor: 'pointer' 
+            }}
+          >
+            <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
+            <strong>Buyers: </strong>{
+              transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ') || 'No buyers found'
+            }<br />
+            <strong>Sellers: </strong>{
+              transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ') || 'No sellers found'
+            }<br />
+            <strong>Status: </strong>{transaction.status || 'N/A'} <br />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+ 
+            </div >
+        </div >
     );
 };
 

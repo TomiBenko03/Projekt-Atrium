@@ -6,7 +6,7 @@ const transactionSchema = new mongoose.Schema({
     buyers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Buyer' }],
     property: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: true },
     paymentDetails: {
-        deposit: { 
+        deposit: {
             amount: Number,
             deadline: Date,
             account: String,
@@ -27,6 +27,7 @@ const transactionSchema = new mongoose.Schema({
     buyerExpenses: [{ description: String, amount: Number }],
     contractPreparationDeadline: { type: Date },
     contractPreparedBy: { type: String },
+    status: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

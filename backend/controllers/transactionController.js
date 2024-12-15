@@ -29,6 +29,7 @@ const createTransaction = async (req, res) => {
             contractPreparationDeadline,
             contractPreparedBy,
             legalDocuments,
+            status
         } = req.body;
 
         // Find the agent by id
@@ -85,6 +86,7 @@ const createTransaction = async (req, res) => {
             contractPreparationDeadline,
             contractPreparedBy,
             legalDocuments,
+            status,
         });
 
         // Save the transaction
@@ -117,6 +119,7 @@ const searchTransaction = async (req, res) => {
             .populate('buyers')
             .populate('sellers')
             .populate('property')
+            .populate('status')
             .exec();
 
         if (!transaction) {
@@ -143,17 +146,49 @@ const getAgentTransactions = async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const transactions = await Transaction.find({ agent: agentId })
+            .populate('_id')
             .populate('agent')
             .populate('buyers')
             .populate('sellers')
-            .populate('property');
+            .populate('property')
+            .populate('status');
         res.status(200).json(transactions);
     } catch (error) {
         console.error('Error fetching transactions:', error);
         res.status(500).json({ message: 'Failed to fetch transactions', error });
     }
 };
-
+const updateTransaction = async (req, res) => {
+    try {
+      const { Id } = req.params;
+      const { status } = req.body;
+  
+      // Validate transaction ID format
+     
+    
+      // Find the transaction by ID
+      const transaction = await Transaction.findById(Id);
+      if (!transaction) {
+        return res.status(404).json({ message: 'Transaction not found' });
+      }
+  
+      // Update only the status field
+      transaction.status = status;
+      await transaction.save();
+  
+      res.status(200).json({
+        message: 'Transaction status updated successfully',
+        status: transaction.status,
+      });
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      res.status(500).json({
+        message: 'Failed to update transaction',
+        error: error.message,
+      });
+    }
+  };
+  
 // helper function for generating reports
 const formatCheckbox = (value) => {
     return `${value ? '☒' : '☐'} DA ${!value ? '☒' : '☐'} NE`;
@@ -163,6 +198,7 @@ const formatCheckbox = (value) => {
 const generateCommissionReport = async(req, res) => {
     try{
     const transaction = await require('../models/Transaction').findById(req.params.id)
+            .populate('_id')
             .populate('agent')
             .populate('buyers')
             .populate('sellers')
@@ -683,4 +719,5 @@ module.exports = {
     getAgentTransactions,
     generateCommissionReport,
     generateBindingOffer,
+    updateTransaction,
 };
