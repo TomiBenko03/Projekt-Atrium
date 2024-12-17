@@ -122,6 +122,33 @@ const PropertyPage = () => {
         }
     }
 
+    useEffect(() => {
+        const fetchResults = async() => {
+            if(searchQuery.length > 0) {
+                try{
+                    const response = await axios.post(
+                        'http://localhost:3001/api/property/searchProperties',
+                        { query: searchQuery },
+                        { withCredentials: true }
+                    );
+                    setSearchResults(response.data || []);
+                }
+                catch (error) {
+                    console.error('Error fetching search results: ', error);
+                    setSearchResults([]);
+                }
+            }
+            else {
+                setSearchResults([]);
+            }
+        };
+
+        const delayedFetch = setTimeout(() => {
+            fetchResults();
+        }, 300);
+
+        return () => clearTimeout(delayedFetch);
+    }, [searchQuery, searchMode]);
 
     if (loading) {
         return <div>Loading...</div>; // Display a loading message while fetching user role
@@ -130,63 +157,70 @@ const PropertyPage = () => {
     if (userRole === 'odvetnik') {
         return (
             <div className='page-container'>
-            <div className="restricted-container">
-                <div className='search-container'>
-                <h2 className='form-header'>Property Search</h2>
-                <div className='search-options'>
-                    <label>
-                        <input
-                            type="radio"
-                            name="searchMode"
-                            value="name"
-                            checked={searchMode === 'name'}
-                            onChange={() => setSearchMode('name')}
-                        />
-                        Search by Name
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="searchMode"
-                            value="name"
-                            checked={searchMode === 'agent'}
-                            onChange={() => setSearchMode('agent')}
-                        />
-                        Search by Logged-in Agent
-                    </label>
-                </div>
-
-                {searchMode === 'name' && (
-                    <input
-                        type='text'
-                        placeholder='Search properties by name...'
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                )}
-
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
-                {searchResults.length > 0 && (
-                    <div className='search-results'>
-                        <h2>Search Results</h2>
-                        <ul>
-                            {searchResults.map((property) => (
-                                <li key={property._id}>
-                                    {property.mainPropertyId}
-                                </li>
-                            ))}
-                        </ul>
+                <div className="restricted-container">
+                    <div className='search-container'>
+                    <h2 className='form-header'>Property Search</h2>
+                    <div className='search-options'>
+                        <label>
+                            <input
+                                type="radio"
+                                name="searchMode"
+                                value="name"
+                                checked={searchMode === 'name'}
+                                onChange={() => setSearchMode('name')}
+                            />
+                            Search by Name
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="searchMode"
+                                value="name"
+                                checked={searchMode === 'agent'}
+                                onChange={() => setSearchMode('agent')}
+                            />
+                            Search by Logged-in Agent
+                        </label>
                     </div>
-                )}
+
+                    {searchMode === 'name' && (
+                        <input
+                            type='text'
+                            placeholder='Search properties by name...'
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    )}
+
+                    {searchMode === 'agent' && (
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                    )}
+
+                    {searchResults.length > 0 && (
+                        <div className='search-results'>
+                            <h2>Search Results</h2>
+                            <ul>
+                                {searchResults.map((property) => (
+                                    <li key={property._id}>
+                                        <strong>Property Name: </strong> {property.mainPropertyId} <br />
+                                        <strong>Property Address: </strong> {property.address} <br />
+                                        <strong>Price: </strong> {property.price} <br />
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {searchQuery.length > 0 && searchResults.length === 0 && (
+                        <p>No results found for "{searchQuery}"</p>
+                    )}
+                </div>
             </div>
         </div>
-            </div>
         );
     }
-
-   
 
     return (
         <div className='page-container'>
@@ -384,20 +418,29 @@ const PropertyPage = () => {
                     />
                 )}
 
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+                {searchMode === 'agent' && (
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                )}
+                
                 {searchResults.length > 0 && (
                     <div className='search-results'>
                         <h2>Search Results</h2>
                         <ul>
                             {searchResults.map((property) => (
                                 <li key={property._id}>
-                                    {property.mainPropertyId}
+                                    <strong>Property Name: </strong> {property.mainPropertyId} <br />
+                                    <strong>Property Address: </strong> {property.address} <br />
+                                    <strong>Price: </strong> {property.price} <br />
                                 </li>
                             ))}
                         </ul>
                     </div>
+                )}
+
+                {searchQuery.length > 0 && searchResults.length === 0 && (
+                    <p>No results found for "{searchQuery}"</p>
                 )}
             </div>
         </div>

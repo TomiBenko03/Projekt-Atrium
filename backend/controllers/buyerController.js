@@ -40,10 +40,11 @@ const getAgentBuyers = async(req, res) => {
 const searchBuyers = async(req, res) => {
     try{
         const { query } = req.body;
+
         const buyers = await Buyer.find({
             $or: [
                 { firstName: { $regex: query, $options: 'i' } },
-                { lasName: { $regex: query, $options: 'i' } }
+                { lastName: { $regex: query, $options: 'i' } }
             ]
         });
         res.status(200).json(buyers);

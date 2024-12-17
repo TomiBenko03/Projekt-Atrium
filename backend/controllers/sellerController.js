@@ -6,6 +6,8 @@ const createSeller = async(req, res) => {
         const { firstName, lastName, address, gsm, email, emso, taxNumber, bankAccount, bankName } = req.body;
         const agentId = req.session.agentId;
 
+        console.log('Agent ID:', agentId); // Debug
+
         const newSeller = new Seller({
             firstName,
             lastName,
@@ -43,8 +45,8 @@ const searchSellers = async(req, res) => {
         const { query } = req.body;
         const sellers = await Seller.find({
             $or: [
-                {firstName: { $regex: query, $options: 'i' } },
-                {lastName: { $regex: query, $options: 'i' } }
+                { firstName: { $regex: query, $options: 'i' } },
+                { lastName: { $regex: query, $options: 'i' } }
             ]
         });
         res.status(200).json(sellers);

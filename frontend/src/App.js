@@ -6,6 +6,7 @@ import PropertyPage from "./Components/PropertyPage";
 import SellerPage from "./Components/SellerPage";
 import TransactionPage from "./Components/TransactionPage";
 import TransactionSearchPage from "./Components/TransactionSearchPage";
+import SearchAllPage from './Components/SearchAllPage';
 import LoginPage from "./Components/LoginPage";
 import LogoutPage from "./Components/LogoutPage";
 import { UserContext } from "./userContext";
@@ -35,12 +36,12 @@ function App() {
             <li><Link className="nav-link" to="/">Home</Link></li>
             {user ? (
               <>
-                <li><Link className="nav-link" to="/logout">Logout</Link></li>
                 <li><Link className="nav-link" to="/buyer">Buyer</Link></li>
                 <li><Link className="nav-link" to="/seller">Seller</Link></li>
                 <li><Link className="nav-link" to="/property">Properties</Link></li>
                 <li><Link className="nav-link" to="/transaction">Transactions</Link></li>
-                <li><Link className="nav-link" to="/transaction/search">Search Transactions</Link></li>
+                <li><Link className="nav-link" to="/search/all">Search All</Link></li>
+                <li><Link className="nav-link" to="/logout">Logout</Link></li>
               </>
             ) : (
               <>
@@ -54,7 +55,7 @@ function App() {
         {/* Main Container */}
         <main className="main-container fade-in">
           <Routes>
-            <Route path="/" element={<TransactionPage />} />
+            <Route path="/" />
             <Route path="/agent" element={<AgentPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/logout" element={<LogoutPage />} />
@@ -62,7 +63,7 @@ function App() {
             <Route path="/seller" element={<SellerPage />} />
             <Route path="/property" element={<PropertyPage />} />
             <Route path="/transaction" element={<TransactionPage />} />
-            <Route path="/transaction/search" element={<TransactionSearchPage />} />
+            <Route path="/search/all" element={<SearchAllPage />} />
             <Route path="/transaction/:transactionId" element={<TransactionSearchPage />} />
           </Routes>
         </main>

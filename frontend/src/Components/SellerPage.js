@@ -46,6 +46,7 @@ const SellerPage = () => {
 
         fetchUserRole();
     }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -89,6 +90,35 @@ const SellerPage = () => {
             setSearchResults([]);
         }
     }
+
+    useEffect(() => {
+        const fetchResults = async() => {
+            if(searchQuery.length > 0) {
+                try{
+                    const response = await axios.post(
+                        'http://localhost:3001/api/sellers/searchSellers',
+                        { query: searchQuery },
+                        { withCredentials: true }
+                    );
+                    setSearchResults(response.data || []);
+                }
+                catch (error) {
+                    console.error('Error fetching search results: ', error);
+                    setSearchResults([]);
+                }
+            }
+            else {
+                setSearchResults([]);
+            }
+        };
+
+        const delayedFetch = setTimeout(() => {
+            fetchResults();
+        }, 300);
+
+        return () => clearTimeout(delayedFetch);
+    }, [searchQuery, searchMode]);
+
     if (loading) {
         return <div>Loading...</div>; // Display a loading message while fetching user role
     }
@@ -129,20 +159,31 @@ const SellerPage = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 )}
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+
+                {searchMode === 'agent' && (
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                )}
+
                 {searchResults.length > 0 && (
                     <div className='search-results'>
                         <h2>Search Results</h2>
                         <ul>
                             {searchResults.map((seller) => (
                                 <li key={seller._id}>
-                                    {seller.firstName} {seller.lastName} ({seller.email})
+                                    <strong>Name: </strong> {seller.firstName} <br />
+                                    <strong>Last Name: </strong> {seller.lastName} <br />
+                                    <strong>Email: </strong> {seller.email} <br />
+                                    <strong>Phone Number: </strong> {seller.gsm} <br />
                                 </li>
                             ))}
                         </ul>
                     </div>
+                )}
+
+                {searchQuery.length > 0 && searchResults.length === 0 && (
+                    <p>No results found for "{searchQuery}"</p>
                 )}
             </div>
         </div>
@@ -262,7 +303,7 @@ const SellerPage = () => {
                     <button type="submit" className='button-primary'>
                         Add seller
                     </button>
-                </form>
+               </form>
             </div>
             <div className='search-container'>
                 <h2 className='form-header'>Seller Search</h2>
@@ -296,20 +337,31 @@ const SellerPage = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 )}
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+
+                {searchMode === 'agent' && (
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                )}
+               
                 {searchResults.length > 0 && (
                     <div className='search-results'>
                         <h2>Search Results</h2>
                         <ul>
                             {searchResults.map((seller) => (
                                 <li key={seller._id}>
-                                    {seller.firstName} {seller.lastName} ({seller.email})
+                                    <strong>Name: </strong> {seller.firstName} <br />
+                                    <strong>Last Name: </strong> {seller.lastName} <br />
+                                    <strong>Email: </strong> {seller.email} <br />
+                                    <strong>Phone Number: </strong> {seller.gsm} <br />
                                 </li>
                             ))}
                         </ul>
                     </div>
+                )}
+
+                {searchQuery.length > 0 && searchResults.length === 0 && (
+                    <p>No results found for "{searchQuery}"</p>
                 )}
             </div>
         </div>

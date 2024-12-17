@@ -75,6 +75,7 @@ const BuyerPage = () => {
             setMessage('Failed to create buyer.');
         }
     };
+    
     const handleSearch = async () => {
         try {
             const endpoint =
@@ -94,6 +95,35 @@ const BuyerPage = () => {
             setSearchResults([]);
         }
     }
+
+    useEffect(() => {
+        const fetchResults = async() => {
+            if(searchQuery.length > 0) {
+                try{
+                    const response = await axios.post(
+                        'http://localhost:3001/api/buyer/searchBuyers',
+                        { query: searchQuery },
+                        { withCredentials: true }
+                    );
+                    setSearchResults(response.data || []);
+                }
+                catch (error) {
+                    console.error('Error fetching search results: ', error);
+                    setSearchResults([]);
+                }
+            }
+            else {
+                setSearchResults([]);
+            }
+        };
+
+        const delayedFetch = setTimeout(() => {
+            fetchResults();
+        }, 300);
+
+        return () => clearTimeout(delayedFetch);
+    }, [searchQuery, searchMode]);
+
     if (loading) {
         return <div>Loading...</div>; // Display a loading message while fetching user role
     }
@@ -134,9 +164,13 @@ const BuyerPage = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 )}
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+
+               
+                {searchMode === 'agent' && (
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                )}
 
                 {searchResults.length > 0 && (
                     <div className='search-results'>
@@ -144,11 +178,18 @@ const BuyerPage = () => {
                         <ul>
                             {searchResults.map((buyer) => (
                                 <li key={buyer._id}>
-                                    {buyer.firstName} {buyer.lastName} ({buyer.email})
+                                    <strong>Name: </strong> {buyer.firstName} <br />
+                                    <strong>Last Name: </strong> {buyer.lastName} <br />
+                                    <strong>Email: </strong> {buyer.email} <br />
+                                    <strong>Phone Number: </strong> {buyer.gsm} <br />
                                 </li>
                             ))}
                         </ul>
                     </div>
+                )}
+                
+                {searchQuery.length > 0 && searchResults.length === 0 && (
+                    <p>No results found for "{searchQuery}"</p>
                 )}
             </div>
         </div>
@@ -302,9 +343,12 @@ const BuyerPage = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 )}
-                <button onClick={handleSearch} className='button-primary'>
-                    Search
-                </button>
+               
+                {searchMode === 'agent' && (
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                )}
 
                 {searchResults.length > 0 && (
                     <div className='search-results'>
@@ -312,11 +356,18 @@ const BuyerPage = () => {
                         <ul>
                             {searchResults.map((buyer) => (
                                 <li key={buyer._id}>
-                                    {buyer.firstName} {buyer.lastName} ({buyer.email})
+                                    <strong>Name: </strong> {buyer.firstName} <br />
+                                    <strong>Last Name: </strong>{buyer.lastName} <br />
+                                    <strong>Email: </strong>{buyer.email} <br />
+                                    <strong>Phone Number: </strong> {buyer.gsm} <br />
                                 </li>
                             ))}
                         </ul>
                     </div>
+                )}
+
+                {searchQuery.length > 0 && searchResults.length === 0 && (
+                    <p>No results found for "{searchQuery}"</p>
                 )}
             </div>
         </div>

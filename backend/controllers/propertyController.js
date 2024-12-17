@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Property = require('../models/Property');
 
 const createProperty = async (req, res) => {
@@ -29,6 +28,8 @@ const createProperty = async (req, res) => {
         const equipmentIncludedArray = Array.isArray(equipmentIncluded)
             ? equipmentIncluded
             : (equipmentIncluded || '').split(',').map((item) => item.trim());
+
+        console.log('Agent ID:', agentId); // Debug
 
         // Step 3: Create the new property
         const newProperty = new Property({
