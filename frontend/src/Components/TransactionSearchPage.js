@@ -102,6 +102,22 @@ const TransactionSearchPage = () => {
     }
   };
 
+  const fetchSalesContract = async() => {
+    try{
+    const response = await axios.get(
+        `http://localhost:3001/api/transactions/salesContract/${transaction._id}`,
+        {
+          withCredentials: true,
+          responseType: 'blob'
+        }
+      );
+      const filename = transaction.agent.firstName + "_narocilo_prodajne_pogodbe.docx";
+      saveAs(new Blob([response.data]), filename);
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
+  }
+
   const handleStatusUpdate = async () => {
     if (!transaction) return;
     try {
@@ -291,6 +307,17 @@ const TransactionSearchPage = () => {
               className='button-primary'
             >
               Generate Binding Offer
+            </button>
+          </div>
+
+          <br />
+
+          <div>
+            <button
+              onClick={fetchSalesContract}
+              className='button-primary'
+            >
+              Generate Sales Contract
             </button>
           </div>
         </div>
