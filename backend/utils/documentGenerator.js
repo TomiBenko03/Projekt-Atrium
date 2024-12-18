@@ -845,7 +845,6 @@ const generateSalesContract = async (transactionId) => {
                 ],
                 alignment: AlignmentType.LEFT, 
             }),
-
         ]
       }]      
     })
