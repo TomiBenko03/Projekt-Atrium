@@ -108,7 +108,10 @@ const createTransaction = async (req, res) => {
 const searchTransaction = async (req, res) => {
     try {
         console.log('Searching for transaction:', req.params.id); // Debug log¸
-        console.log('Searching for transaction:', req.params.id);
+
+        const { id } = req.params;
+        const userId = req.session.agentId;
+        const userRole = req.session.role;
         
         // Validate ID format
         if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -126,6 +129,14 @@ const searchTransaction = async (req, res) => {
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
+
+        console.log('Transaction Lawyer:', transaction.lawyer.toString());
+        console.log('Logged in user:', userId);
+
+        if(userRole === 'odvetnik' && transaction.lawyer.toString() !== userId) {
+            return res.status(403).json({ message: 'Access denied. Transaction not assigned to you.' });
+        }
+        
 
         // Log successful find
         console.log('Transaction found:', transaction._id);
@@ -145,20 +156,37 @@ const searchTransaction = async (req, res) => {
 
 const getAgentTransactions = async (req, res) => {
     try {
-        const agentId = req.session.agentId;
-        const transactions = await Transaction.find({ agent: agentId })
-            .populate('_id')
-            .populate('agent')
-            .populate('buyers')
-            .populate('sellers')
-            .populate('property')
-            .populate('status');
+        const userId = req.session.agentId;
+        const userRole = req.session.role;
+
+        let transactions;
+
+        if(userRole === 'agent') {
+            transactions = await Transaction.find({ agent: userId })
+                .populate('_id')
+                .populate('agent')
+                .populate('buyers')
+                .populate('sellers')
+                .populate('property')
+                .populate('status');
+        }
+        else if(userRole === 'odvetnik') {
+            transactions = await Transaction.find({ lawyer: userId })
+                .populate('_id')
+                .populate('agent')
+                .populate('buyers')
+                .populate('sellers')
+                .populate('property')
+                .populate('status');
+        }
+       
         res.status(200).json(transactions);
     } catch (error) {
         console.error('Error fetching transactions:', error);
         res.status(500).json({ message: 'Failed to fetch transactions', error });
     }
 };
+
 const updateTransaction = async (req, res) => {
     try {
       const { Id } = req.params;
@@ -188,7 +216,36 @@ const updateTransaction = async (req, res) => {
         error: error.message,
       });
     }
-  };
+};
+
+const assignTransactionToLawyer = async(req, res) => {
+    try{
+        const { transactionId } = req.params;
+        const { lawyerEmail } = req.body;
+
+        const lawyer = await Agent.findOne({ email: lawyerEmail, role: 'odvetnik' });
+        if(!lawyer) {
+            return res.status(400).json({ message: 'Lawyer not found or invalid role' });
+        }
+
+        const transaction = await Transaction.findById(transactionId);
+        if(!transaction) {
+            return res.status(400).json({ message: 'Transaction not found' });
+        }
+
+        transaction.lawyer = lawyer._id;
+        await transaction.save();
+
+        res.status(200).json({ message: 'Transaction assigned to lawyer' });
+    }
+    catch (error) {
+        console.error('Error assigning transaction: ', error);
+        res.status(500).json({ 
+            message: 'Failed to assign transaction', 
+            error: error.message 
+        });
+    }
+};  
   
   const handleCommissionReport = async (req, res) => {
     try {
@@ -239,6 +296,7 @@ module.exports = {
     searchTransaction,
     getAgentTransactions,
     updateTransaction,
+    assignTransactionToLawyer,
     generateCommissionReport: handleCommissionReport,
     generateBindingOffer: handleBindingOffer,
     generateSalesContract: handleSalesContract,

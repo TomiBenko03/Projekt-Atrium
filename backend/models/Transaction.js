@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
     agent: { type: mongoose.Schema.Types.ObjectId, ref: 'Agent', required: true },
+    lawyer: { type: mongoose.Schema.Types.ObjectId, ref: 'Agent'},
     sellers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }],
     buyers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Buyer' }],
     property: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: true },

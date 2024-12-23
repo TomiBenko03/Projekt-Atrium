@@ -13,6 +13,7 @@ const TransactionSearchPage = () => {
   const [sellers, setSellers] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [transactionStatus, setTransactionStatus] = useState('');
+  const [lawyerEmail, setLawyerEmail] = useState('');
 
   // Define available status options
   const statusOptions = [
@@ -136,6 +137,21 @@ const TransactionSearchPage = () => {
     } catch (error) {
       console.error('Error updating transaction status:', error);
       setError('Failed to update status.');
+    }
+  };
+
+  const handleAssignLawyer = async() => {
+    try{
+      const response = await axios.put(
+        `http://localhost:3001/api/transactions/assignLawyer/${transaction._id}`,
+        { lawyerEmail },
+        { withCredentials: true }
+      );  
+      alert(response.data.message);
+    }
+    catch (error) {
+      console.error('Error assigning lawyer: ', error);
+      alert('Failed to assign lawyer. Please check the email and try again.');
     }
   };
 
@@ -287,6 +303,25 @@ const TransactionSearchPage = () => {
               style={{ marginLeft: '10px', width: 'auto' }}
             >
               Update Status
+            </button>
+          </div>
+
+          {/* Lawyer input and assign button */}
+          <div className='tab-details' style={{ marginTop: '20px' }}>
+            <label><strong>Assign to lawyer (Email):</strong></label>
+            <input 
+              type="email"
+              value={lawyerEmail}
+              onChange={(e) => setLawyerEmail(e.target.value)}
+              className='search-input'
+            />
+
+            <button 
+              onClick={handleAssignLawyer} 
+              className='button-primary' 
+              style={{ marginLeft: '10px', width: 'auto' }}
+            >
+              Assign to Lawyer 
             </button>
           </div>
 
