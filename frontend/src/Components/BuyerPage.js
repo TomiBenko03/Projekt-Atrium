@@ -78,10 +78,21 @@ const BuyerPage = () => {
     
     const handleSearch = async () => {
         try {
-            const endpoint =
-                searchMode === 'name'
-                    ? 'http://localhost:3001/api/buyer/searchBuyers'
-                    : 'http://localhost:3001/api/buyer/agentBuyers';
+            let endpoint = '';
+
+            switch(searchMode) {
+                case 'name': 
+                    endpoint = 'http://localhost:3001/api/buyer/searchBuyers';
+                    break;
+                case 'phone':
+                    endpoint = 'http://localhost:3001/api/buyer/searchBuyersByPhone';
+                    break;
+                case 'agent':
+                    endpoint = 'http://localhost:3001/api/buyer/agentBuyers';
+                    break;
+                default:
+                    return;
+            }
 
             const response = await axios.post(
                 endpoint,
@@ -100,8 +111,13 @@ const BuyerPage = () => {
         const fetchResults = async() => {
             if(searchQuery.length > 0) {
                 try{
+                    const endpoint =
+                        searchMode === 'name'
+                            ? 'http://localhost:3001/api/buyer/searchBuyers'
+                            : 'http://localhost:3001/api/buyer/searchBuyersByPhone';
+
                     const response = await axios.post(
-                        'http://localhost:3001/api/buyer/searchBuyers',
+                        endpoint,
                         { query: searchQuery },
                         { withCredentials: true }
                     );
@@ -145,6 +161,18 @@ const BuyerPage = () => {
                         />
                         Search by Name/Surname
                     </label>
+
+                    <label>
+                        <input 
+                            type="radio"
+                            name="searchMode"
+                            value="phone"
+                            checked={searchMode === 'phone'}
+                            onChange={() => setSearchMode('phone')}
+                        />
+                        Search by Phone Number
+                    </label>
+
                     <label>
                         <input
                             type="radio"
@@ -164,7 +192,15 @@ const BuyerPage = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 )}
-
+                
+                {searchMode === 'phone' && (
+                    <input 
+                        type="text"
+                        placeholder="Search buyers by phone number..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
                
                 {searchMode === 'agent' && (
                     <button onClick={handleSearch} className='button-primary'>
@@ -324,6 +360,18 @@ const BuyerPage = () => {
                         />
                         Search by Name/Surname
                     </label>
+
+                    <label>
+                        <input 
+                            type="radio"
+                            name="searchMode"
+                            value="phone"
+                            checked={searchMode === 'phone'}
+                            onChange={() => setSearchMode('phone')}
+                        />
+                        Search by Phone Number
+                    </label>
+
                     <label>
                         <input
                             type="radio"
@@ -335,10 +383,20 @@ const BuyerPage = () => {
                         Search by Logged-in Agent
                     </label>
                 </div>
+
                 {searchMode === 'name' && (
                     <input
                         type="text"
                         placeholder="Search buyers by name or surname..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                )}
+
+                {searchMode === 'phone' && (
+                    <input 
+                        type="text"
+                        placeholder="Search buyers by phone number..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />

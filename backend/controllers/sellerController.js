@@ -57,9 +57,26 @@ const searchSellers = async(req, res) => {
     }
 };
 
+const searchSellersByPhone = async(req, res) => {
+    try{
+        const { query } = req.body;
+
+        const sellers = await Seller.find({
+            gsm: { $regex: query, $options: 'i' }
+        });
+
+        res.status(200).json(sellers);
+    }
+    catch (error) {
+        console.error('Error searching for sellers by phone: ', error);
+        res.status(500).json({ message: 'Failed to search sellers by phone', error });
+    }
+};
+
 module.exports = {
     createSeller,
     getAgentSellers,
-    searchSellers
+    searchSellers,
+    searchSellersByPhone,
 };
 

@@ -169,7 +169,7 @@ const TransactionPage = () => {
                                     checked={searchMode === 'agent'}
                                     onChange={() => setSearchMode('agent')}
                                 />
-                                Search Transactions by Agent
+                                Search Transactions by Lawyer
                             </label>
                         </div>
 
@@ -188,16 +188,27 @@ const TransactionPage = () => {
                         {searchResults.length > 0 && (
                             <div className='search-results'>
                                 <h2>Search Results</h2>
-                                <ul>
+                                <ul style={{ listStyle: 'none', padding: 0 }}>
                                     {searchResults.map((transaction) => (
-                                        <li key={transaction._id}>
-                                            <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
-                                            <strong>Buyers: </strong> {
-                                                transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ')
-                                                || 'No buyers found'}<br />
-                                            <strong>Sellers: </strong> {
-                                                transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ')
-                                                || 'No sellers found'}<br />
+                                        <li key={transaction._id} style={{ marginBottom: '1em' }}>
+                                            <Link
+                                                to={`/transaction/${transaction._id}`}
+                                                style={{
+                                                    display: 'block',
+                                                    padding: '1em',
+                                                    textDecoration: 'none',
+                                                    color: '#333',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                <strong>Property: </strong>
+                                                {transaction.property?.mainPropertyId || 'N/A'} <br />
+                                                <strong>Buyers: </strong>
+                                                {transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ') || 'No buyers found'}<br />
+                                                <strong>Sellers: </strong>
+                                                {transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ') || 'No sellers found' }<br />
+                                                <strong>Status: </strong>{transaction.status || 'N/A'} <br />
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>

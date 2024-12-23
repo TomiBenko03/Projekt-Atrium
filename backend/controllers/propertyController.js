@@ -81,7 +81,7 @@ const searchProperties = async(req, res) => {
     try{
         const { query } = req.body;
         const properties = await Property.find({
-            mainPropertyId: { $regex: query, $options: 'i' }
+            address: { $regex: query, $options: 'i' }
         });
         res.status(200).json(properties);
     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import { useParams } from 'react-router-dom';
+import { UNSAFE_ErrorResponseImpl, useParams, useRouteError } from 'react-router-dom';
 import '../App.css';
 
 const TransactionSearchPage = () => {
@@ -14,6 +14,7 @@ const TransactionSearchPage = () => {
   const [buyers, setBuyers] = useState([]);
   const [transactionStatus, setTransactionStatus] = useState('');
   const [lawyerEmail, setLawyerEmail] = useState('');
+  const [userRole, setUserRole] = useState(null);
 
   // Define available status options
   const statusOptions = [
@@ -46,7 +47,20 @@ const TransactionSearchPage = () => {
         }
       }
     };
+
+    const fetchUserRole = async() => {
+      try{
+        const response = await axios.get('http://localhost:3001/api/session', { withCredentials: true });
+        setUserRole(response.data.role);
+      }
+      catch (error) {
+        console.error('Error fetching user role: ', error);
+        setUserRole(null);
+      }
+    };
+
     fetchTransactionById();
+    fetchUserRole();
   }, [transactionId]);
 
   const handleSearch = async (e) => {
@@ -306,25 +320,27 @@ const TransactionSearchPage = () => {
             </button>
           </div>
 
-          {/* Lawyer input and assign button */}
-          <div className='tab-details' style={{ marginTop: '20px' }}>
-            <label><strong>Assign to lawyer (Email):</strong></label>
-            <input 
-              type="email"
-              value={lawyerEmail}
-              onChange={(e) => setLawyerEmail(e.target.value)}
-              className='search-input'
-            />
+          {/* Assignt to Lawyer - Only for Agents */}
+          {userRole !== 'odvetnik' && (
+            <div className='tab-details' style={{ marginTop: '20px' }}>
+              <label><strong>Assign to lawyer (Email):</strong></label>
+              <input 
+                type="email"
+                value={lawyerEmail}
+                onChange={(e) => setLawyerEmail(e.target.value)}
+                className='search-input'
+              />
 
-            <button 
-              onClick={handleAssignLawyer} 
-              className='button-primary' 
-              style={{ marginLeft: '10px', width: 'auto' }}
-            >
-              Assign to Lawyer 
-            </button>
-          </div>
-
+              <button 
+                onClick={handleAssignLawyer} 
+                className='button-primary' 
+                style={{ marginLeft: '10px', width: 'auto' }}
+              >
+                Assign to Lawyer 
+              </button>
+            </div>
+          )}
+          
           <div style={{ marginTop: '20px' }}>
             <button
               onClick={fetchCommissionReport}

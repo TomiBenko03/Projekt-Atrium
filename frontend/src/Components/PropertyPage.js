@@ -169,7 +169,7 @@ const PropertyPage = () => {
                                 checked={searchMode === 'name'}
                                 onChange={() => setSearchMode('name')}
                             />
-                            Search by Name
+                            Search by Address
                         </label>
                         <label>
                             <input
@@ -186,7 +186,7 @@ const PropertyPage = () => {
                     {searchMode === 'name' && (
                         <input
                             type='text'
-                            placeholder='Search properties by name...'
+                            placeholder='Search properties by address...'
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -395,7 +395,7 @@ const PropertyPage = () => {
                             checked={searchMode === 'name'}
                             onChange={() => setSearchMode('name')}
                         />
-                        Search by Name
+                        Search by Address
                     </label>
                     <label>
                         <input
@@ -412,7 +412,7 @@ const PropertyPage = () => {
                 {searchMode === 'name' && (
                     <input
                         type='text'
-                        placeholder='Search properties by name...'
+                        placeholder='Search properties by address...'
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
