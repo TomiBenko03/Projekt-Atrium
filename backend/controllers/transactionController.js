@@ -63,6 +63,7 @@ const createTransaction = async (req, res) => {
         // Create the transaction
         const newTransaction = new Transaction({
             agent: agent._id,
+            lawyer:null,
             sellers: sellerIds,
             buyers: buyerIds,
             property: property._id,
@@ -130,8 +131,8 @@ const searchTransaction = async (req, res) => {
             return res.status(404).json({ message: 'Transaction not found' });
         }
 
-        console.log('Transaction Lawyer:', transaction.lawyer.toString());
-        console.log('Logged in user:', userId);
+       // console.log('Transaction Lawyer:', transaction.lawyer.toString());
+        //console.log('Logged in user:', userId);
 
         if(userRole === 'odvetnik' && transaction.lawyer.toString() !== userId) {
             return res.status(403).json({ message: 'Access denied. Transaction not assigned to you.' });

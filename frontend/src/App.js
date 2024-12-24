@@ -9,6 +9,7 @@ import TransactionSearchPage from "./Components/TransactionSearchPage";
 import SearchAllPage from './Components/SearchAllPage';
 import LoginPage from "./Components/LoginPage";
 import LogoutPage from "./Components/LogoutPage";
+import HomePage from "./Components/HomePage";
 import { UserContext } from "./userContext";
 import "./App.css";
 import Logo from "./logo.svg"; // Adjust the path if needed
@@ -55,7 +56,7 @@ function App() {
         {/* Main Container */}
         <main className="main-container fade-in">
           <Routes>
-            <Route path="/" />
+            <Route path="/" element={<HomePage />}/>
             <Route path="/agent" element={<AgentPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/logout" element={<LogoutPage />} />
