@@ -4,7 +4,7 @@ const Agent = require('../models/Agent');
 const Seller = require('../models/Seller');
 const Buyer = require('../models/Buyer');
 const Property = require('../models/Property');
-const { generateCommissionReport, generateBindingOffer, generateSalesContract } = require('../utils/documentGenerator');
+const { generateCommissionReport, generateBindingOffer, generateSalesContract, generateCalculationOfRealEstateCosts } = require('../utils/documentGenerator');
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, BorderStyle, VerticalAlign, WidthType } = require("docx");
 
 const createTransaction = async (req, res) => {
@@ -292,6 +292,20 @@ const handleSalesContract = async (req, res) => {
   }
 };
 
+const handleCalculationOfRealEstateCosts = async (req, res) => {
+    try{
+        const { buffer, filename } = await generateCalculationOfRealEstateCosts(req.params.id);
+        res.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': `attachment; filename=${filename}`
+            });
+        res.send(buffer);
+    } catch (error) {
+        console.error('Error generating report:', error);
+        res.status(500).json({ message: 'Error generating report' });
+    }
+    }
+
 module.exports = {
     createTransaction,
     searchTransaction,
@@ -301,4 +315,5 @@ module.exports = {
     generateCommissionReport: handleCommissionReport,
     generateBindingOffer: handleBindingOffer,
     generateSalesContract: handleSalesContract,
+    generateCalculationOfRealEstateCosts: handleCalculationOfRealEstateCosts,
 };

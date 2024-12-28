@@ -133,6 +133,22 @@ const TransactionSearchPage = () => {
     }
   }
 
+  const fetchCalcOfRealEstateCosts = async() => {
+    try{
+      const response = await axios.get(
+        `http://localhost:3001/api/transactions/calcEstateCosts/${transaction._id}`,
+        {
+          withCredentials: true,
+          responseType: 'blob'
+        }
+      );
+      const filename = transaction.agent.firstName + "_izracun_stroskov_nepremicnine.xlsx";
+      saveAs(new Blob([response.data]), filename);
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
+  }
+
   const handleStatusUpdate = async () => {
     if (!transaction) return;
     try {
@@ -369,6 +385,17 @@ const TransactionSearchPage = () => {
               className='button-primary'
             >
               Generate Sales Contract
+            </button>
+          </div>
+
+          <br />
+
+          <div>
+            <button
+              onClick={fetchCalcOfRealEstateCosts}
+              className='button-primary'
+            >
+              Generate Calculation of Real Estate Costs
             </button>
           </div>
         </div>

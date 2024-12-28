@@ -1,4 +1,5 @@
 const { Document, Packer, Paragraph, TextRun, AlignmentType } = require("docx");
+const ExcelJS = require('exceljs');
 const Transaction = require('../models/Transaction');
 
 // helper function for generating reports
@@ -858,9 +859,206 @@ const generateSalesContract = async (transactionId) => {
     }
 }
 
+const generateCalculationOfRealEstateCosts = async (transactionId) => {
+    const transaction = await Transaction.findById(transactionId)
+        .populate('agent')
+        .populate('buyers')
+        .populate('sellers')
+        .populate('property');
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('OBRAČUN');
+    
+    worksheet.columns = [
+      {width: 9},  // A
+      {width: 4}, // B
+      {width: 15}, // C
+      {width: 9}, // D
+      {width: 12}, // E
+      {width: 12}, // F
+      {width: 7}, // G
+      {width: 12}, // H
+    ]
+
+    worksheet.rows = [
+      {height: 45}, // 1
+      {height: 30}, // 2
+      {height: 30}, // 3
+      {height: 30}, // 4
+      {height: 30}, // 5
+      {height: 33}, // 6
+      {height: 22}, // 7
+      {height: 31}, // 8
+
+      {height: 15}, // 9
+      {height: 15}, // 10
+      {height: 15}, // 11
+      {height: 15}, // 12
+      {height: 15}, // 13
+      {height: 15}, // 14
+      {height: 15}, // 15
+      {height: 15}, // 16
+      {height: 15}, // 17
+      {height: 15}, // 18
+      {height: 15}, // 19
+
+      {height: 20}, // 20
+      {height: 30}, // 21
+      {height: 25}, // 22
+      {height: 25}, // 23
+      {height: 25}, // 24
+      {height: 20}, // 25
+      {height: 15}, // 26
+      {height: 15}, // 27
+    ];
+    // START / TITLE
+    worksheet.mergeCells("A1:H1");
+    worksheet.getCell("A1").value = "KW SLOVENIA";
+    worksheet.getCell("A1").font = {size: 14, bold: true};
+
+    worksheet.mergeCells("A2:H2");
+    worksheet.getCell("A2").value = "OBRAČUN STROŠKOV PRODAJE NEPREMIČNINE";
+    worksheet.getCell("A2").alignment = {horizontal: 'center'};
+    worksheet.getCell("A2").font = {size: 14, bold: true};
+
+    worksheet.mergeCells("A3:H3");
+    worksheet.getCell("A4").value = "STRANKA";
+    worksheet.getCell("A4").font = {bold: true};
+
+    worksheet.mergeCells("A4:H4");
+    worksheet.getCell("A5").value = `${transaction.buyers[0]?.firstName} ${transaction.buyers[0]?.lastName}, ${transaction.buyers[0]?.address}`;
+
+    worksheet.mergeCells("A5:H5");
+    worksheet.getCell("A6").value = `Za nepremičnino: ${transaction.property.mainPropertyId} na naslovu ${transaction.property.address}`;
+    worksheet.getCell("A6").font = {underline: true};
+
+    worksheet.mergeCells("A6:H6");
+    worksheet.mergeCells("A7:H7");
+
+    // HEADERS FOR TABLE
+    worksheet.getCell("A8").value = "Zap. Št.";
+    worksheet.getCell("A8").alignment = {vertical: 'middle', horizontal: 'center'};
+  
+    worksheet.mergeCells("B8:E8");
+    worksheet.getCell("B8").value = "STORITEV";
+    worksheet.getCell("B8").alignment = {horizontal: 'center'};
+
+    worksheet.getCell("F8").value = "PRODAJNA CENA";
+    worksheet.getCell("F8").alignment = {vertical: 'middle', horizontal: 'center'};
+
+    worksheet.getCell("G8").value = "količina";
+    worksheet.getCell("G8").alignment = {vertical: 'middle', horizontal: 'center'};
+
+    worksheet.getCell("H8").value = "ZNESEK";
+    worksheet.getCell("H8").alignment = {vertical: 'middle', horizontal: 'center'};
+
+    // ROW 1
+    worksheet.mergeCells("B9:E9");
+    worksheet.getCell("B9").value = "ZNESEK PLAČANE ARE na FTRR";
+    worksheet.getCell("B9").alignment = { horizontal: 'center' };
+    worksheet.getCell("B9").font = { bold: true };
+
+    worksheet.getCell("F9").value = transaction.property.price;
+    worksheet.getCell("F9").font = { bold: true };
+
+    worksheet.getCell("G9").value = "10.00%";
+    worksheet.getCell("G9").font = { bold: true };
+
+    const areAmount = transaction.property.price * 0.1;
+    worksheet.getCell("H9").value = areAmount;
+    worksheet.getCell("H9").font = { bold: true };
+
+    // ROW 2
+    worksheet.getCell("A10").value = "1.";
+    worksheet.mergeCells("B10:E10");
+    worksheet.getCell("B10").value = "storitev posredovanja";
+
+    worksheet.getCell("G10").value = "4.00%";
+
+    const commissionAmount = transaction.property.price * 0.04;
+    worksheet.getCell("H10").value = commissionAmount;
+
+    // ROW 3
+    worksheet.getCell("A11").value = "2.";
+    worksheet.mergeCells("B11:F11");
+    worksheet.getCell("B11").value = "DDV na storitev";
+    worksheet.getCell("G11").value = "22.00%";
+
+    const vatAmount = commissionAmount * 0.22;
+    worksheet.getCell("H11").value = vatAmount;
+
+    // ROW 4
+    worksheet.getCell("A12").value = "3.";
+    worksheet.mergeCells("B12:E12");
+    worksheet.getCell("B12").value = "DDV - davek na promet nepremičnin";
+    worksheet.getCell("G12").value = "2.00%";
+
+    const propertyTaxAmount = transaction.property.price * 0.02;
+    worksheet.getCell("H12").value = propertyTaxAmount;
+
+    // ROW 5
+    worksheet.getCell("A13").value = "4.";
+    worksheet.mergeCells("B13:E13");
+    worksheet.getCell("B13").value = "Hramba are na fiduciarnem računu";
+
+    worksheet.getCell("F13").value = transaction.fiduciaryAccount || 0.0;
+    worksheet.getCell("G13").value = transaction.fiduciaryAccount ? 1 : 0;
+    worksheet.getCell("H13").value = transaction.fiduciaryAccount || 0.0;
+
+    // ROW 6
+    worksheet.getCell("A14").value = "5.";
+    worksheet.mergeCells("B14:E14");
+    worksheet.getCell("B14").value = "Drugo: pogodbe, PNR, notar...";
+
+    worksheet.getCell("F14").value = transaction.otherExpenses || 0.0;
+    worksheet.getCell("G14").value = transaction.otherExpenses ? 1 : 0;
+    worksheet.getCell("H14").value = transaction.otherExpenses || 0.0;
+
+    worksheet.mergeCells("A20:G20");
+    worksheet.getCell("A20").value = "ostanek are";
+    worksheet.getCell("A20").font = { bold: true };
+    worksheet.getCell("A20").alignment = { horizontal: 'right' };
+
+    worksheet.getCell("H20").value = { formula: "H9-H21" };
+
+    worksheet.mergeCells("A21:G21");
+    worksheet.getCell("A21").value = "ZA PLAČILO";
+    worksheet.getCell("A21").alignment = { horizontal: 'right' };
+
+    worksheet.getCell("H21").value = { formula: "SUM(H10:H19)" };
+
+    worksheet.mergeCells("A22:H22");
+    worksheet.getCell("A22").value = `ostanek are nakazati na TRR prodajalca št.: ${transaction.sellers[0]?.taxNumber}`;
+
+    worksheet.getCell("A24").value = `Kraj in datum: ____________________________`;
+
+    worksheet.mergeCells("A26:F26");
+    worksheet.getCell("A26").value = "Posrednik:";
+    worksheet.mergeCells("G26:H26");
+    worksheet.getCell("G26").value = "Stranka, naročnik:";
+
+    worksheet.mergeCells("A27:C27");
+    worksheet.getCell("A27").value = `${transaction.agent.firstName} ${transaction.agent.lastName}`;
+    worksheet.mergeCells("G27:H27");
+    worksheet.getCell("G27").value = `${transaction.buyers[0]?.firstName} ${transaction.buyers[0]?.lastName}`;
+
+    worksheet.getColumn('F').numFmt = '#,##0.00 €';
+    worksheet.getColumn('H').numFmt = '#,##0.00 €';
+    worksheet.getColumn('G').numFmt = '#,##0.00 €';
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const filename = transaction.agent.firstName + "_obracun_stroskov_prodaje_nepremicnine";
+
+    return {
+        buffer,
+        filename
+    }
+}
+
 
 module.exports = {
     generateBindingOffer,
     generateCommissionReport,
     generateSalesContract,
+    generateCalculationOfRealEstateCosts
 };
