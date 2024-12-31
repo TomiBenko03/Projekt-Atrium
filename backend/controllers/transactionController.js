@@ -4,7 +4,12 @@ const Agent = require('../models/Agent');
 const Seller = require('../models/Seller');
 const Buyer = require('../models/Buyer');
 const Property = require('../models/Property');
-const { generateCommissionReport, generateBindingOffer, generateSalesContract, generateCalculationOfRealEstateCosts } = require('../utils/documentGenerator');
+const { 
+    generateCommissionReport, 
+    generateBindingOffer, 
+    generateSalesContract, 
+    generateCalculationOfRealEstateCosts 
+} = require('../utils/documentGenerator');
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, BorderStyle, VerticalAlign, WidthType } = require("docx");
 
 const createTransaction = async (req, res) => {
@@ -62,8 +67,7 @@ const createTransaction = async (req, res) => {
 
         // Create the transaction
         const newTransaction = new Transaction({
-            agent: agent._id,
-            lawyer:null,
+            agents: [agent._id],
             sellers: sellerIds,
             buyers: buyerIds,
             property: property._id,
@@ -120,7 +124,7 @@ const searchTransaction = async (req, res) => {
         }
 
         const transaction = await Transaction.findById(req.params.id)
-            .populate('agent')
+            .populate('agents')
             .populate('buyers')
             .populate('sellers')
             .populate('property')
@@ -134,7 +138,7 @@ const searchTransaction = async (req, res) => {
        // console.log('Transaction Lawyer:', transaction.lawyer.toString());
         //console.log('Logged in user:', userId);
 
-        if(userRole === 'odvetnik' && transaction.lawyer.toString() !== userId) {
+        if(userRole === 'odvetnik' && !transaction.agents.includes(userId)) {
             return res.status(403).json({ message: 'Access denied. Transaction not assigned to you.' });
         }
         
@@ -158,29 +162,13 @@ const searchTransaction = async (req, res) => {
 const getAgentTransactions = async (req, res) => {
     try {
         const userId = req.session.agentId;
-        const userRole = req.session.role;
 
-        let transactions;
+        const transactions = await Transaction.find({ agents: userId })
+            .populate('agents')
+            .populate('buyers')
+            .populate('sellers')
+            .populate('property');
 
-        if(userRole === 'agent') {
-            transactions = await Transaction.find({ agent: userId })
-                .populate('_id')
-                .populate('agent')
-                .populate('buyers')
-                .populate('sellers')
-                .populate('property')
-                .populate('status');
-        }
-        else if(userRole === 'odvetnik') {
-            transactions = await Transaction.find({ lawyer: userId })
-                .populate('_id')
-                .populate('agent')
-                .populate('buyers')
-                .populate('sellers')
-                .populate('property')
-                .populate('status');
-        }
-       
         res.status(200).json(transactions);
     } catch (error) {
         console.error('Error fetching transactions:', error);
@@ -234,8 +222,10 @@ const assignTransactionToLawyer = async(req, res) => {
             return res.status(400).json({ message: 'Transaction not found' });
         }
 
-        transaction.lawyer = lawyer._id;
-        await transaction.save();
+        if(!transaction.agents.includes(lawyer._id)) {
+            transaction.agents.push(lawyer._id);
+            await transaction.save();
+        }
 
         res.status(200).json({ message: 'Transaction assigned to lawyer' });
     }
