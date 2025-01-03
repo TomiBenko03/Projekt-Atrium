@@ -11,6 +11,7 @@ const TransactionSearchPage = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('agent');
   const [sellers, setSellers] = useState([]);
+  const [agent, setAgent] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [transactionStatus, setTransactionStatus] = useState('');
   const [lawyerEmail, setLawyerEmail] = useState('');
@@ -71,6 +72,7 @@ const TransactionSearchPage = () => {
     }
     try {
       const response = await axios.get(`http://localhost:3001/api/transactions/search/${searchTerm}`);
+      setAgent(response.data.agents)
       setTransaction(response.data);
       setSellers(response.data.sellers);
       setBuyers(response.data.buyers);
@@ -94,7 +96,7 @@ const TransactionSearchPage = () => {
           responseType: 'blob'
         }
       );
-      const filename = transaction.agent.firstName + "_izplacilo_provizije.docx";
+      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')+ "_izplacilo_provizije.docx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
@@ -110,7 +112,7 @@ const TransactionSearchPage = () => {
           responseType: 'blob'
         }
       );
-      const filename = transaction.agent.firstName + "_zavezujoca_ponudba_za_nakup_nepremicnine.docx";
+      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_zavezujoca_ponudba_za_nakup_nepremicnine.docx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
@@ -126,7 +128,7 @@ const TransactionSearchPage = () => {
           responseType: 'blob'
         }
       );
-      const filename = transaction.agent.firstName + "_narocilo_prodajne_pogodbe.docx";
+      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')+ "_narocilo_prodajne_pogodbe.docx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
@@ -142,7 +144,7 @@ const TransactionSearchPage = () => {
           responseType: 'blob'
         }
       );
-      const filename = transaction.agent.firstName + "_izracun_stroskov_nepremicnine.xlsx";
+      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_izracun_stroskov_nepremicnine.xlsx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
@@ -221,17 +223,21 @@ const TransactionSearchPage = () => {
             ))}
           </div>
 
-          {activeTab === 'agent' && transaction.agent && (
+          {activeTab === 'agent' /*&& transaction.agent */&& (
             <div className='tab-content active'>
-              <h3>Agent Information</h3>
-              <div className='tab-details'>
-                <p><strong>Name:</strong> {transaction.agent.firstName} {transaction.agent.lastName} </p>
-                <p><strong>Address:</strong> {transaction.agent.address} </p>
-                <p><strong>GSM:</strong> {transaction.agent.gsm} </p>
-                <p><strong>Email:</strong> {transaction.agent.email} </p>
-                <p><strong>EMSO:</strong> {transaction.agent.emso} </p>
+            
+              {sellers.map((agent, index) => (
+                <div key={index} className='tab-details'>
+                <h3>Agent Information</h3>
+                <p><strong>Name:</strong> {agent.firstName} {agent.lastName} </p>
+                <p><strong>Address:</strong> {agent.address} </p>
+                <p><strong>GSM:</strong> {agent.gsm} </p>
+                <p><strong>Email:</strong> {agent.email} </p>
+                <p><strong>EMSO:</strong> {agent.emso} </p>
               </div>
-            </div>
+            
+          ))}
+          </div>
           )}
 
           {activeTab === 'sellers' && sellers.length > 0 && (
@@ -273,6 +279,7 @@ const TransactionSearchPage = () => {
           {activeTab === 'property' && transaction.property && (
             <div className='tab-content active'>
               <h3>Property Information</h3>
+              <div className='tab-details'>
               <p><strong>ID:</strong> {transaction.property.mainPropertyId} </p>
               <p><strong>Address:</strong> {transaction.property.address} </p>
               <p><strong>Type:</strong> {transaction.property.type} </p>
@@ -289,11 +296,13 @@ const TransactionSearchPage = () => {
                 (transaction.property.sellingPrice.equipment || 0) +
                 (transaction.property.sellingPrice.other || 0))} </p>
             </div>
+            </div>
           )}
 
           {activeTab === 'payment Details' && transaction.paymentDetails && (
             <div className='tab-content active'>
               <h3>Payment Details</h3>
+              <div className='tab-details'>
               <h3>Deposit</h3>
               <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount} </p>
               <p><strong>Deadline:</strong> {transaction.paymentDetails.deposit.deadline && new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()} </p>
@@ -304,13 +313,16 @@ const TransactionSearchPage = () => {
               <p><strong>Deadline:</strong> {transaction.paymentDetails.remaining.deadline && new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()} </p>
               <p><strong>Account:</strong> {transaction.paymentDetails.remaining.account} </p>
             </div>
+            </div>
           )}
 
           {activeTab === 'buyer Mortgage' && (
             <div className='tab-content active'>
               <h3>Mortgage Information</h3>
+              <div className='tab-details'>
               <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'} </p>
               <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0} </p>
+            </div>
             </div>
           )}
 

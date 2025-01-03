@@ -11,7 +11,7 @@ const formatCheckbox = (value) => {
 const generateCommissionReport = async(transactionId) => {
     const transaction = await Transaction.findById(transactionId)
             .populate('_id')
-            .populate('agent')
+            .populate('agents')
             .populate('buyers')
             .populate('sellers')
             .populate('property');
@@ -55,7 +55,7 @@ const generateCommissionReport = async(transactionId) => {
         children: [
           new Paragraph({
             children: [
-              new TextRun(`Agent: ${transaction.agent.firstName} ${transaction.agent.lastName}. `),
+              new TextRun(`Agent: ${transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')}. `),
               new TextRun(`Datum oddaje obračuna: ${today}`,),
               new TextRun({
                 text: `Naslov nepremičnine in ID znak (št. stanovanja): ${transaction.property.address}, ID: ${transaction.property.mainPropertyId}`,
@@ -83,7 +83,7 @@ const generateCommissionReport = async(transactionId) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: `Kdo je zastopal prodajalca (ime in priimek agenta): ${transaction.agent.firstName} ${transaction.agent.lastName}.`,
+                text: `Kdo je zastopal prodajalca (ime in priimek agenta):${transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')}.`,
                 break: true
               }),
             ]
@@ -104,7 +104,7 @@ const generateCommissionReport = async(transactionId) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: `Kdo je zastopal kupca (ime in priimek agenta): ${transaction.agent.firstName} ${transaction.agent.lastName}.`,
+                text: `Kdo je zastopal kupca (ime in priimek agenta): ${transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')}.`,
                 break: true
               }),
             ]
@@ -170,7 +170,7 @@ const generateCommissionReport = async(transactionId) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: `Kdo je vodil prodajni postopek (ime in priimek): ${transaction.agent.firstName} ${transaction.agent.lastName}`,
+                text: `Kdo je vodil prodajni postopek (ime in priimek):  ${transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')}`,
                 break: true
               }),
 
@@ -201,14 +201,14 @@ const generateCommissionReport = async(transactionId) => {
     const buffer = await Packer.toBuffer(doc);
     return {
         buffer,
-        filename: `${transaction.agent.firstName}_izplacilo_provizije`
+        filename: ` ${transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')}_izplacilo_provizije`
     }
 }
 
 // zavezujoca ponudba za nakup nepremicnine
 const generateBindingOffer = async (transactionId) => {
     const transaction = await Transaction.findById(transactionId)
-            .populate('agent')
+            .populate('agents')
             .populate('buyers')
             .populate('sellers')
             .populate('property');
@@ -504,7 +504,7 @@ const generateBindingOffer = async (transactionId) => {
 
 
   const buffer = await Packer.toBuffer(doc);
-  const filename = transaction.agent.firstName + "_zavezujoca_ponudba";
+  const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_zavezujoca_ponudba";
 
     return {
         buffer,
@@ -525,7 +525,7 @@ Tukaj polno informacij manjka za vpis v dokument:
 */
 const generateSalesContract = async (transactionId) => {
     const transaction = await Transaction.findById(transactionId)
-        .populate('agent')
+        .populate('agents')
         .populate('buyers')
         .populate('sellers')
         .populate('property');
@@ -851,7 +851,7 @@ const generateSalesContract = async (transactionId) => {
     })
 
   const buffer = await Packer.toBuffer(doc);
-  const filename = transaction.agent.firstName + "_narocilo_prodajne_pogodbe";
+  const filename =transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_narocilo_prodajne_pogodbe";
 
     return {
         buffer,
@@ -861,7 +861,7 @@ const generateSalesContract = async (transactionId) => {
 
 const generateCalculationOfRealEstateCosts = async (transactionId) => {
     const transaction = await Transaction.findById(transactionId)
-        .populate('agent')
+        .populate('agents')
         .populate('buyers')
         .populate('sellers')
         .populate('property');
@@ -1038,7 +1038,7 @@ const generateCalculationOfRealEstateCosts = async (transactionId) => {
     worksheet.getCell("G26").value = "Stranka, naročnik:";
 
     worksheet.mergeCells("A27:C27");
-    worksheet.getCell("A27").value = `${transaction.agent.firstName} ${transaction.agent.lastName}`;
+    worksheet.getCell("A27").value = ` ${transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')}`;
     worksheet.mergeCells("G27:H27");
     worksheet.getCell("G27").value = `${transaction.buyers[0]?.firstName} ${transaction.buyers[0]?.lastName}`;
 
@@ -1047,7 +1047,7 @@ const generateCalculationOfRealEstateCosts = async (transactionId) => {
     worksheet.getColumn('G').numFmt = '#,##0.00 €';
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const filename = transaction.agent.firstName + "_obracun_stroskov_prodaje_nepremicnine";
+    const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_obracun_stroskov_prodaje_nepremicnine";
 
     return {
         buffer,
