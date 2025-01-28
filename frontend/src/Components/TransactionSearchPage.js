@@ -212,7 +212,7 @@ const TransactionSearchPage = () => {
       {transaction && (
         <div>
           <div className='tab-buttons'>
-            {['agent', 'sellers', 'buyers', 'property', 'payment Details', 'buyer Mortgage'].map((tab) => (
+            {['agent', 'sellers', 'buyers', 'property', 'payment Details'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -223,8 +223,8 @@ const TransactionSearchPage = () => {
             ))}
           </div>
 
-          {activeTab === 'agent' /*&& transaction.agent */&& (
-            <div className='tab-content active'>
+          {activeTab === 'agent' && (
+            <div className={`tab-content ${activeTab === 'agent' ? 'active' : ''}`}>
             
               {sellers.map((agent, index) => (
                 <div key={index} className='tab-details'>
@@ -312,19 +312,16 @@ const TransactionSearchPage = () => {
               <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount} </p>
               <p><strong>Deadline:</strong> {transaction.paymentDetails.remaining.deadline && new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()} </p>
               <p><strong>Account:</strong> {transaction.paymentDetails.remaining.account} </p>
-            </div>
-            </div>
-          )}
 
-          {activeTab === 'buyer Mortgage' && (
-            <div className='tab-content active'>
               <h3>Mortgage Information</h3>
               <div className='tab-details'>
               <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'} </p>
               <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0} </p>
+              </div>
             </div>
             </div>
           )}
+
 
           {/* Status dropdown and update button */}
           <div className='tab-details' style={{ marginTop: '20px' }}>

@@ -412,13 +412,13 @@ table tr:hover {
 }
 
 .tab-button {
-  padding: 10px 20px;
+  padding: 10px 30px;
   border: none;
   background: none;
   font-size: 16px;
   color: #333;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+
 }
 
 .tab-button:hover {
@@ -431,20 +431,20 @@ table tr:hover {
   border-bottom: 2px solid #b40101;
 }
 
-
 .tab-content {
-  padding: 0px;
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-  display: block; /* Hide inactive content */
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: none; /* Updated */
 }
 
 .tab-content.active {
-  opacity:1;
-  transform: translateY(0);
-  display: block; /* Show the active content */
+  opacity: 1;
+  transform: translateY(0px);
+  display: block; /* Ensures visibility */
+ 
 }
+
 
 .tab-details p {
   margin: 5px 0;
