@@ -19,15 +19,28 @@ const transactionSchema = new mongoose.Schema({
             additionalNotes: String,
         },
     },
-    paymentDescriptor: { type: String }, // Added paymentDescriptor
-    buyerMortgage: { type: Boolean, default: false }, // Added buyerMortgage
-    mortgageAmount: { type: Number }, // Added mortgageAmount
+    paymentDescriptor: { type: String },
+    buyerMortgage: { type: Boolean, default: false },
+    mortgageAmount: { type: Number },
     handoverDeadline: { type: Date, required: true },
     sellerExpenses: [{ description: String, amount: Number }],
     buyerExpenses: [{ description: String, amount: Number }],
     contractPreparationDeadline: { type: Date },
     contractPreparedBy: { type: String },
-    status: { type: String }
+    status: { type: String },
+
+    // Nova polja
+    kontrola: { type: Number, default: 0.00 },
+    referral: { type: Boolean, default: false },
+    vpisanoFF: { type: Boolean, default: false },
+    zakljucenoFF: { type: Boolean, default: false },
+    stRacDoStranke: { type: String },
+    strankaPlacala: { type: Boolean, default: false },
+    stRacunaAgenta: { type: String },
+    agentPlacano: { type: Boolean, default: false },
+    arhivOk: { type: Boolean, default: false },
+    commissionPercent: { type: Number, default: 0 },
+    commissionGross: { type: Number, default: 0 },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

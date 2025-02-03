@@ -35,10 +35,22 @@ const createTransaction = async (req, res) => {
             contractPreparationDeadline,
             contractPreparedBy,
             legalDocuments,
-            status
+            status,
+            // Nova polja
+            kontrola,
+            referral,
+            vpisanoFF,
+            zakljucenoFF,
+            stRacDoStranke,
+            strankaPlacala,
+            stRacunaAgenta,
+            agentPlacano,
+            arhivOk,
+            commissionPercent,
+            commissionGross,
         } = req.body;
 
-        // Find the agent by id
+        // Najdemo agenta glede na id iz seje
         const agentId = req.session.agentId;
         const agent = await Agent.findById(agentId);
         if (!agent) throw new Error('Agent not found');
@@ -46,7 +58,11 @@ const createTransaction = async (req, res) => {
         // Resolve sellers by names
         const sellerIds = await Promise.all(
             (sellers || []).map(async (name, index) => {
-                const seller = await Seller.findOne({ firstName: name.trim(), lastName: sellerSurnames[index]?.trim(), agentId: agent._id });
+                const seller = await Seller.findOne({ 
+                    firstName: name.trim(), 
+                    lastName: sellerSurnames[index]?.trim(), 
+                    agentId: agent._id 
+                });
                 if (!seller) throw new Error(`Seller ${name} ${sellerSurnames[index]} not found`);
                 return seller._id;
             })
@@ -55,17 +71,21 @@ const createTransaction = async (req, res) => {
         // Resolve buyers by names
         const buyerIds = await Promise.all(
             (buyers || []).map(async (name, index) => {
-                const buyer = await Buyer.findOne({ firstName: name.trim(), lastName: buyerSurnames[index]?.trim(), agentId: agent._id });
+                const buyer = await Buyer.findOne({ 
+                    firstName: name.trim(), 
+                    lastName: buyerSurnames[index]?.trim(), 
+                    agentId: agent._id 
+                });
                 if (!buyer) throw new Error(`Buyer ${name} ${buyerSurnames[index]} not found`);
                 return buyer._id;
             })
         );
 
-        // Find the property by its mainPropertyId
+        // Najdemo nepremičnino glede na mainPropertyId
         const property = await Property.findOne({ mainPropertyId: propertyName });
         if (!property) throw new Error('Property not found');
 
-        // Create the transaction
+        // Ustvarimo transakcijo z vsemi podatki, vključno z novimi polji
         const newTransaction = new Transaction({
             agents: [agent._id],
             sellers: sellerIds,
@@ -93,9 +113,21 @@ const createTransaction = async (req, res) => {
             contractPreparedBy,
             legalDocuments,
             status,
+            // Dodajamo nova polja
+            kontrola: Number(kontrola) || 0,
+            referral: Boolean(referral),
+            vpisanoFF: Boolean(vpisanoFF),
+            zakljucenoFF: Boolean(zakljucenoFF),
+            stRacDoStranke: stRacDoStranke || '',
+            strankaPlacala: Boolean(strankaPlacala),
+            stRacunaAgenta: stRacunaAgenta || '',
+            agentPlacano: Boolean(agentPlacano),
+            arhivOk: Boolean(arhivOk),
+            commissionPercent: Number(commissionPercent) || 0,
+            commissionGross: Number(commissionGross) || 0,
         });
 
-        // Save the transaction
+        // Shranimo transakcijo
         const savedTransaction = await newTransaction.save();
         res.status(201).json({
             message: 'Transaction created successfully',
@@ -112,7 +144,7 @@ const createTransaction = async (req, res) => {
 
 const searchTransaction = async (req, res) => {
     try {
-        console.log('Searching for transaction:', req.params.id); // Debug log¸
+        console.log('Searching for transaction:', req.params.id); // Debug log
 
         const { id } = req.params;
         const userId = req.session.agentId;
@@ -135,15 +167,10 @@ const searchTransaction = async (req, res) => {
             return res.status(404).json({ message: 'Transaction not found' });
         }
 
-       // console.log('Transaction Lawyer:', transaction.lawyer.toString());
-        //console.log('Logged in user:', userId);
-
         if(userRole === 'odvetnik' && !transaction.agents.includes(userId)) {
             return res.status(403).json({ message: 'Access denied. Transaction not assigned to you.' });
         }
         
-
-        // Log successful find
         console.log('Transaction found:', transaction._id);
         
         res.json(transaction);
@@ -178,67 +205,61 @@ const getAgentTransactions = async (req, res) => {
 
 const updateTransaction = async (req, res) => {
     try {
-      const { Id } = req.params;
-      const { status } = req.body;
+        const { Id } = req.params;
+        const { status } = req.body;
   
-      // Validate transaction ID format
-     
-    
-      // Find the transaction by ID
-      const transaction = await Transaction.findById(Id);
-      if (!transaction) {
-        return res.status(404).json({ message: 'Transaction not found' });
-      }
+        const transaction = await Transaction.findById(Id);
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
   
-      // Update only the status field
-      transaction.status = status;
-      await transaction.save();
+        transaction.status = status;
+        await transaction.save();
   
-      res.status(200).json({
-        message: 'Transaction status updated successfully',
-        status: transaction.status,
-      });
+        res.status(200).json({
+            message: 'Transaction status updated successfully',
+            status: transaction.status,
+        });
     } catch (error) {
-      console.error('Error updating transaction:', error);
-      res.status(500).json({
-        message: 'Failed to update transaction',
-        error: error.message,
-      });
+        console.error('Error updating transaction:', error);
+        res.status(500).json({
+            message: 'Failed to update transaction',
+            error: error.message,
+        });
     }
 };
 
-const assignTransactionToLawyer = async(req, res) => {
-    try{
+const assignTransactionToLawyer = async (req, res) => {
+    try {
         const { transactionId } = req.params;
         const { lawyerEmail } = req.body;
 
         const lawyer = await Agent.findOne({ email: lawyerEmail, role: 'odvetnik' });
-        if(!lawyer) {
+        if (!lawyer) {
             return res.status(400).json({ message: 'Lawyer not found or invalid role' });
         }
 
         const transaction = await Transaction.findById(transactionId);
-        if(!transaction) {
+        if (!transaction) {
             return res.status(400).json({ message: 'Transaction not found' });
         }
 
-        if(!transaction.agents.includes(lawyer._id)) {
+        if (!transaction.agents.includes(lawyer._id)) {
             transaction.agents.push(lawyer._id);
             await transaction.save();
         }
 
         res.status(200).json({ message: 'Transaction assigned to lawyer' });
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error assigning transaction: ', error);
         res.status(500).json({ 
             message: 'Failed to assign transaction', 
             error: error.message 
         });
     }
-};  
-  
-  const handleCommissionReport = async (req, res) => {
+};
+
+const handleCommissionReport = async (req, res) => {
     try {
         const { buffer, filename } = await generateCommissionReport(req.params.id);
         
@@ -269,32 +290,81 @@ const handleBindingOffer = async (req, res) => {
 };
 
 const handleSalesContract = async (req, res) => {
-  try{
-    const { buffer, filename } = await generateSalesContract(req.params.id);
-    res.set({
+    try {
+        const { buffer, filename } = await generateSalesContract(req.params.id);
+        res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'Content-Disposition': `attachment; filename=${filename}`
         });
-    res.send(buffer);
-  } catch (error) {
-    console.error('Error generating report:', error);
-    res.status(500).json({ message: 'Error generating report' });
-  }
-};
-
-const handleCalculationOfRealEstateCosts = async (req, res) => {
-    try{
-        const { buffer, filename } = await generateCalculationOfRealEstateCosts(req.params.id);
-        res.set({
-                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition': `attachment; filename=${filename}`
-            });
         res.send(buffer);
     } catch (error) {
         console.error('Error generating report:', error);
         res.status(500).json({ message: 'Error generating report' });
     }
+};
+
+const handleCalculationOfRealEstateCosts = async (req, res) => {
+    try {
+        const { buffer, filename } = await generateCalculationOfRealEstateCosts(req.params.id);
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition': `attachment; filename=${filename}`
+        });
+        res.send(buffer);
+    } catch (error) {
+        console.error('Error generating report:', error);
+        res.status(500).json({ message: 'Error generating report' });
     }
+};
+
+const updateFFDetails = async (req, res) => {
+    try {
+      const { id } = req.params; // ID transakcije
+      const {
+        kontrola,
+        referral,
+        vpisanoFF,
+        zakljucenoFF,
+        stRacDoStranke,
+        strankaPlacala,
+        stRacunaAgenta,
+        agentPlacano,
+        arhivOk,
+      } = req.body;
+  
+      // Posodobimo FF polja. Pretvorimo vrednosti, če je potrebno.
+      const updatedTransaction = await Transaction.findByIdAndUpdate(
+        id,
+        {
+          kontrola: Number(kontrola) || 0,
+          referral: Boolean(referral),
+          vpisanoFF: Boolean(vpisanoFF),
+          zakljucenoFF: Boolean(zakljucenoFF),
+          stRacDoStranke: stRacDoStranke || '',
+          strankaPlacala: Boolean(strankaPlacala),
+          stRacunaAgenta: stRacunaAgenta || '',
+          agentPlacano: Boolean(agentPlacano),
+          arhivOk: Boolean(arhivOk),
+        },
+        { new: true } // Vrne posodobljen dokument
+      );
+  
+      if (!updatedTransaction) {
+        return res.status(404).json({ message: 'Transaction not found' });
+      }
+  
+      res.json(updatedTransaction);
+    } catch (error) {
+      console.error('Error updating FF details:', error);
+      res.status(500).json({
+        message: 'Failed to update FF details',
+        error: error.message,
+      });
+    }
+  };
+  
+
+
 
 module.exports = {
     createTransaction,
@@ -306,4 +376,5 @@ module.exports = {
     generateBindingOffer: handleBindingOffer,
     generateSalesContract: handleSalesContract,
     generateCalculationOfRealEstateCosts: handleCalculationOfRealEstateCosts,
+    updateFFDetails,
 };

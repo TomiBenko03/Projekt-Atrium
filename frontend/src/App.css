@@ -412,7 +412,7 @@ table tr:hover {
 }
 
 .tab-button {
-  padding: 10px 30px;
+  padding: 10px 20px;
   border: none;
   background: none;
   font-size: 16px;
@@ -444,7 +444,19 @@ table tr:hover {
   display: block; /* Ensures visibility */
  
 }
-
+.expand-button{
+   width: 100%;
+  padding: 8px 16px;
+  background-color: #b40101;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
 .tab-details p {
   margin: 5px 0;

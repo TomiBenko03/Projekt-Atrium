@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import { UNSAFE_ErrorResponseImpl, useParams, useRouteError } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import '../App.css';
 
 const TransactionSearchPage = () => {
@@ -17,6 +17,19 @@ const TransactionSearchPage = () => {
   const [lawyerEmail, setLawyerEmail] = useState('');
   const [userRole, setUserRole] = useState(null);
 
+  // New state for FF details
+  const [ffDetails, setFFDetails] = useState({
+    kontrola: '',
+    referral: false,
+    vpisanoFF: false,
+    zakljucenoFF: false,
+    stRacDoStranke: '',
+    strankaPlacala: false,
+    stRacunaAgenta: '',
+    agentPlacano: false,
+    arhivOk: false,
+  });
+
   // Define available status options
   const statusOptions = [
     'v pripravi',
@@ -28,7 +41,7 @@ const TransactionSearchPage = () => {
     'zakljuceno'
   ];
 
-  // If transactionId is provided in the URL, fetch that transaction on mount.
+  // Fetch transaction if transactionId is provided in URL, and fetch user role.
   useEffect(() => {
     const fetchTransactionById = async () => {
       if (transactionId) {
@@ -39,6 +52,18 @@ const TransactionSearchPage = () => {
           setBuyers(response.data.buyers);
           setError('');
           setTransactionStatus(response.data.status || '');
+          // Initialize FF details from transaction if available
+          setFFDetails({
+            kontrola: response.data.kontrola || '',
+            referral: response.data.referral || false,
+            vpisanoFF: response.data.vpisanoFF || false,
+            zakljucenoFF: response.data.zakljucenoFF || false,
+            stRacDoStranke: response.data.stRacDoStranke || '',
+            strankaPlacala: response.data.strankaPlacala || false,
+            stRacunaAgenta: response.data.stRacunaAgenta || '',
+            agentPlacano: response.data.agentPlacano || false,
+            arhivOk: response.data.arhivOk || false,
+          });
         } catch (err) {
           console.error('Error fetching transaction by URL param:', err);
           setTransaction(null);
@@ -49,12 +74,11 @@ const TransactionSearchPage = () => {
       }
     };
 
-    const fetchUserRole = async() => {
-      try{
+    const fetchUserRole = async () => {
+      try {
         const response = await axios.get('http://localhost:3001/api/session', { withCredentials: true });
         setUserRole(response.data.role);
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Error fetching user role: ', error);
         setUserRole(null);
       }
@@ -72,12 +96,23 @@ const TransactionSearchPage = () => {
     }
     try {
       const response = await axios.get(`http://localhost:3001/api/transactions/search/${searchTerm}`);
-      setAgent(response.data.agents)
+      setAgent(response.data.agents);
       setTransaction(response.data);
       setSellers(response.data.sellers);
       setBuyers(response.data.buyers);
       setError('');
       setTransactionStatus(response.data.status || '');
+      setFFDetails({
+        kontrola: response.data.kontrola || '',
+        referral: response.data.referral || false,
+        vpisanoFF: response.data.vpisanoFF || false,
+        zakljucenoFF: response.data.zakljucenoFF || false,
+        stRacDoStranke: response.data.stRacDoStranke || '',
+        strankaPlacala: response.data.strankaPlacala || false,
+        stRacunaAgenta: response.data.stRacunaAgenta || '',
+        agentPlacano: response.data.agentPlacano || false,
+        arhivOk: response.data.arhivOk || false,
+      });
     } catch (err) {
       console.error('Error searching transaction:', err);
       setTransaction(null);
@@ -96,7 +131,7 @@ const TransactionSearchPage = () => {
           responseType: 'blob'
         }
       );
-      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')+ "_izplacilo_provizije.docx";
+      const filename = transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_izplacilo_provizije.docx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
@@ -112,31 +147,31 @@ const TransactionSearchPage = () => {
           responseType: 'blob'
         }
       );
-      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_zavezujoca_ponudba_za_nakup_nepremicnine.docx";
+      const filename = transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_zavezujoca_ponudba_za_nakup_nepremicnine.docx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
     }
   };
 
-  const fetchSalesContract = async() => {
-    try{
-    const response = await axios.get(
+  const fetchSalesContract = async () => {
+    try {
+      const response = await axios.get(
         `http://localhost:3001/api/transactions/salesContract/${transaction._id}`,
         {
           withCredentials: true,
           responseType: 'blob'
         }
       );
-      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ')+ "_narocilo_prodajne_pogodbe.docx";
+      const filename = transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_narocilo_prodajne_pogodbe.docx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
     }
-  }
+  };
 
-  const fetchCalcOfRealEstateCosts = async() => {
-    try{
+  const fetchCalcOfRealEstateCosts = async () => {
+    try {
       const response = await axios.get(
         `http://localhost:3001/api/transactions/calcEstateCosts/${transaction._id}`,
         {
@@ -144,12 +179,12 @@ const TransactionSearchPage = () => {
           responseType: 'blob'
         }
       );
-      const filename =  transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_izracun_stroskov_nepremicnine.xlsx";
+      const filename = transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_izracun_stroskov_nepremicnine.xlsx";
       saveAs(new Blob([response.data]), filename);
     } catch (error) {
       console.error('Error generating report:', error);
     }
-  }
+  };
 
   const handleStatusUpdate = async () => {
     if (!transaction) return;
@@ -172,25 +207,48 @@ const TransactionSearchPage = () => {
     }
   };
 
-  const handleAssignLawyer = async() => {
-    try{
+  const handleAssignLawyer = async () => {
+    try {
       const response = await axios.put(
         `http://localhost:3001/api/transactions/assignLawyer/${transaction._id}`,
         { lawyerEmail },
         { withCredentials: true }
-      );  
+      );
       alert(response.data.message);
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error assigning lawyer: ', error);
       alert('Failed to assign lawyer. Please check the email and try again.');
     }
   };
 
+  // Handler for updating FF details.
+  const handleFFUpdate = async () => {
+    if (!transaction) return;
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/transactions/updateFF/${transaction._id}`,
+        ffDetails,
+        { withCredentials: true }
+      );
+      // Posodobimo transaction v stanju z novimi FF podatki
+      setTransaction((prev) => ({
+        ...prev,
+        ...response.data
+      }));
+      alert('FF details updated successfully.');
+    } catch (error) {
+      console.error('Error updating FF details:', error);
+      alert('Failed to update FF details.');
+    }
+  };
+
+  // Tab gumbi (dodali smo nov zavihek "FF Details")
+  const tabs = ['agent', 'sellers', 'buyers', 'property', 'payment Details', 'Kontrolne Značke'];
+
   return (
     <div className='form-container'>
       <h1 className='form-header'>Search Transactions</h1>
-      {/* Search form: still available even if URL param is used */}
+      {/* Search form: na voljo tudi, če je URL parameter uporabljen */}
       <form onSubmit={handleSearch} className='search-form'>
         <input
           type="text"
@@ -212,7 +270,7 @@ const TransactionSearchPage = () => {
       {transaction && (
         <div>
           <div className='tab-buttons'>
-            {['agent', 'sellers', 'buyers', 'property', 'payment Details'].map((tab) => (
+            {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -223,21 +281,19 @@ const TransactionSearchPage = () => {
             ))}
           </div>
 
-          {activeTab === 'agent' && (
+          {activeTab === 'agent' && transaction.agents && (
             <div className={`tab-content ${activeTab === 'agent' ? 'active' : ''}`}>
-            
-              {sellers.map((agent, index) => (
+              {transaction.agents.map((agentItem, index) => (
                 <div key={index} className='tab-details'>
-                <h3>Agent Information</h3>
-                <p><strong>Name:</strong> {agent.firstName} {agent.lastName} </p>
-                <p><strong>Address:</strong> {agent.address} </p>
-                <p><strong>GSM:</strong> {agent.gsm} </p>
-                <p><strong>Email:</strong> {agent.email} </p>
-                <p><strong>EMSO:</strong> {agent.emso} </p>
-              </div>
-            
-          ))}
-          </div>
+                  <h3>Agent Information</h3>
+                  <p><strong>Name:</strong> {agentItem.firstName} {agentItem.lastName}</p>
+                  <p><strong>Address:</strong> {agentItem.address}</p>
+                  <p><strong>GSM:</strong> {agentItem.gsm}</p>
+                  <p><strong>Email:</strong> {agentItem.email}</p>
+                  <p><strong>EMSO:</strong> {agentItem.emso}</p>
+                </div>
+              ))}
+            </div>
           )}
 
           {activeTab === 'sellers' && sellers.length > 0 && (
@@ -245,14 +301,14 @@ const TransactionSearchPage = () => {
               {sellers.map((seller, index) => (
                 <div key={index} className='tab-details'>
                   <h3>Seller Information</h3>
-                  <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`} </p>
-                  <p><strong>Address:</strong> {seller.address} </p>
-                  <p><strong>GSM:</strong> {seller.gsm} </p>
-                  <p><strong>Email:</strong> {seller.email} </p>
-                  <p><strong>Emso:</strong> {seller.emso} </p>
-                  <p><strong>Tax Number:</strong> {seller.taxNumber} </p>
-                  <p><strong>Bank Account:</strong> {seller.bankAccount} </p>
-                  <p><strong>Bank Name:</strong> {seller.bankName} </p>
+                  <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`}</p>
+                  <p><strong>Address:</strong> {seller.address}</p>
+                  <p><strong>GSM:</strong> {seller.gsm}</p>
+                  <p><strong>Email:</strong> {seller.email}</p>
+                  <p><strong>Emso:</strong> {seller.emso}</p>
+                  <p><strong>Tax Number:</strong> {seller.taxNumber}</p>
+                  <p><strong>Bank Account:</strong> {seller.bankAccount}</p>
+                  <p><strong>Bank Name:</strong> {seller.bankName}</p>
                 </div>
               ))}
             </div>
@@ -264,13 +320,13 @@ const TransactionSearchPage = () => {
                 <div key={index} className='tab-details'>
                   <h3>Buyer Information</h3>
                   <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
-                  <p><strong>Address:</strong> {buyer.address} </p>
-                  <p><strong>GSM:</strong> {buyer.gsm} </p>
-                  <p><strong>Email:</strong> {buyer.email} </p>
-                  <p><strong>Emso:</strong> {buyer.emso} </p>
-                  <p><strong>Tax Number:</strong> {buyer.taxNumber} </p>
-                  <p><strong>Bank Account:</strong> {buyer.bankAccount} </p>
-                  <p><strong>Bank Name:</strong> {buyer.bankName} </p>
+                  <p><strong>Address:</strong> {buyer.address}</p>
+                  <p><strong>GSM:</strong> {buyer.gsm}</p>
+                  <p><strong>Email:</strong> {buyer.email}</p>
+                  <p><strong>Emso:</strong> {buyer.emso}</p>
+                  <p><strong>Tax Number:</strong> {buyer.taxNumber}</p>
+                  <p><strong>Bank Account:</strong> {buyer.bankAccount}</p>
+                  <p><strong>Bank Name:</strong> {buyer.bankName}</p>
                 </div>
               ))}
             </div>
@@ -280,130 +336,278 @@ const TransactionSearchPage = () => {
             <div className='tab-content active'>
               <h3>Property Information</h3>
               <div className='tab-details'>
-              <p><strong>ID:</strong> {transaction.property.mainPropertyId} </p>
-              <p><strong>Address:</strong> {transaction.property.address} </p>
-              <p><strong>Type:</strong> {transaction.property.type} </p>
-              <p><strong>Price:</strong> €{transaction.property.price} </p>
-              <p><strong>New build:</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'} </p>
-              <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'} </p>
-              <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'} </p>
-              <h3 className='tab-details'>Price Details</h3>
-              <p><strong>Property:</strong> €{transaction.property.sellingPrice.property} </p>
-              <p><strong>Equipment:</strong> €{transaction.property.sellingPrice.equipment} </p>
-              <p><strong>Other:</strong> €{transaction.property.sellingPrice.other} </p>
-              <p><strong>Total:</strong> €{(
-                (transaction.property.sellingPrice.property || 0) +
-                (transaction.property.sellingPrice.equipment || 0) +
-                (transaction.property.sellingPrice.other || 0))} </p>
-            </div>
+                <p><strong>ID:</strong> {transaction.property.mainPropertyId}</p>
+                <p><strong>Address:</strong> {transaction.property.address}</p>
+                <p><strong>Type:</strong> {transaction.property.type}</p>
+                <p><strong>Price:</strong> €{transaction.property.price}</p>
+                <p><strong>New build:</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'}</p>
+                <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'}</p>
+                <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'}</p>
+                <h3 className='tab-details'>Price Details</h3>
+                <p><strong>Property:</strong> €{transaction.property.sellingPrice.property}</p>
+                <p><strong>Equipment:</strong> €{transaction.property.sellingPrice.equipment}</p>
+                <p><strong>Other:</strong> €{transaction.property.sellingPrice.other}</p>
+                <p><strong>Total:</strong> €{(
+                  (transaction.property.sellingPrice.property || 0) +
+                  (transaction.property.sellingPrice.equipment || 0) +
+                  (transaction.property.sellingPrice.other || 0)
+                )}</p>
+              </div>
             </div>
           )}
 
           {activeTab === 'payment Details' && transaction.paymentDetails && (
             <div className='tab-content active'>
               <h3>Payment Details</h3>
-              <div className='tab-details'>
-              <h3>Deposit</h3>
-              <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount} </p>
-              <p><strong>Deadline:</strong> {transaction.paymentDetails.deposit.deadline && new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()} </p>
-              <p><strong>Account:</strong> {transaction.paymentDetails.deposit.account} </p>
               
-              <h3>Remaining</h3>
-              <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount} </p>
-              <p><strong>Deadline:</strong> {transaction.paymentDetails.remaining.deadline && new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()} </p>
-              <p><strong>Account:</strong> {transaction.paymentDetails.remaining.account} </p>
-
-              <h3>Mortgage Information</h3>
               <div className='tab-details'>
-              <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'} </p>
-              <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0} </p>
+              <p>
+  <strong>Proviziha:</strong> {
+    transaction.commissionGross !== 0 
+      ? `${transaction.commissionGross}€`
+      : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
+  }
+</p>
+
+                <h3>Deposit</h3>
+                <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount}</p>
+                <p>
+                  <strong>Deadline:</strong>{' '}
+                  {transaction.paymentDetails.deposit.deadline &&
+                    new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
+                </p>
+                <p><strong>Account:</strong> {transaction.paymentDetails.deposit.account}</p>
+                <h3>Remaining</h3>
+                <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount}</p>
+                <p>
+                  <strong>Deadline:</strong>{' '}
+                  {transaction.paymentDetails.remaining.deadline &&
+                    new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
+                </p>
+                <p><strong>Account:</strong> {transaction.paymentDetails.remaining.account}</p>
+                <h3>Mortgage Information</h3>
+                <div className='tab-details'>
+                  <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'}</p>
+                  <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0}</p>
+                </div>
               </div>
-            </div>
             </div>
           )}
 
+          {/* Nov zavihek: FF Details */}
+          {activeTab === 'Kontrolne Značke' && (
+            <div className='tab-content active'>
+              <h3>Kontrolne Značke</h3>
+              <div className='tab-details'>
+                <div className='form-group'>
+                  <label>Kontrola:</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={ffDetails.kontrola}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, kontrola: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Referral:</label>
+                  <input
+                    type="checkbox"
+                    checked={ffDetails.referral}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, referral: e.target.checked }))
+                    }
+                    style={{
+                      marginRight: '10px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd'
+                    }}
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Vpisano v FF:</label>
+                  <input
+                    type="checkbox"
+                    checked={ffDetails.vpisanoFF}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, vpisanoFF: e.target.checked }))
+                    }
+                    style={{
+                      marginRight: '10px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd'
+                    }}
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Zaključeno v FF:</label>
+                  <input
+                    type="checkbox"
+                    checked={ffDetails.zakljucenoFF}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, zakljucenoFF: e.target.checked }))
+                    }
+                    style={{
+                      marginRight: '10px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd'
+                    }}
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Št. Rač. do stranke:</label>
+                  <input
+                    type="text"
+                    value={ffDetails.stRacDoStranke}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, stRacDoStranke: e.target.value }))
+                    }
+                    
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Stranka plačala:</label>
+                  <input
+                    type="checkbox"
+                    checked={ffDetails.strankaPlacala}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, strankaPlacala: e.target.checked }))
+                    }
+                    style={{
+                      marginRight: '10px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd'
+                    }}
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Številka računa agenta:</label>
+                  <input
+                    type="text"
+                    value={ffDetails.stRacunaAgenta}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, stRacunaAgenta: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Agentu plačano:</label>
+                  <input
+                    type="checkbox"
+                    checked={ffDetails.agentPlacano}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, agentPlacano: e.target.checked }))
+                    }style={{
+                      marginRight: '10px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd'
+                    }}
+                  />
+                </div>
+                <div className='form-group'>
+                  <label>Arhiv ok:</label>
+                  <input
+                    type="checkbox"
+                    checked={ffDetails.arhivOk}
+                    onChange={(e) =>
+                      setFFDetails((prev) => ({ ...prev, arhivOk: e.target.checked }))
+                    }style={{
+                      marginRight: '10px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd'
+                    }}
+                  />
+                </div>
+                <button onClick={handleFFUpdate} className='button-primary'>
+                  Save FF Details
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Status dropdown and update button */}
           <div className='tab-details' style={{ marginTop: '20px' }}>
             <label><strong>Status:</strong></label>
-            <select 
-              value={transactionStatus} 
+            <select
+              value={transactionStatus}
               onChange={(e) => setTransactionStatus(e.target.value)}
               style={{ marginLeft: '10px', padding: '5px' }}
             >
               <option value="">Select Status</option>
               {statusOptions.map((statusOption) => (
-                <option key={statusOption} value={statusOption}>{statusOption}</option>
+                <option key={statusOption} value={statusOption}>
+                  {statusOption}
+                </option>
               ))}
             </select>
-            <button 
-              onClick={handleStatusUpdate} 
-              className='button-primary' 
+            <button
+              onClick={handleStatusUpdate}
+              className='button-primary'
               style={{ marginLeft: '10px', width: 'auto' }}
             >
               Update Status
             </button>
           </div>
 
-          {/* Assignt to Lawyer - Only for Agents */}
+          {/* Assign to Lawyer - Only for Agents */}
           {userRole !== 'odvetnik' && (
             <div className='tab-details' style={{ marginTop: '20px' }}>
               <label><strong>Assign to lawyer (Email):</strong></label>
-              <input 
+              <input
                 type="email"
                 value={lawyerEmail}
                 onChange={(e) => setLawyerEmail(e.target.value)}
                 className='search-input'
               />
-
-              <button 
-                onClick={handleAssignLawyer} 
-                className='button-primary' 
+              <button
+                onClick={handleAssignLawyer}
+                className='button-primary'
                 style={{ marginLeft: '10px', width: 'auto' }}
               >
-                Assign to Lawyer 
+                Assign to Lawyer
               </button>
             </div>
           )}
-          
+
           <div style={{ marginTop: '20px' }}>
-            <button
-              onClick={fetchCommissionReport}
-              className='button-primary'
-            >
+            <button onClick={fetchCommissionReport} className='button-primary'>
               Generate Report
             </button>
           </div>
-
           <br />
-
           <div>
-            <button
-              onClick={fetchBindingOffer}
-              className='button-primary'
-            >
+            <button onClick={fetchBindingOffer} className='button-primary'>
               Generate Binding Offer
             </button>
           </div>
-
           <br />
-
           <div>
-            <button
-              onClick={fetchSalesContract}
-              className='button-primary'
-            >
+            <button onClick={fetchSalesContract} className='button-primary'>
               Generate Sales Contract
             </button>
           </div>
-
           <br />
-
           <div>
-            <button
-              onClick={fetchCalcOfRealEstateCosts}
-              className='button-primary'
-            >
+            <button onClick={fetchCalcOfRealEstateCosts} className='button-primary'>
               Generate Calculation of Real Estate Costs
             </button>
           </div>
