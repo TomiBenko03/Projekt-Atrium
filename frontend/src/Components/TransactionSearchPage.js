@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver';
 import { useParams } from 'react-router-dom';
 import '../App.css';
 
+
 const TransactionSearchPage = () => {
   const { transactionId } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
@@ -153,6 +154,35 @@ const TransactionSearchPage = () => {
       console.error('Error generating report:', error);
     }
   };
+
+  const generateUpn = async (transactionid) => {
+    if (!transactionid) {
+        console.error("Transaction data is missing or invalid.");
+        return;
+    }
+
+    try {
+        const response = await axios.post(
+            `http://localhost:3001/api/apis/generateUpn/${transactionid}`, 
+            {}, // POST requests need a body, even if empty
+            {
+                withCredentials: true,
+                responseType: 'blob'
+            }
+        );
+
+        // Generate a filename based on agents' names
+        const filename = transaction.agents && transaction.agents.length > 0
+            ? transaction.agents.map(agent => `${agent.firstName} ${agent.lastName}`).join(', ') + "_UPN.PDF"
+            : `UPN_${transaction._id}.PDF`;
+
+        // Save the PDF file
+        saveAs(new Blob([response.data], { type: 'application/pdf' }), filename);
+    } catch (error) {
+        console.error('Error generating UPN PDF:', error);
+        alert('Failed to generate UPN PDF. Please try again.');
+    }
+};
 
   const fetchSalesContract = async () => {
     try {
@@ -610,6 +640,12 @@ const TransactionSearchPage = () => {
             <button onClick={fetchCalcOfRealEstateCosts} className='button-primary'>
               Generate Calculation of Real Estate Costs
             </button>
+          </div>
+          <br />
+          <div>
+          <button onClick={() => generateUpn(transaction._id)} className="button-primary">
+          Generate UPN
+          </button>
           </div>
         </div>
       )}

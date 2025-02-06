@@ -9,7 +9,7 @@ const buyerRoutes = require('./routes/buyerRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
-
+const apiRoutes = require('./routes/apiRoutes');
 const app = express();
 
 // Middleware
@@ -59,7 +59,7 @@ app.use('/api/buyer', buyerRoutes);
 app.use('/api/property', propertyRoutes);
 app.use('/api/sellers', sellerRoutes);
 app.use('/api/transactions', transactionRoutes);
-
+app.use('/api/apis', apiRoutes);
 app.get('/api/session', (req, res) => {
   if (req.session.agentId) {
     console.log(`bruh`);
