@@ -53,12 +53,16 @@ const HomePage = () => {
         fetchData();
     }, [navigate]);
 
-    const getRowStyle = (handoverDeadline) => {
+    const getRowStyle = (handoverDeadline,status) => {
+        const statusop= new String(status)
         const deadline = new Date(handoverDeadline);
         const now = new Date();
 
         if (deadline < now) {
+            if(status!="zakljuceno")
             return { backgroundColor: '#ffcccc' };
+            else
+            return { backgroundColor: '#e6ffff' };
         } else if (deadline - now < 7 * 24 * 60 * 60 * 1000) {
             return { backgroundColor: '#fff4cc' };
         } else {
@@ -100,7 +104,7 @@ const HomePage = () => {
                                         <div
                                             className="search-results"
                                             key={transaction._id}
-                                            style={getRowStyle(transaction.handoverDeadline)}
+                                            style={getRowStyle(transaction.handoverDeadline,transaction.status)}
                                         >
                                             <Link to={`/transaction/${transaction._id}`} style={{ display: 'block', padding: '10px', textDecoration: 'none', color: '#333' }}>
                                                 <strong>Property:</strong> {transaction.property?.mainPropertyId || 'N/A'} <br />

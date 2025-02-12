@@ -183,6 +183,38 @@ const TransactionSearchPage = () => {
         alert('Failed to generate UPN PDF. Please try again.');
     }
 };
+const generateAndSendHalcomXml = async (transactionid) => {
+  if (!transactionid) {
+      console.error("Transaction data is missing or invalid.");
+      return;
+  }
+
+  try {
+    const response = await axios.post(
+      `http://localhost:3001/api/apis/generateAndSendHalcomXml/${transactionid}`, 
+      {}, // Telo zahteve, čeprav je prazno
+      {
+        withCredentials: true,
+        responseType: 'blob'
+      }
+    );
+  
+    // Ustvarimo blob URL in simuliramo prenos
+    const blob = new Blob([response.data], { type: 'application/xml' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `halcom_${transactionid}.xml`; // Določi ime datoteke
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Error generating XML:', error);
+    alert('Failed to generate XML. Please try again.');}
+};
+
+
+
+
 
   const fetchSalesContract = async () => {
     try {
@@ -645,6 +677,12 @@ const TransactionSearchPage = () => {
           <div>
           <button onClick={() => generateUpn(transaction._id)} className="button-primary">
           Generate UPN
+          </button>
+          </div>
+          <br />
+          <div>
+          <button onClick={() => generateAndSendHalcomXml(transaction._id)} className="button-primary">
+          Generate Xml
           </button>
           </div>
         </div>

@@ -504,6 +504,14 @@ const TransactionPage = () => {
               name="agentPlacano"
               checked={formData.agentPlacano}
               onChange={handleChange}
+              style={{
+                marginRight: '10px',
+                width: '16px',
+                height: '16px',
+                cursor: 'pointer',
+                borderRadius: '4px',
+                border: '1px solid #ddd'
+              }}
             />
           </div>
           <div className='form-group'>
@@ -513,6 +521,14 @@ const TransactionPage = () => {
               name="arhivOk"
               checked={formData.arhivOk}
               onChange={handleChange}
+              style={{
+                marginRight: '10px',
+                width: '16px',
+                height: '16px',
+                cursor: 'pointer',
+                borderRadius: '4px',
+                border: '1px solid #ddd'
+              }}
             />
           </div>
           {/* Provizija - izbira med odstotki in bruto vrednostjo */}
