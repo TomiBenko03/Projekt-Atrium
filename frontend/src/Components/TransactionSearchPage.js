@@ -3,7 +3,8 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useParams } from 'react-router-dom';
 import '../App.css';
-
+import MessageComponent from './MessageComponent';
+import { UserContext } from '../userContext';
 
 const TransactionSearchPage = () => {
   const { transactionId } = useParams();
@@ -687,6 +688,11 @@ const generateAndSendHalcomXml = async (transactionid) => {
           </div>
         </div>
       )}
+
+      <div style={{ width: '100%', marginTop: '40px' }}>
+        <h2 className="form-header">Messages</h2>
+        <MessageComponent />
+      </div>
     </div>
   );
 };

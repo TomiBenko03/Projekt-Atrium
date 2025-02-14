@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import '../App.css';
+import MessageComponent from './MessageComponent';
+import { UserContext } from '../userContext';
 
 const HomePage = () => {
     const [loading, setLoading] = useState(false);
@@ -9,6 +11,8 @@ const HomePage = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [expandedGroups, setExpandedGroups] = useState({});
     const navigate = useNavigate();
+
+    const { user } = useContext(UserContext);
 
     const statusOptions = [
         'v pripravi',
@@ -75,62 +79,72 @@ const HomePage = () => {
     };
 
     return (
-        <div className="page-container">
-            {error && <p className="error-message" style={{ textAlign: 'center', color: 'red' }}>{error}</p>}
-            {loading && <p style={{ textAlign: 'center' }}>Loading...</p>}
-            {!loading && (
-                <>
-                    {['v pripravi', 'aktivno', 'zakljuceno'].map((statusGroup) => {
-                        const filteredTransactions = searchResults.filter(transaction => {
-                            if (statusGroup === 'v pripravi') return transaction.status === 'v pripravi';
-                            if (statusGroup === 'aktivno') return [
-                                'aktivno',
-                                'prodajalni postopek',
-                                'pripravljanje pogodbe',
-                                'podpisovaje pogodbe',
-                                'FURS',
-                            ].includes(transaction.status);
-                            return transaction.status === 'zakljuceno';
-                        });
+        <>
+            <div className="page-container">
+                {error && <p className="error-message" style={{ textAlign: 'center', color: 'red' }}>{error}</p>}
+                {loading && <p style={{ textAlign: 'center' }}>Loading...</p>}
+                {!loading && (
+                    <>
+                        {['v pripravi', 'aktivno', 'zakljuceno'].map((statusGroup) => {
+                            const filteredTransactions = searchResults.filter(transaction => {
+                                if (statusGroup === 'v pripravi') return transaction.status === 'v pripravi';
+                                if (statusGroup === 'aktivno') return [
+                                    'aktivno',
+                                    'prodajalni postopek',
+                                    'pripravljanje pogodbe',
+                                    'podpisovaje pogodbe',
+                                    'FURS',
+                                ].includes(transaction.status);
+                                return transaction.status === 'zakljuceno';
+                            });
 
-                        const isExpanded = expandedGroups[statusGroup];
-                        const visibleTransactions = isExpanded ? filteredTransactions : filteredTransactions.slice(0, 5);
+                            const isExpanded = expandedGroups[statusGroup];
+                            const visibleTransactions = isExpanded ? filteredTransactions : filteredTransactions.slice(0, 5);
 
-                        return (
-                            <div className="restricted-container" key={statusGroup}>
-                                <div className="search-container">
-                                    <h2 className="form-header">{statusGroup.charAt(0).toUpperCase() + statusGroup.slice(1)}</h2>
-                                    {visibleTransactions.map(transaction => (
-                                        <div
-                                            className="search-results"
-                                            key={transaction._id}
-                                            style={getRowStyle(transaction.handoverDeadline,transaction.status)}
-                                        >
-                                            <Link to={`/transaction/${transaction._id}`} style={{ display: 'block', padding: '10px', textDecoration: 'none', color: '#333' }}>
-                                                <strong>Property:</strong> {transaction.property?.mainPropertyId || 'N/A'} <br />
-                                                <strong>Buyers:</strong> {transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
-                                                <strong>Sellers:</strong> {transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'N/A'} <br />
-                                                <strong>Status:</strong> {transaction.status || 'N/A'} <br />
-                                                <strong>Handover Deadline:</strong> {new Date(transaction.handoverDeadline).toLocaleDateString() || 'N/A'}<br />
-                                                <strong>Agents/Odvetnik:</strong> {transaction.agents?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
-                                            </Link>
-                                        </div>
-                                    ))}
-                                    {filteredTransactions.length > 5 && (
-                                        <button className="expand-button" onClick={() => toggleExpand(statusGroup)}>
-                                            {isExpanded ? 'Show Less' : 'Show More'}
-                                        </button>
-                                    )}
+                            return (
+                                <div className="restricted-container" key={statusGroup}>
+                                    <div className="search-container">
+                                        <h2 className="form-header">{statusGroup.charAt(0).toUpperCase() + statusGroup.slice(1)}</h2>
+                                        {visibleTransactions.map(transaction => (
+                                            <div
+                                                className="search-results"
+                                                key={transaction._id}
+                                                style={getRowStyle(transaction.handoverDeadline,transaction.status)}
+                                            >
+                                                <Link to={`/transaction/${transaction._id}`} style={{ display: 'block', padding: '10px', textDecoration: 'none', color: '#333' }}>
+                                                    <strong>Property:</strong> {transaction.property?.mainPropertyId || 'N/A'} <br />
+                                                    <strong>Buyers:</strong> {transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
+                                                    <strong>Sellers:</strong> {transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'N/A'} <br />
+                                                    <strong>Status:</strong> {transaction.status || 'N/A'} <br />
+                                                    <strong>Handover Deadline:</strong> {new Date(transaction.handoverDeadline).toLocaleDateString() || 'N/A'}<br />
+                                                    <strong>Agents/Odvetnik:</strong> {transaction.agents?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
+                                                </Link>
+                                            </div>
+                                        ))}
+                                        {filteredTransactions.length > 5 && (
+                                            <button className="expand-button" onClick={() => toggleExpand(statusGroup)}>
+                                                {isExpanded ? 'Show Less' : 'Show More'}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </>
+                            );
+                        })}
+                    </>
+                )}
+                {!loading && searchResults.length === 0 && (
+                    <p style={{ textAlign: 'center' }}>No results found.</p>
+                )}
+                
+            </div>
+
+            {user && (
+                <div style={{ width: '30%', marginTop: '40px', marginLeft: 'auto', marginRight: 'auto' }} className="form-header">
+                    <h2>Messages</h2>
+                    <MessageComponent />
+                </div>
             )}
-            {!loading && searchResults.length === 0 && (
-                <p style={{ textAlign: 'center' }}>No results found.</p>
-            )}
-        </div>
+        </>
     );
 };
 

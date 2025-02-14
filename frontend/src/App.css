@@ -505,3 +505,54 @@ table tr:hover {
   width: 100%;
   text-align: center;
 }
+
+.message-container {
+  background: #f8f8f8;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #b40101;
+  box-shadow: 0px 4px 8px rgba(180, 1, 1, 0.2);
+}
+
+.messages-list {
+  margin-top: 20px;
+}
+
+.messages-list h3 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.messages-list div {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.messages-list p {
+  margin: 0;
+  color: #333;
+}
+
+.error-message {
+  color: #ff0000;
+  margin-bottom: 10px;
+}
