@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/messageController');
 
-router.post('/send', messageController.sendMessage);
-router.get('/:userId', messageController.getMessages);
+router.post('/comment', messageController.addComment);
+router.get('/comments/:transactionId', messageController.getComments);
 
 module.exports = router;

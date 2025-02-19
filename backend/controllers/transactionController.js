@@ -98,7 +98,6 @@ const createTransaction = async (req, res) => {
                 remaining: {
                     amount: Number(property.price) || 0,
                     deadline: paymentDetailsRemainingDeadline || null,
-                    additionalNotes: additionalNotes|| 'N/A'
                 },
             },
             paymentDescriptor: paymentDescriptor || '',

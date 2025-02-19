@@ -214,10 +214,6 @@ const TransactionSearchPage = () => {
     }
   };
 
-
-
-
-
   const fetchSalesContract = async () => {
     try {
       const response = await axios.get(
@@ -310,393 +306,399 @@ const TransactionSearchPage = () => {
   const tabs = ['agent', 'sellers', 'buyers', 'property', 'payment Details', 'Kontrolne Značke'];
 
   return (
-    <div className='form-container'>
-      <h1 className='form-header'>Search Transactions</h1>
-      {/* Search form: na voljo tudi, če je URL parameter uporabljen */}
-      <form onSubmit={handleSearch} className='search-form'>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setError('');
-          }}
-          placeholder="Enter transaction ID"
-          className='search-input'
-        />
-        <button type="submit" className='button-primary'>
-          Search
-        </button>
-      </form>
+    <div className='page-container'>
+      <div className='form-container'>
 
-      {error && <p className='error-message'>{error}</p>}
+        <h1 className='form-header'>Search Transactions</h1>
+        {/* Search form: na voljo tudi, če je URL parameter uporabljen */}
+        <form onSubmit={handleSearch} className='search-form'>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setError('');
+            }}
+            placeholder="Enter transaction ID"
+            className='search-input'
+          />
+          <button type="submit" className='button-primary'>
+            Search
+          </button>
+        </form>
 
-      {transaction && (
-        <div>
-          <div className='tab-buttons'>
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
+        {error && <p className='error-message'>{error}</p>}
 
-          {activeTab === 'agent' && transaction.agents && (
-            <div className={`tab-content ${activeTab === 'agent' ? 'active' : ''}`}>
-              {transaction.agents.map((agentItem, index) => (
-                <div key={index} className='tab-details'>
-                  <h3>Agent Information</h3>
-                  <p><strong>Name:</strong> {agentItem.firstName} {agentItem.lastName}</p>
-                  <p><strong>Address:</strong> {agentItem.address}</p>
-                  <p><strong>GSM:</strong> {agentItem.gsm}</p>
-                  <p><strong>Email:</strong> {agentItem.email}</p>
-                  <p><strong>EMSO:</strong> {agentItem.emso}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'sellers' && sellers.length > 0 && (
-            <div className='tab-content active'>
-              {sellers.map((seller, index) => (
-                <div key={index} className='tab-details'>
-                  <h3>Seller Information</h3>
-                  <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`}</p>
-                  <p><strong>Address:</strong> {seller.address}</p>
-                  <p><strong>GSM:</strong> {seller.gsm}</p>
-                  <p><strong>Email:</strong> {seller.email}</p>
-                  <p><strong>Emso:</strong> {seller.emso}</p>
-                  <p><strong>Tax Number:</strong> {seller.taxNumber}</p>
-                  <p><strong>Bank Account:</strong> {seller.bankAccount}</p>
-                  <p><strong>Bank Name:</strong> {seller.bankName}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'buyers' && buyers.length > 0 && (
-            <div className='tab-content active'>
-              {buyers.map((buyer, index) => (
-                <div key={index} className='tab-details'>
-                  <h3>Buyer Information</h3>
-                  <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
-                  <p><strong>Address:</strong> {buyer.address}</p>
-                  <p><strong>GSM:</strong> {buyer.gsm}</p>
-                  <p><strong>Email:</strong> {buyer.email}</p>
-                  <p><strong>Emso:</strong> {buyer.emso}</p>
-                  <p><strong>Tax Number:</strong> {buyer.taxNumber}</p>
-                  <p><strong>Bank Account:</strong> {buyer.bankAccount}</p>
-                  <p><strong>Bank Name:</strong> {buyer.bankName}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'property' && transaction.property && (
-            <div className='tab-content active'>
-              <h3>Property Information</h3>
-              <div className='tab-details'>
-                <p><strong>ID:</strong> {transaction.property.mainPropertyId}</p>
-                <p><strong>Address:</strong> {transaction.property.address}</p>
-                <p><strong>Type:</strong> {transaction.property.type}</p>
-                <p><strong>Price:</strong> €{transaction.property.price}</p>
-                <p><strong>New build:</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'}</p>
-                <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'}</p>
-                <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'}</p>
-                <h3 className='tab-details'>Price Details</h3>
-                <p><strong>Property:</strong> €{transaction.property.sellingPrice.property}</p>
-                <p><strong>Equipment:</strong> €{transaction.property.sellingPrice.equipment}</p>
-                <p><strong>Other:</strong> €{transaction.property.sellingPrice.other}</p>
-                <p><strong>Total:</strong> €{(
-                  (transaction.property.sellingPrice.property || 0) +
-                  (transaction.property.sellingPrice.equipment || 0) +
-                  (transaction.property.sellingPrice.other || 0)
-                )}</p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'payment Details' && transaction.paymentDetails && (
-            <div className='tab-content active'>
-              <h3>Payment Details</h3>
-              <p><strong>Additional notes:</strong> {transaction.paymentDescriptor}</p>
-              <p><strong>Already paid:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
-              <div className='tab-details'>
-                <p>
-                  <strong>Proviziha:</strong> {
-                    transaction.commissionGross !== 0
-                      ? `${transaction.commissionGross}€`
-                      : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
-                  }
-                </p>
-
-                <h3>Deposit</h3>
-                <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount}</p>
-                <p>
-                  <strong>Deadline:</strong>{' '}
-                  {transaction.paymentDetails.deposit.deadline &&
-                    new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
-                </p>
-               
-                
-                <h3>Remaining</h3>
-                <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount - transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
-                <p>
-                  <strong>Deadline:</strong>{' '}
-                  {transaction.paymentDetails.remaining.deadline &&
-                    new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
-                </p>
-                
-                <h3>Mortgage Information</h3>
-                <div className='tab-details'>
-                  <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'}</p>
-                  <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0}</p>
-                </div>
-                
-              </div>
-            </div>
-          )}
-
-          {/* Nov zavihek: FF Details */}
-          {activeTab === 'Kontrolne Značke' && (
-            <div className='tab-content active'>
-              <h3>Kontrolne Značke</h3>
-              <div className='tab-details'>
-                <div className='form-group'>
-                  <label>Kontrola:</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={ffDetails.kontrola}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, kontrola: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Referral:</label>
-                  <input
-                    type="checkbox"
-                    checked={ffDetails.referral}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, referral: e.target.checked }))
-                    }
-                    style={{
-                      marginRight: '10px',
-                      width: '16px',
-                      height: '16px',
-                      cursor: 'pointer',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Vpisano v FF:</label>
-                  <input
-                    type="checkbox"
-                    checked={ffDetails.vpisanoFF}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, vpisanoFF: e.target.checked }))
-                    }
-                    style={{
-                      marginRight: '10px',
-                      width: '16px',
-                      height: '16px',
-                      cursor: 'pointer',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Zaključeno v FF:</label>
-                  <input
-                    type="checkbox"
-                    checked={ffDetails.zakljucenoFF}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, zakljucenoFF: e.target.checked }))
-                    }
-                    style={{
-                      marginRight: '10px',
-                      width: '16px',
-                      height: '16px',
-                      cursor: 'pointer',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Št. Rač. do stranke:</label>
-                  <input
-                    type="text"
-                    value={ffDetails.stRacDoStranke}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, stRacDoStranke: e.target.value }))
-                    }
-
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Stranka plačala:</label>
-                  <input
-                    type="checkbox"
-                    checked={ffDetails.strankaPlacala}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, strankaPlacala: e.target.checked }))
-                    }
-                    style={{
-                      marginRight: '10px',
-                      width: '16px',
-                      height: '16px',
-                      cursor: 'pointer',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Številka računa agenta:</label>
-                  <input
-                    type="text"
-                    value={ffDetails.stRacunaAgenta}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, stRacunaAgenta: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Agentu plačano:</label>
-                  <input
-                    type="checkbox"
-                    checked={ffDetails.agentPlacano}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, agentPlacano: e.target.checked }))
-                    } style={{
-                      marginRight: '10px',
-                      width: '16px',
-                      height: '16px',
-                      cursor: 'pointer',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Arhiv ok:</label>
-                  <input
-                    type="checkbox"
-                    checked={ffDetails.arhivOk}
-                    onChange={(e) =>
-                      setFFDetails((prev) => ({ ...prev, arhivOk: e.target.checked }))
-                    } style={{
-                      marginRight: '10px',
-                      width: '16px',
-                      height: '16px',
-                      cursor: 'pointer',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-                <button onClick={handleFFUpdate} className='button-primary'>
-                  Save FF Details
+        {transaction && (
+          <div>
+            <div className='tab-buttons'>
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`tab-button ${activeTab === tab ? 'active' : ''}`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
-              </div>
-            </div>
-          )}
-
-          {/* Status dropdown and update button */}
-          <div className='tab-details' style={{ marginTop: '20px' }}>
-            <label><strong>Status:</strong></label>
-            <select
-              value={transactionStatus}
-              onChange={(e) => setTransactionStatus(e.target.value)}
-              style={{ marginLeft: '10px', padding: '5px' }}
-            >
-              <option value="">Select Status</option>
-              {statusOptions.map((statusOption) => (
-                <option key={statusOption} value={statusOption}>
-                  {statusOption}
-                </option>
               ))}
-            </select>
-            <button
-              onClick={handleStatusUpdate}
-              className='button-primary'
-              style={{ marginLeft: '10px', width: 'auto' }}
-            >
-              Update Status
-            </button>
-          </div>
+            </div>
 
-          {/* Assign to Lawyer - Only for Agents */}
-          {userRole !== 'odvetnik' && (
+            {activeTab === 'agent' && transaction.agents && (
+              <div className={`tab-content ${activeTab === 'agent' ? 'active' : ''}`}>
+                {transaction.agents.map((agentItem, index) => (
+                  <div key={index} className='tab-details'>
+                    <h3>Agent Information</h3>
+                    <p><strong>Name:</strong> {agentItem.firstName} {agentItem.lastName}</p>
+                    <p><strong>Address:</strong> {agentItem.address}</p>
+                    <p><strong>GSM:</strong> {agentItem.gsm}</p>
+                    <p><strong>Email:</strong> {agentItem.email}</p>
+                    <p><strong>EMSO:</strong> {agentItem.emso}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'sellers' && sellers.length > 0 && (
+              <div className='tab-content active'>
+                {sellers.map((seller, index) => (
+                  <div key={index} className='tab-details'>
+                    <h3>Seller Information</h3>
+                    <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`}</p>
+                    <p><strong>Address:</strong> {seller.address}</p>
+                    <p><strong>GSM:</strong> {seller.gsm}</p>
+                    <p><strong>Email:</strong> {seller.email}</p>
+                    <p><strong>Emso:</strong> {seller.emso}</p>
+                    <p><strong>Tax Number:</strong> {seller.taxNumber}</p>
+                    <p><strong>Bank Account:</strong> {seller.bankAccount}</p>
+                    <p><strong>Bank Name:</strong> {seller.bankName}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'buyers' && buyers.length > 0 && (
+              <div className='tab-content active'>
+                {buyers.map((buyer, index) => (
+                  <div key={index} className='tab-details'>
+                    <h3>Buyer Information</h3>
+                    <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
+                    <p><strong>Address:</strong> {buyer.address}</p>
+                    <p><strong>GSM:</strong> {buyer.gsm}</p>
+                    <p><strong>Email:</strong> {buyer.email}</p>
+                    <p><strong>Emso:</strong> {buyer.emso}</p>
+                    <p><strong>Tax Number:</strong> {buyer.taxNumber}</p>
+                    <p><strong>Bank Account:</strong> {buyer.bankAccount}</p>
+                    <p><strong>Bank Name:</strong> {buyer.bankName}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'property' && transaction.property && (
+              <div className='tab-content active'>
+                <h3>Property Information</h3>
+                <div className='tab-details'>
+                  <p><strong>ID:</strong> {transaction.property.mainPropertyId}</p>
+                  <p><strong>Address:</strong> {transaction.property.address}</p>
+                  <p><strong>Type:</strong> {transaction.property.type}</p>
+                  <p><strong>Price:</strong> €{transaction.property.price}</p>
+                  <p><strong>New build:</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'}</p>
+                  <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'}</p>
+                  <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'}</p>
+                  <h3 className='tab-details'>Price Details</h3>
+                  <p><strong>Property:</strong> €{transaction.property.sellingPrice.property}</p>
+                  <p><strong>Equipment:</strong> €{transaction.property.sellingPrice.equipment}</p>
+                  <p><strong>Other:</strong> €{transaction.property.sellingPrice.other}</p>
+                  <p><strong>Total:</strong> €{(
+                    (transaction.property.sellingPrice.property || 0) +
+                    (transaction.property.sellingPrice.equipment || 0) +
+                    (transaction.property.sellingPrice.other || 0)
+                  )}</p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'payment Details' && transaction.paymentDetails && (
+              <div className='tab-content active'>
+                <h3>Payment Details</h3>
+                <p><strong>Additional notes:</strong> {transaction.paymentDescriptor}</p>
+                <p><strong>Already paid:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
+                <div className='tab-details'>
+                  <p>
+                    <strong>Provizija:</strong> {
+                      transaction.commissionGross !== 0
+                        ? `${transaction.commissionGross}€`
+                        : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
+                    }
+                  </p>
+
+                  <h3>Deposit</h3>
+                  <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount}</p>
+                  <p>
+                    <strong>Deadline:</strong>{' '}
+                    {transaction.paymentDetails.deposit.deadline &&
+                      new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
+                  </p>
+                
+                  
+                  <h3>Remaining</h3>
+                  <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount - transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
+                  <p>
+                    <strong>Deadline:</strong>{' '}
+                    {transaction.paymentDetails.remaining.deadline &&
+                      new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
+                  </p>
+                  
+                  <h3>Mortgage Information</h3>
+                  <div className='tab-details'>
+                    <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'}</p>
+                    <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0}</p>
+                  </div>
+                  
+                </div>
+              </div>
+            )}
+
+            {/* Nov zavihek: FF Details */}
+            {activeTab === 'Kontrolne Značke' && (
+              <div className='tab-content active'>
+                <h3>Kontrolne Značke</h3>
+                <div className='tab-details'>
+                  <div className='form-group'>
+                    <label>Kontrola:</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={ffDetails.kontrola}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, kontrola: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Referral:</label>
+                    <input
+                      type="checkbox"
+                      checked={ffDetails.referral}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, referral: e.target.checked }))
+                      }
+                      style={{
+                        marginRight: '10px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        border: '1px solid #ddd'
+                      }}
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Vpisano v FF:</label>
+                    <input
+                      type="checkbox"
+                      checked={ffDetails.vpisanoFF}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, vpisanoFF: e.target.checked }))
+                      }
+                      style={{
+                        marginRight: '10px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        border: '1px solid #ddd'
+                      }}
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Zaključeno v FF:</label>
+                    <input
+                      type="checkbox"
+                      checked={ffDetails.zakljucenoFF}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, zakljucenoFF: e.target.checked }))
+                      }
+                      style={{
+                        marginRight: '10px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        border: '1px solid #ddd'
+                      }}
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Št. Rač. do stranke:</label>
+                    <input
+                      type="text"
+                      value={ffDetails.stRacDoStranke}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, stRacDoStranke: e.target.value }))
+                      }
+
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Stranka plačala:</label>
+                    <input
+                      type="checkbox"
+                      checked={ffDetails.strankaPlacala}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, strankaPlacala: e.target.checked }))
+                      }
+                      style={{
+                        marginRight: '10px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        border: '1px solid #ddd'
+                      }}
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Številka računa agenta:</label>
+                    <input
+                      type="text"
+                      value={ffDetails.stRacunaAgenta}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, stRacunaAgenta: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Agentu plačano:</label>
+                    <input
+                      type="checkbox"
+                      checked={ffDetails.agentPlacano}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, agentPlacano: e.target.checked }))
+                      } style={{
+                        marginRight: '10px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        border: '1px solid #ddd'
+                      }}
+                    />
+                  </div>
+                  <div className='form-group'>
+                    <label>Arhiv ok:</label>
+                    <input
+                      type="checkbox"
+                      checked={ffDetails.arhivOk}
+                      onChange={(e) =>
+                        setFFDetails((prev) => ({ ...prev, arhivOk: e.target.checked }))
+                      } style={{
+                        marginRight: '10px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        border: '1px solid #ddd'
+                      }}
+                    />
+                  </div>
+                  <button onClick={handleFFUpdate} className='button-primary'>
+                    Save FF Details
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Status dropdown and update button */}
             <div className='tab-details' style={{ marginTop: '20px' }}>
-              <label><strong>Assign to lawyer (Email):</strong></label>
-              <input
-                type="email"
-                value={lawyerEmail}
-                onChange={(e) => setLawyerEmail(e.target.value)}
-                className='search-input'
-              />
+              <label><strong>Status:</strong></label>
+              <select
+                value={transactionStatus}
+                onChange={(e) => setTransactionStatus(e.target.value)}
+                style={{ marginLeft: '10px', padding: '5px' }}
+              >
+                <option value="">Select Status</option>
+                {statusOptions.map((statusOption) => (
+                  <option key={statusOption} value={statusOption}>
+                    {statusOption}
+                  </option>
+                ))}
+              </select>
               <button
-                onClick={handleAssignLawyer}
+                onClick={handleStatusUpdate}
                 className='button-primary'
                 style={{ marginLeft: '10px', width: 'auto' }}
               >
-                Assign to Lawyer
+                Update Status
               </button>
             </div>
-          )}
 
-          <div style={{ marginTop: '20px' }}>
-            <button onClick={fetchCommissionReport} className='button-primary'>
-              Generate Report
-            </button>
+            {/* Assign to Lawyer - Only for Agents */}
+            {userRole !== 'odvetnik' && (
+              <div className='tab-details' style={{ marginTop: '20px' }}>
+                <label><strong>Assign to lawyer (Email):</strong></label>
+                <input
+                  type="email"
+                  value={lawyerEmail}
+                  onChange={(e) => setLawyerEmail(e.target.value)}
+                  className='search-input'
+                />
+                <button
+                  onClick={handleAssignLawyer}
+                  className='button-primary'
+                  style={{ marginLeft: '10px', width: 'auto' }}
+                >
+                  Assign to Lawyer
+                </button>
+              </div>
+            )}
+
+            <div style={{ marginTop: '20px' }}>
+              <button onClick={fetchCommissionReport} className='button-primary'>
+                Generate Report
+              </button>
+            </div>
+            <br />
+            <div>
+              <button onClick={fetchBindingOffer} className='button-primary'>
+                Generate Binding Offer
+              </button>
+            </div>
+            <br />
+            <div>
+              <button onClick={fetchSalesContract} className='button-primary'>
+                Generate Sales Contract
+              </button>
+            </div>
+            <br />
+            <div>
+              <button onClick={fetchCalcOfRealEstateCosts} className='button-primary'>
+                Generate Calculation of Real Estate Costs
+              </button>
+            </div>
+            <br />
+            <div>
+              <button onClick={() => generateUpn(transaction._id)} className="button-primary">
+                Generate UPN
+              </button>
+            </div>
+            <br />
+            <div>
+              <button onClick={() => generateAndSendHalcomXml(transaction._id)} className="button-primary">
+                Generate Xml
+              </button>
+            </div>
           </div>
-          <br />
-          <div>
-            <button onClick={fetchBindingOffer} className='button-primary'>
-              Generate Binding Offer
-            </button>
-          </div>
-          <br />
-          <div>
-            <button onClick={fetchSalesContract} className='button-primary'>
-              Generate Sales Contract
-            </button>
-          </div>
-          <br />
-          <div>
-            <button onClick={fetchCalcOfRealEstateCosts} className='button-primary'>
-              Generate Calculation of Real Estate Costs
-            </button>
-          </div>
-          <br />
-          <div>
-            <button onClick={() => generateUpn(transaction._id)} className="button-primary">
-              Generate UPN
-            </button>
-          </div>
-          <br />
-          <div>
-            <button onClick={() => generateAndSendHalcomXml(transaction._id)} className="button-primary">
-              Generate Xml
-            </button>
-          </div>
+        )}
+      </div>
+
+      {transaction && (
+        <div className='search-container'>
+          <h2 className="form-header">Comments</h2>
+          <MessageComponent transactionId={transaction._id} />      
         </div>
       )}
 
-      <div style={{ width: '100%', marginTop: '40px' }}>
-        <h2 className="form-header">Messages</h2>
-        <MessageComponent />
-      </div>
     </div>
   );
 };

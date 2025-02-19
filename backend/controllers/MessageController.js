@@ -1,54 +1,85 @@
-const Agent = require('../models/Agent');
 const Message = require('../models/Message');
+const Transaction = require('../models/Transaction');
+const Agent = require('../models/Agent');
+const sendEmailNotification = require('../utils/emailService');
 
-const sendMessage = async (req, res) => {
-    const { senderId, receiverEmail, message } = req.body;
-    
-    if (!senderId || !receiverEmail || !message) {
+const addComment = async (req, res) => {
+    const { userId, transactionId, comment } = req.body;
+
+    console.log('Session:', req.session); // Debugging session
+    console.log('Sender ID:', userId); // Debugging senderId
+    console.log('Transaction ID:', userId); 
+    console.log('Comment:', comment); 
+
+    if (!transactionId || !comment || !userId) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
-    try{
-        const receiver = await Agent.findOne({ email: receiverEmail });
-        if(!receiver) {
-            return res.status(404).json({ message: 'Receiver not found' });
+    try {
+        const transaction = await Transaction.findById(transactionId)
+            .populate('agents', 'email firstName lastName')
+            .populate('buyers', 'email firstName lastName')
+            .populate('sellers', 'email firstName lastName');
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
         }
 
-        const newMessage = new Message({
-            sender: senderId,
-            receiver: receiver._id,
-            message
-        })
+        const newComment = new Message({
+            transaction: transactionId,
+            sender: userId,
+            comment
+        });
 
-        await newMessage.save();
+        await newComment.save();
 
-        res.status(201).json({ message: 'Message sent successfully' });
-    }
-    catch (error) {
-        console.error('Error sending message: ', error);
-        res.status(500).json({ message: 'Failed to send message', error });
+        // Get sender details
+        const sender = await Agent.findById(userId)
+            .select('firstName lastName email');
+
+        if (!sender) {
+            console.log('Sender not found');
+            return res.status(201).json({ message: 'Comment added successfully', comment: newComment });
+        }
+
+        // Get all agent emails except sender
+        const recipientEmails = transaction.agents
+            .map(agent => agent.email)
+            .filter(email => email !== sender.email);
+
+        // Send notifications
+        recipientEmails.forEach(async (email) => {
+            await sendEmailNotification(
+                sender.email, // Pass the sender's email dynamically
+                `${sender.firstName} ${sender.lastName}`,
+                email,
+                comment
+            );
+        });
+
+        res.status(201).json({ message: 'Comment added successfully', comment: newComment });
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ message: 'Failed to add comment', error });
     }
 };
 
-const getMessages = async (req, res) => {
-    const { userId } = req.params;
+const getComments = async (req, res) => {
+    const { transactionId } = req.params;
 
     try {
-        const messages = await Message.find({
-            $or: [
-                { sender: userId },
-                { receiver: userId }
-            ]
-        }).populate('sender receiver', 'firstName lastName email');
+        const comments = await Message.find({ transaction: transactionId })
+            .populate('sender', 'firstName lastName email')
+            .sort({ timestamp: -1 });
 
-        res.status(200).json(messages);
+        res.status(200).json(comments);
     } catch (error) {
-        console.error('Error fetching messages:', error);
-        res.status(500).json({ message: 'Failed to fetch messages', error });
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ message: 'Failed to fetch comments', error });
     }
 };
 
 module.exports = {
-    sendMessage,
-    getMessages,
+    addComment,
+    getComments
 };
