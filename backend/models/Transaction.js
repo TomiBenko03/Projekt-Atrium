@@ -9,14 +9,11 @@ const transactionSchema = new mongoose.Schema({
         deposit: {
             amount: Number,
             deadline: Date,
-            account: String,
             alreadyPaid: { amount: Number, account: String },
         },
         remaining: {
             amount: Number,
             deadline: Date,
-            account: String,
-            additionalNotes: String,
         },
     },
     paymentDescriptor: { type: String },

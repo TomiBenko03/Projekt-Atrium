@@ -22,10 +22,8 @@ const createTransaction = async (req, res) => {
             propertyName,
             paymentDetailsDepositAmount,
             paymentDetailsDepositDeadline,
-            paymentDetailsDepositAccount,
-            paymentDetailsRemainingAmount,
+
             paymentDetailsRemainingDeadline,
-            paymentDetailsRemainingAccount,
             paymentDescriptor,
             buyerMortgage,
             mortgageAmount,
@@ -95,12 +93,12 @@ const createTransaction = async (req, res) => {
                 deposit: {
                     amount: Number(paymentDetailsDepositAmount) || 0,
                     deadline: paymentDetailsDepositDeadline || null,
-                    account: paymentDetailsDepositAccount || '',
+                    alreadyPaid: { amount: 0},
                 },
                 remaining: {
-                    amount: Number(paymentDetailsRemainingAmount) || 0,
+                    amount: Number(property.price) || 0,
                     deadline: paymentDetailsRemainingDeadline || null,
-                    account: paymentDetailsRemainingAccount || '',
+                    additionalNotes: additionalNotes|| 'N/A'
                 },
             },
             paymentDescriptor: paymentDescriptor || '',

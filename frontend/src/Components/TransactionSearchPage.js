@@ -158,60 +158,61 @@ const TransactionSearchPage = () => {
 
   const generateUpn = async (transactionid) => {
     if (!transactionid) {
-        console.error("Transaction data is missing or invalid.");
-        return;
+      console.error("Transaction data is missing or invalid.");
+      return;
     }
 
     try {
-        const response = await axios.post(
-            `http://localhost:3001/api/apis/generateUpn/${transactionid}`, 
-            {}, // POST requests need a body, even if empty
-            {
-                withCredentials: true,
-                responseType: 'blob'
-            }
-        );
+      const response = await axios.post(
+        `http://localhost:3001/api/apis/generateUpn/${transactionid}`,
+        {}, // POST requests need a body, even if empty
+        {
+          withCredentials: true,
+          responseType: 'blob'
+        }
+      );
 
-        // Generate a filename based on agents' names
-        const filename = transaction.agents && transaction.agents.length > 0
-            ? transaction.agents.map(agent => `${agent.firstName} ${agent.lastName}`).join(', ') + "_UPN.PDF"
-            : `UPN_${transaction._id}.PDF`;
+      // Generate a filename based on agents' names
+      const filename = transaction.agents && transaction.agents.length > 0
+        ? transaction.agents.map(agent => `${agent.firstName} ${agent.lastName}`).join(', ') + "_UPN.PDF"
+        : `UPN_${transaction._id}.PDF`;
 
-        // Save the PDF file
-        saveAs(new Blob([response.data], { type: 'application/pdf' }), filename);
+      // Save the PDF file
+      saveAs(new Blob([response.data], { type: 'application/pdf' }), filename);
     } catch (error) {
-        console.error('Error generating UPN PDF:', error);
-        alert('Failed to generate UPN PDF. Please try again.');
+      console.error('Error generating UPN PDF:', error);
+      alert('Failed to generate UPN PDF. Please try again.');
     }
-};
-const generateAndSendHalcomXml = async (transactionid) => {
-  if (!transactionid) {
+  };
+  const generateAndSendHalcomXml = async (transactionid) => {
+    if (!transactionid) {
       console.error("Transaction data is missing or invalid.");
       return;
-  }
+    }
 
-  try {
-    const response = await axios.post(
-      `http://localhost:3001/api/apis/generateAndSendHalcomXml/${transactionid}`, 
-      {}, // Telo zahteve, čeprav je prazno
-      {
-        withCredentials: true,
-        responseType: 'blob'
-      }
-    );
-  
-    // Ustvarimo blob URL in simuliramo prenos
-    const blob = new Blob([response.data], { type: 'application/xml' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = `halcom_${transactionid}.xml`; // Določi ime datoteke
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error('Error generating XML:', error);
-    alert('Failed to generate XML. Please try again.');}
-};
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/api/apis/generateAndSendHalcomXml/${transactionid}`,
+        {}, // Telo zahteve, čeprav je prazno
+        {
+          withCredentials: true,
+          responseType: 'blob'
+        }
+      );
+
+      // Ustvarimo blob URL in simuliramo prenos
+      const blob = new Blob([response.data], { type: 'application/xml' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `halcom_${transactionid}.xml`; // Določi ime datoteke
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error generating XML:', error);
+      alert('Failed to generate XML. Please try again.');
+    }
+  };
 
 
 
@@ -422,15 +423,16 @@ const generateAndSendHalcomXml = async (transactionid) => {
           {activeTab === 'payment Details' && transaction.paymentDetails && (
             <div className='tab-content active'>
               <h3>Payment Details</h3>
-              
+              <p><strong>Additional notes:</strong> {transaction.paymentDescriptor}</p>
+              <p><strong>Already paid:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
               <div className='tab-details'>
-              <p>
-  <strong>Proviziha:</strong> {
-    transaction.commissionGross !== 0 
-      ? `${transaction.commissionGross}€`
-      : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
-  }
-</p>
+                <p>
+                  <strong>Proviziha:</strong> {
+                    transaction.commissionGross !== 0
+                      ? `${transaction.commissionGross}€`
+                      : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
+                  }
+                </p>
 
                 <h3>Deposit</h3>
                 <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount}</p>
@@ -439,20 +441,22 @@ const generateAndSendHalcomXml = async (transactionid) => {
                   {transaction.paymentDetails.deposit.deadline &&
                     new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
                 </p>
-                <p><strong>Account:</strong> {transaction.paymentDetails.deposit.account}</p>
+               
+                
                 <h3>Remaining</h3>
-                <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount}</p>
+                <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount - transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
                 <p>
                   <strong>Deadline:</strong>{' '}
                   {transaction.paymentDetails.remaining.deadline &&
                     new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
                 </p>
-                <p><strong>Account:</strong> {transaction.paymentDetails.remaining.account}</p>
+                
                 <h3>Mortgage Information</h3>
                 <div className='tab-details'>
                   <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'}</p>
                   <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0}</p>
                 </div>
+                
               </div>
             </div>
           )}
@@ -535,7 +539,7 @@ const generateAndSendHalcomXml = async (transactionid) => {
                     onChange={(e) =>
                       setFFDetails((prev) => ({ ...prev, stRacDoStranke: e.target.value }))
                     }
-                    
+
                   />
                 </div>
                 <div className='form-group'>
@@ -573,7 +577,7 @@ const generateAndSendHalcomXml = async (transactionid) => {
                     checked={ffDetails.agentPlacano}
                     onChange={(e) =>
                       setFFDetails((prev) => ({ ...prev, agentPlacano: e.target.checked }))
-                    }style={{
+                    } style={{
                       marginRight: '10px',
                       width: '16px',
                       height: '16px',
@@ -590,7 +594,7 @@ const generateAndSendHalcomXml = async (transactionid) => {
                     checked={ffDetails.arhivOk}
                     onChange={(e) =>
                       setFFDetails((prev) => ({ ...prev, arhivOk: e.target.checked }))
-                    }style={{
+                    } style={{
                       marginRight: '10px',
                       width: '16px',
                       height: '16px',
@@ -676,15 +680,15 @@ const generateAndSendHalcomXml = async (transactionid) => {
           </div>
           <br />
           <div>
-          <button onClick={() => generateUpn(transaction._id)} className="button-primary">
-          Generate UPN
-          </button>
+            <button onClick={() => generateUpn(transaction._id)} className="button-primary">
+              Generate UPN
+            </button>
           </div>
           <br />
           <div>
-          <button onClick={() => generateAndSendHalcomXml(transaction._id)} className="button-primary">
-          Generate Xml
-          </button>
+            <button onClick={() => generateAndSendHalcomXml(transaction._id)} className="button-primary">
+              Generate Xml
+            </button>
           </div>
         </div>
       )}

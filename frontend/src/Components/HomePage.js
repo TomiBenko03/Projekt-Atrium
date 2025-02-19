@@ -58,12 +58,12 @@ const HomePage = () => {
     }, [navigate]);
 
     const getRowStyle = (handoverDeadline,status) => {
-        const statusop= new String(status)
+       
         const deadline = new Date(handoverDeadline);
         const now = new Date();
 
         if (deadline < now) {
-            if(status!="zakljuceno")
+            if(status!=="zakljuceno")
             return { backgroundColor: '#ffcccc' };
             else
             return { backgroundColor: '#e6ffff' };
