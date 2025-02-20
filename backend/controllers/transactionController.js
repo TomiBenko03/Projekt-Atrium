@@ -5,11 +5,13 @@ const Seller = require('../models/Seller');
 const Buyer = require('../models/Buyer');
 const Property = require('../models/Property');
 const { 
-    generateCommissionReport, 
     generateBindingOffer, 
     generateSalesContract, 
     generateCalculationOfRealEstateCosts 
 } = require('../utils/documentGenerator');
+const {
+    generateCommissionReport,
+} = require('../utils/documentGen');
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, BorderStyle, VerticalAlign, WidthType } = require("docx");
 
 const createTransaction = async (req, res) => {
@@ -258,12 +260,13 @@ const assignTransactionToLawyer = async (req, res) => {
 
 const handleCommissionReport = async (req, res) => {
     try {
-        const { buffer, filename } = await generateCommissionReport(req.params.id);
+        const { buffer, fileName } = await generateCommissionReport(req.params.id);
         
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'Content-Disposition': `attachment; filename=${filename}`
+            'Content-Disposition': `attachment; filename=${fileName}`
         });
+        
         res.send(buffer);
     } catch (error) {
         console.error('Error generating report:', error);

@@ -132,3 +132,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# big file and credentials
+/backend/utils/templateProvizije.docx
+/backend/utils/credentials.enc
