@@ -8,6 +8,7 @@ const Transaction = require('../models/Transaction');
 
 // for downloading and accessing google drive and templated documents
 const { google } = require('googleapis');
+const readline = require('readline');
 const crypto = require('crypto');
 const algorithm = 'aes-256-cbc';
 const password = 'big-huge-calcium-cannons';
@@ -20,14 +21,46 @@ const password = 'big-huge-calcium-cannons';
 }*/
 
 //const credentials = JSON.parse(decrypt('credentials.enc'));
+const credsPath = path.join(__dirname, "creds.json");
+const credentials = fs.readFile(credsPath, 'utf8');
 
+// Initialize Google Drive with OAuth 2.0
 async function initializeGoogleDrive() {
-    const auth = new google.auth.GoogleAuth({
-        keyFile: `${credentials}`,
-        scopes: ['https://www.googleapis.com/auth/drive.file'],
+    const oauth2Client = new google.auth.OAuth2(
+        credentials.client_id,
+        credentials.client_secret,
+        "http://localhost:3001",
+    );
+
+    // Generate the authorization URL
+    const authUrl = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/drive.readonly'],
     });
-    const driveClient = google.drive({ version: 'v3', auth});
-    return {driveClient};
+
+    console.log('Authorize this app by visiting this URL:', authUrl);
+
+    // Prompt for the authorization code
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    const code = await new Promise((resolve) => {
+        rl.question('Enter the authorization code: ', (code) => {
+            rl.close();
+            resolve(code);
+        });
+    });
+
+    // Exchange the authorization code for tokens
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    console.log('Authentication successful!');
+
+    const driveClient = google.drive({ version: 'v3', auth: oauth2Client });
+    return { driveClient };
 }
 
 const generateCommissionReport = async(transactionId) => {
@@ -41,7 +74,25 @@ const generateCommissionReport = async(transactionId) => {
             throw new Error('Transaction not found');
         }
 
+        const { driveClient } = await initializeGoogleDrive();
+
+        const templateFileId = "1Ap1gtkU0WV28X7BeQOdNMvBF4i4GBqB2";
+
         const templatePath = path.join(__dirname, 'templateProvizije.docx');
+        const response = await driveClient.files.get(
+            { fileId: templateFileId, alt: 'media' },
+            { responseType: 'stream' }
+        );
+
+        // Save the template to a temporary file
+        const dest = fs.createWriteStream(templatePath);
+        response.data.pipe(dest);
+
+        await new Promise((resolve, reject) => {
+            dest.on('finish', resolve);
+            dest.on('error', reject);
+        });
+
         const template = await fs.readFile(templatePath);
 
         const mappedData = TemplateMapper.mapDataToTemplate(transaction.toObject());
@@ -54,12 +105,13 @@ const generateCommissionReport = async(transactionId) => {
         });
 
         // replace placeholders
-        doc.setData(mappedData);
-        doc.render();
+        doc.render(mappedData);
 
         // generate the output buffer
         const buffer = doc.getZip().generate({ type: 'nodebuffer' });
         const fileName = `commission_report_${transactionId}_${new Date().toISOString().split('T')[0]}.docx`;
+
+        await fs.unlink(templatePath);
 
         return {
             buffer,
