@@ -192,4 +192,17 @@ const generateAndSendHalcomXml = async (req, res) => {
     }
 };
 
-module.exports = { generateUpn, generateAndSendHalcomXml };
+// authentication used for google drive API!
+// simple display of the auth code
+const oAuthCallback = async(req, res) => {
+    const code = req.query.code;
+    res.send(`
+        <html>
+            <body>
+                <p>Your authorization code is: ${code}</p>
+            </body>
+        </html>
+    `);
+}
+
+module.exports = { generateUpn, generateAndSendHalcomXml, oAuthCallback };

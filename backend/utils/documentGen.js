@@ -1,6 +1,6 @@
 // for generating documents/getting data
 const TemplateMapper = require('./templateMapper')
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
 const Docxtemplater = require('docxtemplater');
 const PizZip = require('pizzip');
@@ -21,21 +21,24 @@ const password = 'big-huge-calcium-cannons';
 }*/
 
 //const credentials = JSON.parse(decrypt('credentials.enc'));
-const credsPath = path.join(__dirname, "creds.json");
-const credentials = fs.readFile(credsPath, 'utf8');
+const rawData = fs.readFileSync('utils\\creds.json', 'utf8');
+const credentials = JSON.parse(rawData);
 
 // Initialize Google Drive with OAuth 2.0
 async function initializeGoogleDrive() {
+console.log(credentials);
+
     const oauth2Client = new google.auth.OAuth2(
-        credentials.client_id,
-        credentials.client_secret,
-        "http://localhost:3001",
+        credentials.web.client_id,
+        credentials.web.client_secret,
+        'http://localhost:3001/api/apis/oAuthCallback'
     );
 
     // Generate the authorization URL
     const authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/drive.readonly'],
+        prompt: 'consent',
     });
 
     console.log('Authorize this app by visiting this URL:', authUrl);
@@ -93,7 +96,7 @@ const generateCommissionReport = async(transactionId) => {
             dest.on('error', reject);
         });
 
-        const template = await fs.readFile(templatePath);
+        const template = await fs.promises.readFile(templatePath);
 
         const mappedData = TemplateMapper.mapDataToTemplate(transaction.toObject());
 
@@ -111,7 +114,7 @@ const generateCommissionReport = async(transactionId) => {
         const buffer = doc.getZip().generate({ type: 'nodebuffer' });
         const fileName = `commission_report_${transactionId}_${new Date().toISOString().split('T')[0]}.docx`;
 
-        await fs.unlink(templatePath);
+        await fs.promises.unlink(templatePath);
 
         return {
             buffer,

@@ -135,3 +135,4 @@ dist
 # big file and credentials
 /backend/utils/templateProvizije.docx
 /backend/utils/credentials.enc
+backend/utils/creds.json
