@@ -5,11 +5,13 @@ const path = require('path');
 const Docxtemplater = require('docxtemplater');
 const PizZip = require('pizzip');
 const Transaction = require('../models/Transaction');
+const opener = require('opener');
 
 // for downloading and accessing google drive and templated documents
 const { google } = require('googleapis');
 const readline = require('readline');
 const crypto = require('crypto');
+const { auth } = require('googleapis/build/src/apis/abusiveexperiencereport');
 const algorithm = 'aes-256-cbc';
 const password = 'big-huge-calcium-cannons';
 
@@ -26,8 +28,8 @@ const credentials = JSON.parse(rawData);
 
 // Initialize Google Drive with OAuth 2.0
 async function initializeGoogleDrive() {
-console.log(credentials);
 
+    // use credentials to use the correct drive
     const oauth2Client = new google.auth.OAuth2(
         credentials.web.client_id,
         credentials.web.client_secret,
@@ -42,6 +44,8 @@ console.log(credentials);
     });
 
     console.log('Authorize this app by visiting this URL:', authUrl);
+
+    opener(authUrl);
 
     // Prompt for the authorization code
     const rl = readline.createInterface({
@@ -79,7 +83,7 @@ const generateCommissionReport = async(transactionId) => {
 
         const { driveClient } = await initializeGoogleDrive();
 
-        const templateFileId = "1Ap1gtkU0WV28X7BeQOdNMvBF4i4GBqB2";
+        const templateFileId = "1duOakJfOR9Cm-jzETM34nU72AtfxLajU";
 
         const templatePath = path.join(__dirname, 'templateProvizije.docx');
         const response = await driveClient.files.get(
@@ -126,4 +130,63 @@ const generateCommissionReport = async(transactionId) => {
     }
 };
 
-module.exports = { generateCommissionReport };
+const generateSalesContract = async(transactionId) => {
+    try {
+        const transaction = await Transaction.findById(transactionId)
+            .populate('agents')
+            .populate('buyers')
+            .populate('sellers')
+            .populate('property');
+        if (!transaction) {
+            throw new Error('Transaction not found');
+        }
+
+        const { driveClient } = await initializeGoogleDrive();
+
+        const templateFileId = "1p7fRJSvBLZcmWR_qMd4d0VgWfelwSMNs";
+
+        const templatePath = path.join(__dirname, 'templateProvizije.docx');
+        const response = await driveClient.files.get(
+            { fileId: templateFileId, alt: 'media' },
+            { responseType: 'stream' }
+        );
+
+        // Save the template to a temporary file
+        const dest = fs.createWriteStream(templatePath);
+        response.data.pipe(dest);
+
+        await new Promise((resolve, reject) => {
+            dest.on('finish', resolve);
+            dest.on('error', reject);
+        });
+
+        const template = await fs.promises.readFile(templatePath);
+
+        const mappedData = TemplateMapper.mapDataToTemplate(transaction.toObject());
+
+        // load the template with docxtemplater
+        const zip = new PizZip(template);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+
+        // replace placeholders
+        doc.render(mappedData);
+
+        // generate the output buffer
+        const buffer = doc.getZip().generate({ type: 'nodebuffer' });
+        const fileName = `commission_report_${transactionId}_${new Date().toISOString().split('T')[0]}.docx`;
+
+        await fs.promises.unlink(templatePath);
+
+        return {
+            buffer,
+            fileName
+        };
+    } catch (error) {
+        console.error('Error generating commission report:', error);
+        throw error;
+    }
+}
+module.exports = { generateCommissionReport, generateSalesContract };
