@@ -7,7 +7,7 @@ const sendEmailNotification = async (senderEmail, senderName, receiverEmail, mes
             service: 'gmail',
             auth: {
                 user: senderEmail, // Use the sender's email
-                pass: 'your-app-password' // You'll need to generate an app password for each agent's email
+                pass: 'cttb ehjc bxwu vevc' // You'll need to generate an app password for each agent's email
             }
         });
 

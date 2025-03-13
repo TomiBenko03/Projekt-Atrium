@@ -50,8 +50,8 @@ const addComment = async (req, res) => {
         // Send notifications
         recipientEmails.forEach(async (email) => {
             await sendEmailNotification(
-                sender.email, // Pass the sender's email dynamically
-                `${sender.firstName} ${sender.lastName}`,
+                "info@kwslovenia.si", //
+                "KW Info",
                 email,
                 comment
             );
