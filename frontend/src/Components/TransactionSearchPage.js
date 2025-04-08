@@ -431,6 +431,14 @@ const TransactionSearchPage = () => {
                         : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
                     }
                   </p>
+                  <p>
+                  <strong>Vrednost:</strong>
+                    {
+                      transaction.commissionGross !== 0
+                        ? `${ transaction.commissionGross}€`
+                        : (transaction.commissionPercent !== 0 ? `${transaction.paymentDetails.remaining.amount/100*transaction.commissionPercent}€` : '0')
+                    }
+                  </p>
 
                   <h3>Deposit</h3>
                   <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount}</p>
@@ -454,6 +462,7 @@ const TransactionSearchPage = () => {
                     <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'}</p>
                     <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0}</p>
                   </div>
+              
                   
                 </div>
               </div>
@@ -464,17 +473,8 @@ const TransactionSearchPage = () => {
               <div className='tab-content active'>
                 <h3>Kontrolne Značke</h3>
                 <div className='tab-details'>
-                  <div className='form-group'>
-                    <label>Kontrola:</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={ffDetails.kontrola}
-                      onChange={(e) =>
-                        setFFDetails((prev) => ({ ...prev, kontrola: e.target.value }))
-                      }
-                    />
-                  </div>
+                 
+                   
                   <div className='form-group'>
                     <label>Referral:</label>
                     <input
@@ -482,42 +482,6 @@ const TransactionSearchPage = () => {
                       checked={ffDetails.referral}
                       onChange={(e) =>
                         setFFDetails((prev) => ({ ...prev, referral: e.target.checked }))
-                      }
-                      style={{
-                        marginRight: '10px',
-                        width: '16px',
-                        height: '16px',
-                        cursor: 'pointer',
-                        borderRadius: '4px',
-                        border: '1px solid #ddd'
-                      }}
-                    />
-                  </div>
-                  <div className='form-group'>
-                    <label>Vpisano v FF:</label>
-                    <input
-                      type="checkbox"
-                      checked={ffDetails.vpisanoFF}
-                      onChange={(e) =>
-                        setFFDetails((prev) => ({ ...prev, vpisanoFF: e.target.checked }))
-                      }
-                      style={{
-                        marginRight: '10px',
-                        width: '16px',
-                        height: '16px',
-                        cursor: 'pointer',
-                        borderRadius: '4px',
-                        border: '1px solid #ddd'
-                      }}
-                    />
-                  </div>
-                  <div className='form-group'>
-                    <label>Zaključeno v FF:</label>
-                    <input
-                      type="checkbox"
-                      checked={ffDetails.zakljucenoFF}
-                      onChange={(e) =>
-                        setFFDetails((prev) => ({ ...prev, zakljucenoFF: e.target.checked }))
                       }
                       style={{
                         marginRight: '10px',
@@ -683,11 +647,6 @@ const TransactionSearchPage = () => {
               </button>
             </div>
             <br />
-            <div>
-              <button onClick={() => generateAndSendHalcomXml(transaction._id)} className="button-primary">
-                Generate Xml
-              </button>
-            </div>
           </div>
         )}
       </div>

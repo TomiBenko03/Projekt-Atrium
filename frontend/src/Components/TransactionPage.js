@@ -401,16 +401,7 @@ const TransactionPage = () => {
             </select>
           </div>
           {/* Nova polja */}
-          <div className='form-group'>
-            <label>Kontrola (številka):</label>
-            <input
-              type="number"
-              step="0.01"
-              name="kontrola"
-              value={formData.kontrola}
-              onChange={handleChange}
-            />
-          </div>
+          
           <div className='form-group'>
             <label>Referral:</label>
             <input
@@ -428,40 +419,7 @@ const TransactionPage = () => {
               }}
             />
           </div>
-          <div className='form-group'>
-            <label>Vpisano v FF:</label>
-            <input
-              type="checkbox"
-              name="vpisanoFF"
-              checked={formData.vpisanoFF}
-              onChange={handleChange}
-              style={{
-                marginRight: '10px',
-                width: '16px',
-                height: '16px',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
-            />
-          </div>
-          <div className='form-group'>
-            <label>Zaključeno v FF:</label>
-            <input
-              type="checkbox"
-              name="zakljucenoFF"
-              checked={formData.zakljucenoFF}
-              onChange={handleChange}
-              style={{
-                marginRight: '10px',
-                width: '16px',
-                height: '16px',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
-            />
-          </div>
+          
           <div className='form-group'>
             <label>Št. Rač. do stranke:</label>
             <input
@@ -514,23 +472,7 @@ const TransactionPage = () => {
               }}
             />
           </div>
-          <div className='form-group'>
-            <label>Arhiv ok:</label>
-            <input
-              type="checkbox"
-              name="arhivOk"
-              checked={formData.arhivOk}
-              onChange={handleChange}
-              style={{
-                marginRight: '10px',
-                width: '16px',
-                height: '16px',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
-            />
-          </div>
+        
           {/* Provizija - izbira med odstotki in bruto vrednostjo */}
           <div className='form-group'>
             <label>Izberi način vnosa provizije:</label>

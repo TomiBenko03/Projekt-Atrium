@@ -20,19 +20,19 @@ const generateUpn = async (req, res) => {
         const buyer = transaction.buyers[0]; // Assuming first buyer
         const seller = transaction.sellers[0]; // Assuming first seller
         const property = transaction.property[0];
-        const amount = transaction.paymentDetails?.remaining?.amount || 0;
+        const amount = transaction.paymentDetails?.deposit?.amount || 0;
 
         // Construct UPN request payload
         const upnData = {
-            payerIban: "SI56170000000000910",
+            payerIban: `${buyer?.bankAccount || 'neke '}`,
             payerName: `${buyer?.firstName || 'neke '} ${buyer?.lastName || 'neke '}`.trim(),
             currencyCode: "EUR",
             amount: amount,
             payerCity: buyer?.address || "Unknown City",
             payerAddress: buyer?.address || "Unknown Address",
-            purposeCode: "GDSV",
+            purposeCode: "GDSV",    
             dueDate: transaction.handoverDeadline ? new Date(transaction.handoverDeadline).toISOString() : new Date().toISOString(),
-            purpose: `Plačilo za nepremičnino: ${property?.address || "Unknown Property"}`,
+            purpose: `Plačilo are med: $${seller?.firstName || 'neke'} ${seller?.lastName || 'neke'} - ${buyer?.firstName || 'neke '} ${buyer?.lastName || 'neke '}`,
             recipientIban:/* seller?.bankAccount ||*/ "SI56170000000000910",
             recipientName: `${seller?.firstName || 'neke'} ${seller?.lastName || 'neke'}`.trim(),
             recipientAddress: seller?.address || "Unknown Address",
