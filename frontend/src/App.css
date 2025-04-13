@@ -556,3 +556,43 @@ table tr:hover {
   color: #ff0000;
   margin-bottom: 10px;
 }
+
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  margin-left: 5px;
+  cursor: pointer;
+  position: relative;
+}
+
+.info-icon-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.info-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  color: black;
+  padding: 5px 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  white-space: nowrap;
+  display: none;
+  z-index: 10;
+  font-size: 14px;
+}
+
+.info-icon:hover .info-tooltip {
+  display: block;
+}

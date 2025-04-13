@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../App.css';
+import { Info } from 'lucide-react';
 
 const TransactionPage = () => {
   const [formData, setFormData] = useState({
@@ -322,7 +323,16 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Payment Descriptor:</label>
+            <label>
+              Payment Descriptor:
+              <span className="info-icon-container">
+                <span className="info-icon">
+                  <Info size={12} />
+                  <span className="info-tooltip">Opis plačila</span>
+                </span>
+              </span>
+            </label>
+
             <textarea
               name="paymentDescriptor"
               value={formData.paymentDescriptor}

@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import '../App.css';
 import MessageComponent from './MessageComponent';
 import { UserContext } from '../userContext';
+import { Info } from 'lucide-react';
 
 const TransactionSearchPage = () => {
   const { transactionId } = useParams();
@@ -398,7 +399,15 @@ const TransactionSearchPage = () => {
               <div className='tab-content active'>
                 <h3>Property Information</h3>
                 <div className='tab-details'>
-                  <p><strong>ID:</strong> {transaction.property.mainPropertyId}</p>
+                  <p>
+                    <strong>ID:</strong> {transaction.property.mainPropertyId}
+                    <span className="info-icon-container">
+                      <span className="info-icon">
+                        <Info size={12} />
+                        <span className="info-tooltip">ID značka</span>
+                      </span>
+                    </span>
+                  </p>
                   <p><strong>Address:</strong> {transaction.property.address}</p>
                   <p><strong>Type:</strong> {transaction.property.type}</p>
                   <p><strong>Price:</strong> €{transaction.property.price}</p>
@@ -420,7 +429,15 @@ const TransactionSearchPage = () => {
 
             {activeTab === 'payment Details' && transaction.paymentDetails && (
               <div className='tab-content active'>
-                <h3>Payment Details</h3>
+                <h3>
+                  Payment Details
+                  <span className="info-icon-container">
+                    <span className="info-icon">
+                      <Info size={12} />
+                      <span className="info-tooltip">Opis plačila</span>
+                    </span>
+                  </span>
+                </h3>
                 <p><strong>Additional notes:</strong> {transaction.paymentDescriptor}</p>
                 <p><strong>Already paid:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
                 <div className='tab-details'>
