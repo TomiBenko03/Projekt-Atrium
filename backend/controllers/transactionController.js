@@ -4,6 +4,8 @@ const Agent = require('../models/Agent');
 const Seller = require('../models/Seller');
 const Buyer = require('../models/Buyer');
 const Property = require('../models/Property');
+const sendEmailNotification = require('../utils/emailService');
+
 const { 
     generateBindingOffer, 
     generateCalculationOfRealEstateCosts 
@@ -207,13 +209,41 @@ const updateTransaction = async (req, res) => {
         const { Id } = req.params;
         const { status } = req.body;
   
-        const transaction = await Transaction.findById(Id);
+        const transaction = await Transaction.findById(Id)
+            .populate('agents', 'email firstName lastName role')
+
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
   
+        const previousStatus = transaction.status;
         transaction.status = status;
         await transaction.save();
+
+        if (previousStatus !== status) {
+            if (status === 'prodajalni postopek') {
+                const lawyers = transaction.agents.filter(agent => agent.role === 'odvetnik');
+                for (const lawyer of lawyers) {
+                    await sendEmailNotification(
+                        "info@kwslovenia.si",
+                        "KW info",
+                        lawyer.email,
+                        `Status transakcije ${transaction._id} je bil spremenjen v 'prodajalni postopek'`
+                    );
+                }
+            }
+            if (status === 'pripravljanje pogodbe') {
+                const agents = transaction.agents.filter(agent => agent.role === 'agent');
+                for (const agent of agents) {
+                    await sendEmailNotification(
+                        "info@kwslovenia.si",
+                        "KW info",
+                        agent.email,
+                        `Status transakcije ${transaction._id} je bil spremenjen v 'pripravljanje pogodbe'`
+                    );
+                }
+            }
+        }
   
         res.status(200).json({
             message: 'Transaction status updated successfully',
