@@ -79,7 +79,9 @@ const PropertyPage = () => {
             delete parsedData.sellingPriceEquipment;
             delete parsedData.sellingPriceOther;
 
-            const response = await axios.post('http://localhost:3001/api/property', parsedData);
+            const response = await axios.post('http://localhost:3001/api/property', parsedData,{
+                withCredentials: true
+            });
             setMessage(`Property created successfully: ${response.data.property.mainPropertyId}`);
             setError('');
             // Reset the form
@@ -124,9 +126,9 @@ const PropertyPage = () => {
     }
 
     useEffect(() => {
-        const fetchResults = async () => {
-            if (searchQuery.length > 0) {
-                try {
+        const fetchResults = async() => {
+            if(searchQuery.length > 0) {
+                try{
                     const response = await axios.post(
                         'http://localhost:3001/api/property/searchProperties',
                         { query: searchQuery },
@@ -160,66 +162,66 @@ const PropertyPage = () => {
             <div className='page-container'>
                 <div className="restricted-container">
                     <div className='search-container'>
-                        <h2 className='form-header'>Property Search</h2>
-                        <div className='search-options'>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="searchMode"
-                                    value="name"
-                                    checked={searchMode === 'name'}
-                                    onChange={() => setSearchMode('name')}
-                                />
-                                Search by Address
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="searchMode"
-                                    value="name"
-                                    checked={searchMode === 'agent'}
-                                    onChange={() => setSearchMode('agent')}
-                                />
-                                Search by Logged-in Agent
-                            </label>
-                        </div>
-
-                        {searchMode === 'name' && (
+                    <h2 className='form-header'>Property Search</h2>
+                    <div className='search-options'>
+                        <label>
                             <input
-                                type='text'
-                                placeholder='Search properties by address...'
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                type="radio"
+                                name="searchMode"
+                                value="name"
+                                checked={searchMode === 'name'}
+                                onChange={() => setSearchMode('name')}
                             />
-                        )}
-
-                        {searchMode === 'agent' && (
-                            <button onClick={handleSearch} className='button-primary'>
-                                Search
-                            </button>
-                        )}
-
-                        {searchResults.length > 0 && (
-                            <div className='search-results'>
-                                <h2>Search Results</h2>
-                                <ul>
-                                    {searchResults.map((property) => (
-                                        <li key={property._id}>
-                                            <strong>Property Name: </strong> {property.mainPropertyId} <br />
-                                            <strong>Property Address: </strong> {property.address} <br />
-                                            <strong>Price: </strong> {property.price} <br />
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        {searchQuery.length > 0 && searchResults.length === 0 && (
-                            <p>No results found for "{searchQuery}"</p>
-                        )}
+                            išči po naslovu
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="searchMode"
+                                value="agent"
+                                checked={searchMode === 'agent'}
+                                onChange={() => setSearchMode('agent')}
+                            />
+                             Išči po prijavljenem uporabniku
+                        </label>
                     </div>
+
+                    {searchMode === 'name' && (
+                        <input
+                            type='text'
+                            placeholder='Search properties by address...'
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    )}
+
+                    {searchMode === 'agent' && (
+                    <button onClick={handleSearch} className='button-primary'>
+                        Search
+                    </button>
+                    )}
+
+                    {searchResults.length > 0 && (
+                        <div className='search-results'>
+                            <h2>Search Results</h2>
+                            <ul>
+                                {searchResults.map((property) => (
+                                    <li key={property._id}>
+                                        <strong>Property Name: </strong> {property.mainPropertyId} <br />
+                                        <strong>Property Address: </strong> {property.address} <br />
+                                        <strong>Price: </strong> {property.price} <br />
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {searchQuery.length > 0 && searchResults.length === 0 && (
+                        <p>No results found for "{searchQuery}"</p>
+                    )}
                 </div>
             </div>
+        </div>
         );
     }
 
@@ -227,20 +229,20 @@ const PropertyPage = () => {
         <div className='page-container'>
 
             <div className='form-container'>
-                <h1 className='form-header'>Property Registration</h1>
+                <h1 className='form-header'>Registracija nepremičnine</h1>
                 {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
 
                 <form onSubmit={handleSubmit}>
                     <div className='form-group'>
                         <label>
-                            Main Property ID:
-                            <span className="info-icon-container">
+                        ID glavne nepremičnine:
+                        <span className="info-icon-container">
                                 <span className="info-icon">
                                     <Info size={12}/>
                                     <span className="info-tooltip">ID značka</span>
                                 </span>
                             </span>
-                        </label>
+                            </label>
                         <input
                             type="text"
                             name="mainPropertyId"
@@ -251,7 +253,7 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label>
-                            Lesser Property IDs (comma-separated):</label>
+                        ID pod-nepremičnine (comma-separated):</label>
                         <input
                             type="text"
                             name="lesserProperties"
@@ -261,7 +263,7 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label>
-                            Address:</label>
+                            Naslov:</label>
                         <input
                             type="text"
                             name="address"
@@ -272,7 +274,7 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label>
-                            Price:</label>
+                            Cena:</label>
                         <input
                             type="number"
                             name="price"
@@ -283,21 +285,21 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label >
-                            Type:</label>
+                            Tip:</label>
                         <select
                             name="type"
                             value={formData.type}
                             onChange={handleChange}
                         >
                             <option value="Apartment">Apartment</option>
-                            <option value="House">House</option>
-                            <option value="Land">Land</option>
-                            <option value="Commercial">Commercial</option>
+                            <option value="House">Hiša</option>
+                            <option value="Land">Zemlja</option>
+                            <option value="Commercial">Commercialna</option>
                         </select>
                     </div>
                     <div className='form-group'>
                         <label>
-                            Is New Build:</label>
+                            Novo gradnja:</label>
                         <input
                             type="checkbox"
                             name="isNewBuild"
@@ -315,7 +317,7 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label>
-                            Is Agricultural Land:</label>
+                            Kmetisko Ozemlje:</label>
                         <input
                             type="checkbox"
                             name="isAgriculturalLand"
@@ -332,7 +334,7 @@ const PropertyPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label>Preemption Right:</label>
+                        <label>Prednostna pravica:</label>
                         <input
                             type="checkbox"
                             name="preemptionRight"
@@ -350,7 +352,7 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label>
-                            Selling Price (Property):</label>
+                            Prodajna cena (nepremičnine):</label>
                         <input
                             type="number"
                             name="sellingPriceProperty"
@@ -360,7 +362,7 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label>
-                            Selling Price (Equipment):</label>
+                            prodajna cena (oprema):</label>
                         <input
                             type="number"
                             name="sellingPriceEquipment"
@@ -369,7 +371,7 @@ const PropertyPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label>Selling Price (Other):</label>
+                        <label>Prodajna cena (drugo):</label>
                         <input
                             type="number"
                             name="sellingPriceOther"
@@ -379,7 +381,7 @@ const PropertyPage = () => {
                     </div>
                     <div className='form-group'>
                         <label>
-                            Equipment Included (comma-separated):</label>
+                        Vključena oprema (ločeno z vejicami):</label>
                         <input
                             type="text"
                             name="equipmentIncluded"
@@ -387,13 +389,13 @@ const PropertyPage = () => {
                             onChange={handleChange}
                         />
                     </div>
-                    <button type="login" className='button-primary'>
-                        Add property
+                    <button type="submit" className='button-primary'>
+                        Dodaj nepremičnino
                     </button>
                 </form>
             </div>
             <div className='search-container'>
-                <h2 className='form-header'>Property Search</h2>
+                <h2 className='form-header'>Iskanje nepremičnine</h2>
                 <div className='search-options'>
                     <label>
                         <input
@@ -403,17 +405,17 @@ const PropertyPage = () => {
                             checked={searchMode === 'name'}
                             onChange={() => setSearchMode('name')}
                         />
-                        Search by Address
+                        Išči po naslovu
                     </label>
                     <label>
                         <input
                             type="radio"
                             name="searchMode"
-                            value="name"
+                            value="agent"
                             checked={searchMode === 'agent'}
                             onChange={() => setSearchMode('agent')}
                         />
-                        Search by Logged-in Agent
+                       Išči po prijavljenem uporabniku
                     </label>
                 </div>
 
@@ -422,25 +424,25 @@ const PropertyPage = () => {
                         type='text'
                         placeholder='Search properties by address...'
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => setSearchQuery(e.target.value)}submit
                     />
                 )}
 
                 {searchMode === 'agent' && (
                     <button onClick={handleSearch} className='button-primary'>
-                        Search
+                        Išči
                     </button>
                 )}
-
+                
                 {searchResults.length > 0 && (
                     <div className='search-results'>
                         <h2>Search Results</h2>
                         <ul>
                             {searchResults.map((property) => (
                                 <li key={property._id}>
-                                    <strong>Property Name: </strong> {property.mainPropertyId} <br />
-                                    <strong>Property Address: </strong> {property.address} <br />
-                                    <strong>Price: </strong> {property.price} <br />
+                                    <strong>ID nepremičnine: </strong> {property.mainPropertyId} <br />
+                                    <strong>Naslov nepremičnine: </strong> {property.address} <br />
+                                    <strong>Cena: </strong> {property.price} <br />
                                 </li>
                             ))}
                         </ul>

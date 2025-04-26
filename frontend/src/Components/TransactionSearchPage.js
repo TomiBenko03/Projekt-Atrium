@@ -304,13 +304,12 @@ const TransactionSearchPage = () => {
   };
 
   // Tab gumbi (dodali smo nov zavihek "FF Details")
-  const tabs = ['agent', 'sellers', 'buyers', 'property', 'payment Details', 'Kontrolne Značke'];
-
+  const tabs = ['Agent', 'Prodajalci', 'Kupci', 'Nepremičnina', 'Podrobnosti plačila', 'Kontrolne Značke'];
   return (
     <div className='page-container'>
       <div className='form-container'>
 
-        <h1 className='form-header'>Search Transactions</h1>
+      <h1 className='form-header'>Iskanje transakcij</h1>
         {/* Search form: na voljo tudi, če je URL parameter uporabljen */}
         <form onSubmit={handleSearch} className='search-form'>
           <input
@@ -324,7 +323,7 @@ const TransactionSearchPage = () => {
             className='search-input'
           />
           <button type="submit" className='button-primary'>
-            Search
+          Išči
           </button>
         </form>
 
@@ -344,60 +343,61 @@ const TransactionSearchPage = () => {
               ))}
             </div>
 
-            {activeTab === 'agent' && transaction.agents && (
-              <div className={`tab-content ${activeTab === 'agent' ? 'active' : ''}`}>
+            {activeTab === 'Agent' && transaction.agents && (
+              <div className={`tab-content ${activeTab === 'Agent' ? 'active' : ''}`}>
                 {transaction.agents.map((agentItem, index) => (
                   <div key={index} className='tab-details'>
-                    <h3>Agent Information</h3>
-                    <p><strong>Name:</strong> {agentItem.firstName} {agentItem.lastName}</p>
-                    <p><strong>Address:</strong> {agentItem.address}</p>
-                    <p><strong>GSM:</strong> {agentItem.gsm}</p>
-                    <p><strong>Email:</strong> {agentItem.email}</p>
-                    <p><strong>EMSO:</strong> {agentItem.emso}</p>
+                    <h3>Podatki o agentu</h3>
+                    <p><strong>Ime:</strong> {agentItem.firstName} {agentItem.lastName}</p>
+                    <p><strong>Naslov:</strong> {agentItem.address}</p>
+                    <p><strong>Telefon:</strong> {agentItem.gsm}</p>
+                    <p><strong>E-pošta:</strong> {agentItem.email}</p>
+                    <p><strong>EMŠO:</strong> {agentItem.emso}</p>
                   </div>
                 ))}
               </div>
             )}
 
-            {activeTab === 'sellers' && sellers.length > 0 && (
+          
+{activeTab === 'Prodajalci' && sellers.length > 0 && (
               <div className='tab-content active'>
                 {sellers.map((seller, index) => (
                   <div key={index} className='tab-details'>
-                    <h3>Seller Information</h3>
-                    <p><strong>Name:</strong> {`${seller.firstName} ${seller.lastName}`}</p>
-                    <p><strong>Address:</strong> {seller.address}</p>
-                    <p><strong>GSM:</strong> {seller.gsm}</p>
-                    <p><strong>Email:</strong> {seller.email}</p>
-                    <p><strong>Emso:</strong> {seller.emso}</p>
-                    <p><strong>Tax Number:</strong> {seller.taxNumber}</p>
-                    <p><strong>Bank Account:</strong> {seller.bankAccount}</p>
-                    <p><strong>Bank Name:</strong> {seller.bankName}</p>
+                    <h3>Podatki o prodajalcu</h3>
+                    <p><strong>Ime:</strong> {`${seller.firstName} ${seller.lastName}`}</p>
+                    <p><strong>Naslov:</strong> {seller.address}</p>
+                    <p><strong>Telefon:</strong> {seller.gsm}</p>
+                    <p><strong>E-pošta:</strong> {seller.email}</p>
+                    <p><strong>EMŠO:</strong> {seller.emso}</p>
+                    <p><strong>Davčna številka:</strong> {seller.taxNumber}</p>
+                    <p><strong>Bančni račun:</strong> {seller.bankAccount}</p>
+                    <p><strong>Banka:</strong> {seller.bankName}</p>
                   </div>
                 ))}
               </div>
             )}
 
-            {activeTab === 'buyers' && buyers.length > 0 && (
+{activeTab === 'Kupci' && buyers.length > 0 && (
               <div className='tab-content active'>
                 {buyers.map((buyer, index) => (
                   <div key={index} className='tab-details'>
-                    <h3>Buyer Information</h3>
-                    <p><strong>Name:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
-                    <p><strong>Address:</strong> {buyer.address}</p>
-                    <p><strong>GSM:</strong> {buyer.gsm}</p>
-                    <p><strong>Email:</strong> {buyer.email}</p>
-                    <p><strong>Emso:</strong> {buyer.emso}</p>
-                    <p><strong>Tax Number:</strong> {buyer.taxNumber}</p>
-                    <p><strong>Bank Account:</strong> {buyer.bankAccount}</p>
-                    <p><strong>Bank Name:</strong> {buyer.bankName}</p>
+                    <h3>Podatki o kupcu</h3>
+                    <p><strong>Ime:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
+                    <p><strong>Naslov:</strong> {buyer.address}</p>
+                    <p><strong>Telefon:</strong> {buyer.gsm}</p>
+                    <p><strong>E-pošta:</strong> {buyer.email}</p>
+                    <p><strong>EMŠO:</strong> {buyer.emso}</p>
+                    <p><strong>Davčna številka:</strong> {buyer.taxNumber}</p>
+                    <p><strong>Bančni račun:</strong> {buyer.bankAccount}</p>
+                    <p><strong>Banka:</strong> {buyer.bankName}</p>
                   </div>
                 ))}
               </div>
             )}
 
-            {activeTab === 'property' && transaction.property && (
+{activeTab === 'Nepremičnina' && transaction.property && (
               <div className='tab-content active'>
-                <h3>Property Information</h3>
+                <h3>Podatki o nepremičnini</h3>
                 <div className='tab-details'>
                   <p>
                     <strong>ID:</strong> {transaction.property.mainPropertyId}
@@ -408,17 +408,17 @@ const TransactionSearchPage = () => {
                       </span>
                     </span>
                   </p>
-                  <p><strong>Address:</strong> {transaction.property.address}</p>
-                  <p><strong>Type:</strong> {transaction.property.type}</p>
-                  <p><strong>Price:</strong> €{transaction.property.price}</p>
-                  <p><strong>New build:</strong> {transaction.property.isNewBuild ? 'Yes' : 'No'}</p>
-                  <p><strong>Agricultural land:</strong> {transaction.property.isAgriculturalLand ? 'Yes' : 'No'}</p>
-                  <p><strong>Preemption right:</strong> {transaction.property.preemptionRight ? 'Yes' : 'No'}</p>
-                  <h3 className='tab-details'>Price Details</h3>
-                  <p><strong>Property:</strong> €{transaction.property.sellingPrice.property}</p>
-                  <p><strong>Equipment:</strong> €{transaction.property.sellingPrice.equipment}</p>
-                  <p><strong>Other:</strong> €{transaction.property.sellingPrice.other}</p>
-                  <p><strong>Total:</strong> €{(
+                  <p><strong>Naslov:</strong> {transaction.property.address}</p>
+                  <p><strong>Tip:</strong> {transaction.property.type}</p>
+                  <p><strong>Cena:</strong> €{transaction.property.price}</p>
+                  <p><strong>Nova gradnja:</strong> {transaction.property.isNewBuild ? 'Da' : 'Ne'}</p>
+                  <p><strong>Kmetijsko zemljišče:</strong> {transaction.property.isAgriculturalLand ? 'Da' : 'Ne'}</p>
+                  <p><strong>Predkupna pravica:</strong> {transaction.property.preemptionRight ? 'Da' : 'Ne'}</p>
+                  <h3 className='tab-details'>Podrobnosti cen</h3>
+                  <p><strong>Nepremičnina:</strong> €{transaction.property.sellingPrice.property}</p>
+                  <p><strong>Oprema:</strong> €{transaction.property.sellingPrice.equipment}</p>
+                  <p><strong>Drugo:</strong> €{transaction.property.sellingPrice.other}</p>
+                  <p><strong>Skupaj:</strong> €{(
                     (transaction.property.sellingPrice.property || 0) +
                     (transaction.property.sellingPrice.equipment || 0) +
                     (transaction.property.sellingPrice.other || 0)
@@ -427,10 +427,11 @@ const TransactionSearchPage = () => {
               </div>
             )}
 
-            {activeTab === 'payment Details' && transaction.paymentDetails && (
+
+{activeTab === 'Podrobnosti plačila' && transaction.paymentDetails && (
               <div className='tab-content active'>
                 <h3>
-                  Payment Details
+                  Podrobnosti plačila
                   <span className="info-icon-container">
                     <span className="info-icon">
                       <Info size={12} />
@@ -438,8 +439,8 @@ const TransactionSearchPage = () => {
                     </span>
                   </span>
                 </h3>
-                <p><strong>Additional notes:</strong> {transaction.paymentDescriptor}</p>
-                <p><strong>Already paid:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
+                <p><strong>Dodatne opombe:</strong> {transaction.paymentDescriptor}</p>
+                <p><strong>Že plačano:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
                 <div className='tab-details'>
                   <p>
                     <strong>Provizija:</strong> {
@@ -457,30 +458,27 @@ const TransactionSearchPage = () => {
                     }
                   </p>
 
-                  <h3>Deposit</h3>
-                  <p><strong>Amount:</strong> €{transaction.paymentDetails.deposit.amount}</p>
+                  <h3>Polog</h3>
+                  <p><strong>Znesek:</strong> €{transaction.paymentDetails.deposit.amount}</p>
                   <p>
-                    <strong>Deadline:</strong>{' '}
+                    <strong>Rok:</strong>{' '}
                     {transaction.paymentDetails.deposit.deadline &&
                       new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
                   </p>
                 
-                  
-                  <h3>Remaining</h3>
-                  <p><strong>Amount:</strong> €{transaction.paymentDetails.remaining.amount - transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
+                  <h3>Preostanek</h3>
+                  <p><strong>Znesek:</strong> €{transaction.paymentDetails.remaining.amount - transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
                   <p>
-                    <strong>Deadline:</strong>{' '}
+                    <strong>Rok:</strong>{' '}
                     {transaction.paymentDetails.remaining.deadline &&
                       new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
                   </p>
                   
-                  <h3>Mortgage Information</h3>
+                  <h3>Podatki o hipoteki</h3>
                   <div className='tab-details'>
-                    <p><strong>Mortgage Status:</strong> {transaction.buyerMortgage ? 'Yes' : 'No'}</p>
-                    <p><strong>Amount:</strong> €{transaction.mortgageAmount || 0}</p>
+                    <p><strong>Stanje hipoteke:</strong> {transaction.buyerMortgage ? 'Da' : 'Ne'}</p>
+                    <p><strong>Znesek:</strong> €{transaction.mortgageAmount || 0}</p>
                   </div>
-              
-                  
                 </div>
               </div>
             )}
@@ -617,7 +615,7 @@ const TransactionSearchPage = () => {
             {/* Assign to Lawyer - Only for Agents */}
             {userRole !== 'odvetnik' && (
               <div className='tab-details' style={{ marginTop: '20px' }}>
-                <label><strong>Assign to lawyer (Email):</strong></label>
+                <label><strong>Dodeli odvetniku (Email):</strong></label>
                 <input
                   type="email"
                   value={lawyerEmail}
@@ -629,7 +627,7 @@ const TransactionSearchPage = () => {
                   className='button-primary'
                   style={{ marginLeft: '10px', width: 'auto' }}
                 >
-                  Assign to Lawyer
+                 Dodeli odvetniku
                 </button>
               </div>
             )}

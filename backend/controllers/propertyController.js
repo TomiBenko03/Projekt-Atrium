@@ -1,7 +1,8 @@
 const Property = require('../models/Property');
-
+const Agent = require('../models/Agent');
 const createProperty = async (req, res) => {
     try {
+        const agentId = req.session.agentId;
         const {
             mainPropertyId,
             lesserProperties,
@@ -17,7 +18,9 @@ const createProperty = async (req, res) => {
             equipmentIncluded,
         } = req.body;
 
-        const agentId = req.session.agentId;
+       
+
+        console.log('Agent ID:', agentId); 
 
         // Step 1: Find `lesserProperties` by their `mainPropertyId`
         const lesserPropertiesArray = Array.isArray(lesserProperties)

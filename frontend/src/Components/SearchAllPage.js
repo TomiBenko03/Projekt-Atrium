@@ -49,7 +49,7 @@ const SearchAllPage = () => {
         <div className="page-container">
             <div className="restricted-container">
                 <div className="search-container">
-                    <h1 className="form-header">Search All Data by Agent</h1>
+                    <h1 className="form-header">Iskanje po vseh podatkih po agentu</h1>
 
                     {/* Search Button */}
                     <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -71,9 +71,9 @@ const SearchAllPage = () => {
                                 <ul>
                                     {searchResults.sellers.map((seller) => (
                                         <li key={seller._id}>
-                                            <strong>Name:</strong> {seller.firstName} {seller.lastName} <br />
+                                            <strong>Ime:</strong> {seller.firstName} {seller.lastName} <br />
                                             <strong>Email:</strong> {seller.email} <br />
-                                            <strong>Phone:</strong> {seller.gsm}
+                                            <strong>Telefon:</strong> {seller.gsm}
                                         </li>
                                     ))}
                                 </ul>
@@ -87,9 +87,9 @@ const SearchAllPage = () => {
                                 <ul>
                                     {searchResults.buyers.map((buyer) => (
                                         <li key={buyer._id}>
-                                            <strong>Name:</strong> {buyer.firstName} {buyer.lastName} <br />
+                                            <strong>Ime:</strong> {buyer.firstName} {buyer.lastName} <br />
                                             <strong>Email:</strong> {buyer.email} <br />
-                                            <strong>Phone:</strong> {buyer.gsm}
+                                            <strong>Telefon:</strong> {buyer.gsm}
                                         </li>
                                     ))}
                                 </ul>
@@ -103,9 +103,9 @@ const SearchAllPage = () => {
                                 <ul>
                                     {searchResults.properties.map((property) => (
                                         <li key={property._id}>
-                                            <strong>Main Property ID:</strong> {property.mainPropertyId} <br />
-                                            <strong>Address:</strong> {property.address} <br />
-                                            <strong>Price:</strong> {property.price}
+                                            <strong>ID nepremičnine:</strong> {property.mainPropertyId} <br />
+                                            <strong>Naslov:</strong> {property.address} <br />
+                                            <strong>Cena:</strong> {property.price}
                                         </li>
                                     ))}
                                 </ul>
@@ -119,9 +119,9 @@ const SearchAllPage = () => {
                                 <ul>
                                     {searchResults.transactions.map((transaction) => (
                                         <li key={transaction._id}>
-                                            <strong>Property:</strong> {transaction.property?.mainPropertyId || 'N/A'} <br />
-                                            <strong>Buyers:</strong> {transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
-                                            <strong>Sellers:</strong> {transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'N/A'} <br />
+                                            <strong>Nepremičnina:</strong> {transaction.property?.mainPropertyId || 'N/A'} <br />
+                                            <strong>Kupec:</strong> {transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
+                                            <strong>Prodajalec:</strong> {transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'N/A'} <br />
                                             <strong>Status:</strong> {transaction.status || 'N/A'}
                                         </li>
                                     ))}

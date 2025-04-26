@@ -138,7 +138,7 @@ const SellerPage = () => {
                             checked={searchMode === 'name'}
                             onChange={() => setSearchMode('name')}
                         />
-                        Search by Name/Surname/Phone
+                        Išči po Ime/Priimek/Telefon
                     </label>
 
                     <label>
@@ -149,7 +149,7 @@ const SellerPage = () => {
                             checked={searchMode === 'agent'}
                             onChange={() => setSearchMode('agent')}
                         />
-                        Search by Logged-in Agent
+                        Išči po prijavljenem uporabniku
                     </label>
                 </div>
                 {searchMode === 'name' && (
@@ -203,7 +203,7 @@ const SellerPage = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className='form-group'>
-                        <label htmlFor="firstName">First Name:</label>
+                        <label htmlFor="firstName">Ime:</label>
                         <input
                             type="text"
                             id="firstName"
@@ -214,7 +214,7 @@ const SellerPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label htmlFor="lastName">Last Name:</label>
+                        <label htmlFor="lastName">Priimek:</label>
                         <input
                             type="text"
                             id="lastName"
@@ -225,7 +225,7 @@ const SellerPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label htmlFor="address">Address:</label>
+                        <label htmlFor="address">Naslov:</label>
                         <input
                             type="text"
                             id="address"
@@ -236,7 +236,7 @@ const SellerPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label htmlFor="gsm">GSM:</label>
+                        <label htmlFor="gsm">Telefon:</label>
                         <input
                             type="text"
                             id="gsm"
@@ -269,7 +269,7 @@ const SellerPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label htmlFor="taxNumber">Tax Number:</label>
+                        <label htmlFor="taxNumber">Davčna:</label>
                         <input
                             type="text"
                             id="taxNumber"
@@ -280,7 +280,7 @@ const SellerPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label htmlFor="bankAccount">Bank Account:</label>
+                        <label htmlFor="bankAccount">Bančna š:</label>
                         <input
                             type="text"
                             id="bankAccount"
@@ -291,7 +291,7 @@ const SellerPage = () => {
                         />
                     </div>
                     <div className='form-group'>
-                        <label htmlFor="bankName">Bank Name:</label>
+                        <label htmlFor="bankName">Ime Banke:</label>
                         <input
                             type="text"
                             id="bankName"
@@ -307,7 +307,7 @@ const SellerPage = () => {
                </form>
             </div>
             <div className='search-container'>
-                <h2 className='form-header'>Seller Search</h2>
+                <h2 className='form-header'>Iskanje Kupca</h2>
                 <div className='search-options'>
                     <label >
                         <input
@@ -317,7 +317,7 @@ const SellerPage = () => {
                             checked={searchMode === 'name'}
                             onChange={() => setSearchMode('name')}
                         />
-                        Search by Name/Surname/Phone
+                         Išči po Ime/Priimek/Telefon
                     </label>
 
                     <label>
@@ -328,7 +328,7 @@ const SellerPage = () => {
                             checked={searchMode === 'agent'}
                             onChange={() => setSearchMode('agent')}
                         />
-                        Search by Logged-in Agent
+                        Išči po prijavljenem uporabniku
                     </label>
                 </div>
                 {searchMode === 'name' && (
@@ -342,7 +342,7 @@ const SellerPage = () => {
 
                 {searchMode === 'agent' && (
                     <button onClick={handleSearch} className='button-primary'>
-                        Search
+                        Išči
                     </button>
                 )}
                
@@ -352,10 +352,10 @@ const SellerPage = () => {
                         <ul>
                             {searchResults.map((seller) => (
                                 <li key={seller._id}>
-                                    <strong>Name: </strong> {seller.firstName} <br />
-                                    <strong>Last Name: </strong> {seller.lastName} <br />
+                                    <strong>Ime: </strong> {seller.firstName} <br />
+                                    <strong>Priimek: </strong> {seller.lastName} <br />
                                     <strong>Email: </strong> {seller.email} <br />
-                                    <strong>Phone Number: </strong> {seller.gsm} <br />
+                                    <strong>Telefon: </strong> {seller.gsm} <br />
                                 </li>
                             ))}
                         </ul>

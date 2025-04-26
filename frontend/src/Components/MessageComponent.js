@@ -56,7 +56,7 @@ const MessageComponent = ({ transactionId }) => {
     return (
         <div>
             <div className="form-group">
-                <label htmlFor="comment" >Add a Comment:</label>
+                <label htmlFor="comment" >Dodaj komentar:</label>
                 <textarea
                     id="comment"
                     value={comment}
@@ -68,7 +68,7 @@ const MessageComponent = ({ transactionId }) => {
             </div>
             {error && <p className="error-message" style={{ color: '#ff0000', marginBottom: '10px' }}>{error}</p>}
             <button onClick={handleAddComment} className="button-primary">
-                Add Comment
+            Dodaj komentar
             </button>
 
             <div className="comments-list" style={{ marginTop: '20px' }}>

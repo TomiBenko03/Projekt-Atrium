@@ -34,20 +34,20 @@ function App() {
             </span>
           </div>
           <ul className="nav-links">
-            <li><Link className="nav-link" to="/">Home</Link></li>
+            <li><Link className="nav-link" to="/">Domov</Link></li>
             {user ? (
               <>
-                <li><Link className="nav-link" to="/buyer">Buyer</Link></li>
-                <li><Link className="nav-link" to="/seller">Seller</Link></li>
-                <li><Link className="nav-link" to="/property">Properties</Link></li>
-                <li><Link className="nav-link" to="/transaction">Transactions</Link></li>
-                <li><Link className="nav-link" to="/search/all">Search All</Link></li>
-                <li><Link className="nav-link" to="/logout">Logout</Link></li>
+                <li><Link className="nav-link" to="/buyer">Kupci</Link></li>
+                <li><Link className="nav-link" to="/seller">Prodajalci</Link></li>
+                <li><Link className="nav-link" to="/property">Nepremičnine</Link></li>
+                <li><Link className="nav-link" to="/transaction">Transakcije</Link></li>
+                <li><Link className="nav-link" to="/search/all">Išči</Link></li>
+                <li><Link className="nav-link" to="/logout">Odjava</Link></li>
               </>
             ) : (
               <>
-                <li><Link className="nav-link" to="/agent">Register</Link></li>
-                <li><Link className="nav-link" to="/login">Login</Link></li>
+                <li><Link className="nav-link" to="/agent">Registracija</Link></li>
+                <li><Link className="nav-link" to="/login">Vpis</Link></li>
               </>
             )}
           </ul>

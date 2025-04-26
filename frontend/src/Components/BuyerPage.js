@@ -133,7 +133,7 @@ const BuyerPage = () => {
             <div className='page-container'>
             <div className="restricted-container">
                  <div className='search-container'>
-                <h2 className="form-header">Buyer Search</h2>
+                <h2 className="form-header">Iskanje kupca</h2>
                 <div className='search-options'>
                     <label>
                         <input
@@ -143,7 +143,7 @@ const BuyerPage = () => {
                             checked={searchMode === 'name'}
                             onChange={() => setSearchMode('name')}
                         />
-                        Search by Name/Surname/Phone
+                        Išči po Ime/Priimek/Telefon
                     </label>
 
                     <label>
@@ -154,7 +154,7 @@ const BuyerPage = () => {
                             checked={searchMode === 'agent'}
                             onChange={() => setSearchMode('agent')}
                         />
-                        Search by Logged-in Agent
+                        Išči po prijavljenem uporabniku
                     </label>
                 </div>
                 {searchMode === 'name' && (
@@ -178,10 +178,10 @@ const BuyerPage = () => {
                         <ul>
                             {searchResults.map((buyer) => (
                                 <li key={buyer._id}>
-                                    <strong>Name: </strong> {buyer.firstName} <br />
-                                    <strong>Last Name: </strong> {buyer.lastName} <br />
+                                    <strong>Ime: </strong> {buyer.firstName} <br />
+                                    <strong>Priimek: </strong> {buyer.lastName} <br />
                                     <strong>Email: </strong> {buyer.email} <br />
-                                    <strong>Phone Number: </strong> {buyer.gsm} <br />
+                                    <strong>Telefon: </strong> {buyer.gsm} <br />
                                 </li>
                             ))}
                         </ul>
@@ -207,7 +207,7 @@ const BuyerPage = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="firstName">First Name:</label>
+                        <label htmlFor="firstName">Ime:</label>
                         <input
                             type="text"
                             id="firstName"
@@ -218,7 +218,7 @@ const BuyerPage = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="lastName">Last Name:</label>
+                        <label htmlFor="lastName">Priimek:</label>
                         <input
                             type="text"
                             id="lastName"
@@ -229,7 +229,7 @@ const BuyerPage = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="address">Address:</label>
+                        <label htmlFor="address">Naslov:</label>
                         <input
                             type="text"
                             id="address"
@@ -240,7 +240,7 @@ const BuyerPage = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="gsm">GSM:</label>
+                        <label htmlFor="gsm">Telefon:</label>
                         <input
                             type="text"
                             id="gsm"
@@ -273,7 +273,7 @@ const BuyerPage = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="taxNumber">Tax Number:</label>
+                        <label htmlFor="taxNumber">Davčna:</label>
                         <input
                             type="text"
                             id="taxNumber"
@@ -284,7 +284,7 @@ const BuyerPage = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="bankAccount">Bank Account:</label>
+                        <label htmlFor="bankAccount">Bančna št:</label>
                         <input
                             type="text"
                             id="bankAccount"
@@ -295,7 +295,7 @@ const BuyerPage = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="bankName">Bank Name:</label>
+                        <label htmlFor="bankName">Ime Banke:</label>
                         <input
                             type="text"
                             id="bankName"
@@ -307,12 +307,12 @@ const BuyerPage = () => {
                     </div>
 
                     <button type="submit" className="button-primary">
-                        Add Buyer
+                        Dodaj kupca
                     </button>
                 </form>
             </div>
             <div className='search-container'>
-                <h2 className="form-header">Buyer Search</h2>
+                <h2 className="form-header">Iskanje Kupca</h2>
                 <div className='search-options'>
                     <label>
                         <input
@@ -322,7 +322,7 @@ const BuyerPage = () => {
                             checked={searchMode === 'name'}
                             onChange={() => setSearchMode('name')}
                         />
-                        Search by Name/Surname/Phone
+                        Išči po Ime/Priimek/Telefon
                     </label>
 
                     <label>
@@ -333,7 +333,7 @@ const BuyerPage = () => {
                             checked={searchMode === 'agent'}
                             onChange={() => setSearchMode('agent')}
                         />
-                        Search by Logged-in Agent
+                        Išči po prijavljenem uporabniku
                     </label>
                 </div>
 
@@ -348,7 +348,7 @@ const BuyerPage = () => {
 
                 {searchMode === 'agent' && (
                     <button onClick={handleSearch} className='button-primary'>
-                        Search
+                        Išči
                     </button>
                 )}
 
@@ -358,10 +358,10 @@ const BuyerPage = () => {
                         <ul>
                             {searchResults.map((buyer) => (
                                 <li key={buyer._id}>
-                                    <strong>Name: </strong> {buyer.firstName} <br />
-                                    <strong>Last Name: </strong>{buyer.lastName} <br />
+                                    <strong>Ime: </strong> {buyer.firstName} <br />
+                                    <strong>Priimek: </strong>{buyer.lastName} <br />
                                     <strong>Email: </strong>{buyer.email} <br />
-                                    <strong>Phone Number: </strong> {buyer.gsm} <br />
+                                    <strong>Telefon: </strong> {buyer.gsm} <br />
                                 </li>
                             ))}
                         </ul>

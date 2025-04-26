@@ -49,25 +49,25 @@ const AgentPage = () => {
     return (
         <div className="registration-container">
             <form className="registration-form" onSubmit={handleSubmit}>
-                <h1>User Registration</h1>
+                <h1>Registracija</h1>
                 {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
                 <div className="form-group">
-                    <label htmlFor="role">Role:</label>
+                    <label htmlFor="role">Vloga:</label>
                     <select id="role" name="role" value={formData.role} onChange={handleChange} required>
                         <option value="agent">Agent</option>
                         <option value="odvetnik">Odvetnik</option>
                     </select>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="firstName">First Name:</label>
+                    <label htmlFor="firstName">Ime:</label>
                     <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="lastName">Last Name:</label>
+                    <label htmlFor="lastName">Priimek:</label>
                     <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="address">Address:</label>
+                    <label htmlFor="address">Naslov:</label>
                     <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
@@ -83,11 +83,11 @@ const AgentPage = () => {
                     <input type="text" id="emso" name="emso" value={formData.emso} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="taxNumber">Tax Number:</label>
+                    <label htmlFor="taxNumber">Davčna:</label>
                     <input type="text" id="taxNumber" name="taxNumber" value={formData.taxNumber} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="password">Password:</label>
+                    <label htmlFor="password">Geslo:</label>
                     <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
                 </div>
                 <button type="submit" className="button-primary">Register</button>

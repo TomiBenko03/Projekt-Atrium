@@ -60,7 +60,7 @@ const LoginPage = () => {
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="password">Password:</label>
+                    <label htmlFor="password">Geslo:</label>
                     <input
                         type="password"
                         id="password"

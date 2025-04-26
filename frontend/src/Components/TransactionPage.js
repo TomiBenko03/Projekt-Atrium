@@ -7,9 +7,7 @@ import { Info } from 'lucide-react';
 const TransactionPage = () => {
   const [formData, setFormData] = useState({
     sellers: '',
-    sellerSurnames: '',
     buyers: '',
-    buyerSurnames: '',
     propertyName: '',
     paymentDetailsDepositAmount: '',
     paymentDetailsDepositDeadline: '',
@@ -26,8 +24,7 @@ const TransactionPage = () => {
     contractPreparationDeadline: '',
     contractPreparedBy: '',
     status: 'v pripravi',
-    // Nova polja
-    kontrola: '', // številčna vrednost, privzeto lahko pustimo prazen ali 0.00
+    kontrola: '',
     referral: false,
     vpisanoFF: false,
     zakljucenoFF: false,
@@ -38,15 +35,14 @@ const TransactionPage = () => {
     arhivOk: false,
   });
 
-  // Nova stanja za provizijo
-  const [commissionType, setCommissionType] = useState('percent'); // 'percent' ali 'gross'
+  const [commissionType, setCommissionType] = useState('percent');
   const [commissionPercent, setCommissionPercent] = useState('');
   const [commissionGross, setCommissionGross] = useState('');
 
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [userRole, setUserRole] = useState(null); // Store user role
-  const [loading, setLoading] = useState(true); // To handle loading state
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState('transactionId');
@@ -68,8 +64,8 @@ const TransactionPage = () => {
         });
         setUserRole(response.data.role);
       } catch (error) {
-        console.error('Error fetching user role:', error);
-        setUserRole(null); // In case of error, no role
+        console.error('Napaka pri pridobivanju uporabniške vloge:', error);
+        setUserRole(null);
       } finally {
         setLoading(false);
       }
@@ -78,48 +74,53 @@ const TransactionPage = () => {
     fetchUserRole();
   }, []);
 
+  const parseNames = (namesString) => {
+    return namesString.split(',').map(name => {
+      const parts = name.trim().split(' ');
+      return {
+        firstName: parts.slice(0, -1).join(' '),
+        lastName: parts[parts.length - 1] || ''
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Parse sellers, buyers, and expenses
       const parsedData = {
         ...formData,
-        sellers: formData.sellers.split(',').map((name) => name.trim()),
-        sellerSurnames: formData.sellerSurnames.split(',').map((surname) => surname.trim()),
-        buyers: formData.buyers.split(',').map((name) => name.trim()),
-        buyerSurnames: formData.buyerSurnames.split(',').map((surname) => surname.trim()),
+        sellers: parseNames(formData.sellers).map(p => p.firstName),
+        sellerSurnames: parseNames(formData.sellers).map(p => p.lastName),
+        buyers: parseNames(formData.buyers).map(p => p.firstName),
+        buyerSurnames: parseNames(formData.buyers).map(p => p.lastName),
         sellerExpenses: formData.sellerExpenses
           ? formData.sellerExpenses.split(';').map((item) => {
-              const [description, amount] = item.split(',');
-              return { description: description.trim(), amount: Number(amount) || 0 };
-            })
+            const [description, amount] = item.split(',');
+            return { description: description.trim(), amount: Number(amount) || 0 };
+          })
           : [],
         buyerExpenses: formData.buyerExpenses
           ? formData.buyerExpenses.split(';').map((item) => {
-              const [description, amount] = item.split(',');
-              return { description: description.trim(), amount: Number(amount) || 0 };
-            })
+            const [description, amount] = item.split(',');
+            return { description: description.trim(), amount: Number(amount) || 0 };
+          })
           : [],
-        buyerMortgage: formData.buyerMortgage,
         mortgageAmount: parseFloat(formData.mortgageAmount) || 0,
-        // Pazite, če je kontrola številka, jo pretvorimo v Number
         kontrola: parseFloat(formData.kontrola) || 0,
-        // Provizija - če je izbran 'percent', posredujemo vrednost odstotka, sicer bruto vrednost
         commissionPercent: commissionType === 'percent' ? Number(commissionPercent) || 0 : 0,
         commissionGross: commissionType === 'gross' ? Number(commissionGross) || 0 : 0,
       };
 
+
       const response = await axios.post('http://localhost:3001/api/transactions', parsedData, {
         withCredentials: true,
       });
-      setMessage(`Transaction created successfully, for property: ${response.data.transaction.property.mainPropertyId}`);
+      setMessage(`Transakcija uspešno ustvarjena za nepremičnino: ${response.data.transaction.property.mainPropertyId}`);
       setError('');
-      // Resetamo formo in polja provizije
       setFormData({
+        ...formData,
         sellers: '',
-        sellerSurnames: '',
         buyers: '',
-        buyerSurnames: '',
         propertyName: '',
         paymentDetailsDepositAmount: '',
         paymentDetailsDepositDeadline: '',
@@ -150,9 +151,9 @@ const TransactionPage = () => {
       setCommissionPercent('');
       setCommissionGross('');
     } catch (error) {
-      console.error('Error creating transaction:', error);
+      console.error('Napaka pri ustvarjanju transakcije:', error);
       setMessage('');
-      setError('Failed to create transaction. Please check the input data.');
+      setError('Napaka pri ustvarjanju transakcije. Preverite vnesene podatke.');
     }
   };
 
@@ -166,13 +167,13 @@ const TransactionPage = () => {
       const response = await axios.get(endpoint, { withCredentials: true });
       setSearchResults(searchMode === 'transactionId' ? [response.data] : response.data);
     } catch (error) {
-      console.error('Error searching transaction: ', error);
+      console.error('Napaka pri iskanju transakcije: ', error);
       setSearchResults([]);
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Display a loading message while fetching user role
+    return <div>Nalagam...</div>;
   }
 
   if (userRole === 'odvetnik') {
@@ -180,7 +181,7 @@ const TransactionPage = () => {
       <div className='page-container'>
         <div className="restricted-container">
           <div className='search-container'>
-            <h2 className='form-header'>Transaction Search</h2>
+            <h2 className='form-header'>Iskanje transakcij</h2>
             <div className='search-options'>
               <label>
                 <input
@@ -190,35 +191,35 @@ const TransactionPage = () => {
                   checked={searchMode === 'transactionId'}
                   onChange={() => setSearchMode('transactionId')}
                 />
-                Search by Transaction ID
+                Iskanje po ID transakcije
               </label>
               <label>
                 <input
                   type="radio"
                   name="searchMode"
-                  value="agentTransactions"
+                  value="agent"
                   checked={searchMode === 'agent'}
                   onChange={() => setSearchMode('agent')}
                 />
-                Search Transactions by Lawyer
+                Transakcije po odvetniku
               </label>
             </div>
 
             {searchMode === 'transactionId' && (
               <input
                 type="text"
-                placeholder="Search by Transaction ID"
+                placeholder="Iskanje po ID transakcije"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             )}
             <button onClick={handleSearch} className='button-primary'>
-              Search
+              Išči
             </button>
 
             {searchResults.length > 0 && (
               <div className='search-results'>
-                <h2>Search Results</h2>
+                <h2>Rezultati iskanja</h2>
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                   {searchResults.map((transaction) => (
                     <li key={transaction._id} style={{ marginBottom: '1em' }}>
@@ -232,12 +233,12 @@ const TransactionPage = () => {
                           cursor: 'pointer'
                         }}
                       >
-                        <strong>Property: </strong>
+                        <strong>Nepremičnina: </strong>
                         {transaction.property?.mainPropertyId || 'N/A'} <br />
-                        <strong>Buyers: </strong>
-                        {transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ') || 'No buyers found'}<br />
-                        <strong>Sellers: </strong>
-                        {transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ') || 'No sellers found'}<br />
+                        <strong>Kupci: </strong>
+                        {transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'Ni kupcev'}<br />
+                        <strong>Prodajalci: </strong>
+                        {transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'Ni prodajalcev'}<br />
                         <strong>Status: </strong>{transaction.status || 'N/A'} <br />
                       </Link>
                     </li>
@@ -254,12 +255,13 @@ const TransactionPage = () => {
   return (
     <div className='page-container'>
       <div className='form-container'>
-        <h1 className='form-header'>Transaction Registration</h1>
-        {message && <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</p>}
+        <h1 className='form-header'>Registracija transakcije</h1>
+        {message && <p className={`message ${message.includes('uspešno') ? 'success' : 'error'}`}>{message}</p>}
+        {error && <p className="message error">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className='form-group'>
-            <label>Sellers (comma-separated first names):</label>
+            <label>Prodajalci (ločeni z vejico, ime in priimek):</label>
             <input
               type="text"
               name="sellers"
@@ -268,16 +270,7 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Sellers (comma-separated last names):</label>
-            <input
-              type="text"
-              name="sellerSurnames"
-              value={formData.sellerSurnames}
-              onChange={handleChange}
-            />
-          </div>
-          <div className='form-group'>
-            <label>Buyers (comma-separated first names):</label>
+            <label>Kupci (ločeni z vejico, ime in priimek):</label>
             <input
               type="text"
               name="buyers"
@@ -286,16 +279,7 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Buyers (comma-separated last names):</label>
-            <input
-              type="text"
-              name="buyerSurnames"
-              value={formData.buyerSurnames}
-              onChange={handleChange}
-            />
-          </div>
-          <div className='form-group'>
-            <label>Property Name:</label>
+            <label>Naziv nepremičnine:</label>
             <input
               type="text"
               name="propertyName"
@@ -305,7 +289,7 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Deposit Amount:</label>
+            <label>Znesek pologa:</label>
             <input
               type="number"
               name="paymentDetailsDepositAmount"
@@ -314,7 +298,7 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Deposit Deadline:</label>
+            <label>Rok za polog:</label>
             <input
               type="date"
               name="paymentDetailsDepositDeadline"
@@ -324,15 +308,14 @@ const TransactionPage = () => {
           </div>
           <div className='form-group'>
             <label>
-              Payment Descriptor:
+              Opis plačila:
               <span className="info-icon-container">
                 <span className="info-icon">
                   <Info size={12} />
-                  <span className="info-tooltip">Opis plačila</span>
+                  <span className="info-tooltip">Podrobnosti o plačilu</span>
                 </span>
               </span>
             </label>
-
             <textarea
               name="paymentDescriptor"
               value={formData.paymentDescriptor}
@@ -340,24 +323,16 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Buyer Mortgage:</label>
+            <label>Kupčeva hipoteka:</label>
             <input
               type="checkbox"
               name="buyerMortgage"
               checked={formData.buyerMortgage}
               onChange={handleChange}
-              style={{
-                marginRight: '10px',
-                width: '16px',
-                height: '16px',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
             />
           </div>
           <div className='form-group'>
-            <label>Mortgage Amount:</label>
+            <label>Znesek hipoteke:</label>
             <input
               type="number"
               name="mortgageAmount"
@@ -366,7 +341,7 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Handover Deadline:</label>
+            <label>Rok za predajo:</label>
             <input
               type="date"
               name="handoverDeadline"
@@ -376,7 +351,7 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Seller Expenses (semicolon-separated, format: description,amount):</label>
+            <label>Stroški prodajalca (opis,znesek; ločeni s podpičjem):</label>
             <input
               type="text"
               name="sellerExpenses"
@@ -385,7 +360,7 @@ const TransactionPage = () => {
             />
           </div>
           <div className='form-group'>
-            <label>Buyer Expenses (semicolon-separated, format: description,amount):</label>
+            <label>Stroški kupca (opis,znesek; ločeni s podpičjem):</label>
             <input
               type="text"
               name="buyerExpenses"
@@ -410,82 +385,10 @@ const TransactionPage = () => {
               <option value="zakljuceno">zakljuceno</option>
             </select>
           </div>
-          {/* Nova polja */}
-          
+
+          {/* Provizija */}
           <div className='form-group'>
-            <label>Referral:</label>
-            <input
-              type="checkbox"
-              name="referral"
-              checked={formData.referral}
-              onChange={handleChange}
-              style={{
-                marginRight: '10px',
-                width: '16px',
-                height: '16px',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
-            />
-          </div>
-          
-          <div className='form-group'>
-            <label>Št. Rač. do stranke:</label>
-            <input
-              type="text"
-              name="stRacDoStranke"
-              value={formData.stRacDoStranke}
-              onChange={handleChange}
-            />
-          </div>
-          <div className='form-group'>
-            <label>Stranka plačala:</label>
-            <input
-              type="checkbox"
-              name="strankaPlacala"
-              checked={formData.strankaPlacala}
-              onChange={handleChange}
-              style={{
-                marginRight: '10px',
-                width: '16px',
-                height: '16px',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
-            />
-          </div>
-          <div className='form-group'>
-            <label>Številka računa agenta:</label>
-            <input
-              type="text"
-              name="stRacunaAgenta"
-              value={formData.stRacunaAgenta}
-              onChange={handleChange}
-            />
-          </div>
-          <div className='form-group'>
-            <label>Agentu plačano:</label>
-            <input
-              type="checkbox"
-              name="agentPlacano"
-              checked={formData.agentPlacano}
-              onChange={handleChange}
-              style={{
-                marginRight: '10px',
-                width: '16px',
-                height: '16px',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
-            />
-          </div>
-        
-          {/* Provizija - izbira med odstotki in bruto vrednostjo */}
-          <div className='form-group'>
-            <label>Izberi način vnosa provizije:</label>
+            <label>Način izračuna provizije:</label>
             <div>
               <label>
                 <input
@@ -494,34 +397,18 @@ const TransactionPage = () => {
                   value="percent"
                   checked={commissionType === 'percent'}
                   onChange={() => setCommissionType('percent')}
-                  style={{
-                    marginRight: '10px',
-                    width: '16px',
-                    height: '16px',
-                    cursor: 'pointer',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
                 />
-                Provizija v odstotkih
+                Odstotek
               </label>
-              <label >
+              <label>
                 <input
                   type="radio"
                   name="commissionType"
                   value="gross"
                   checked={commissionType === 'gross'}
                   onChange={() => setCommissionType('gross')}
-                  style={{
-                    marginRight: '10px',
-                    width: '16px',
-                    height: '16px',
-                    cursor: 'pointer',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
                 />
-                Bruto provizija
+                Fiksni znesek
               </label>
             </div>
           </div>
@@ -538,7 +425,7 @@ const TransactionPage = () => {
           )}
           {commissionType === 'gross' && (
             <div className='form-group'>
-              <label>Bruto provizija:</label>
+              <label>Znesek provizije:</label>
               <input
                 type="number"
                 step="0.01"
@@ -547,13 +434,14 @@ const TransactionPage = () => {
               />
             </div>
           )}
+
           <button type="submit" className='button-primary'>
-            Add transaction
+            Dodaj transakcijo
           </button>
         </form>
       </div>
       <div className='search-container'>
-        <h2 className='form-header'>Transaction Search</h2>
+        <h2 className='form-header'>Iskanje transakcij</h2>
         <div className='search-options'>
           <label>
             <input
@@ -563,35 +451,35 @@ const TransactionPage = () => {
               checked={searchMode === 'transactionId'}
               onChange={() => setSearchMode('transactionId')}
             />
-            Search by Transaction ID
+            Iskanje po ID transakcije
           </label>
           <label>
             <input
               type="radio"
               name="searchMode"
-              value="agentTransactions"
+              value="agent"
               checked={searchMode === 'agent'}
               onChange={() => setSearchMode('agent')}
             />
-            Search Transactions by Agent
+            Transakcije po agentu
           </label>
         </div>
 
         {searchMode === 'transactionId' && (
           <input
             type="text"
-            placeholder="Search by Transaction ID"
+            placeholder="Vnesite ID transakcije"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         )}
         <button onClick={handleSearch} className='button-primary'>
-          Search
+          Išči
         </button>
 
         {searchResults.length > 0 && (
           <div className='search-results'>
-            <h2>Search Results</h2>
+            <h2>Rezultati iskanja</h2>
             <ul style={{ listStyleType: 'none', padding: 0 }}>
               {searchResults.map((transaction) => (
                 <li key={transaction._id} style={{ marginBottom: '1em' }}>
@@ -605,12 +493,12 @@ const TransactionPage = () => {
                       cursor: 'pointer'
                     }}
                   >
-                    <strong>Property: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
-                    <strong>Buyers: </strong>{
-                      transaction.buyers?.map((b) => `${b.firstName} ${b.lastName}`).join(', ') || 'No buyers found'
+                    <strong>Nepremičnina: </strong>{transaction.property?.mainPropertyId || 'N/A'} <br />
+                    <strong>Kupci: </strong>{
+                      transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'Ni kupcev'
                     }<br />
-                    <strong>Sellers: </strong>{
-                      transaction.sellers?.map((s) => `${s.firstName} ${s.lastName}`).join(', ') || 'No sellers found'
+                    <strong>Prodajalci: </strong>{
+                      transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'Ni prodajalcev'
                     }<br />
                     <strong>Status: </strong>{transaction.status || 'N/A'} <br />
                   </Link>

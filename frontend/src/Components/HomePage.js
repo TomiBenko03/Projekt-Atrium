@@ -111,11 +111,11 @@ const HomePage = () => {
                                             style={getRowStyle(transaction.handoverDeadline, transaction.status)}
                                         >
                                             <Link to={`/transaction/${transaction._id}`} style={{ display: 'block', padding: '10px', textDecoration: 'none', color: '#333' }}>
-                                                <strong>Property:</strong> {transaction.property?.mainPropertyId || 'N/A'} <br />
-                                                <strong>Buyers:</strong> {transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
-                                                <strong>Sellers:</strong> {transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'N/A'} <br />
+                                                <strong>Nepremičnina:</strong> {transaction.property?.mainPropertyId || 'N/A'} <br />
+                                                <strong>Kupec:</strong> {transaction.buyers?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
+                                                <strong>Prodajalec:</strong> {transaction.sellers?.map(s => `${s.firstName} ${s.lastName}`).join(', ') || 'N/A'} <br />
                                                 <strong>Status:</strong> {transaction.status || 'N/A'} <br />
-                                                <strong>Handover Deadline:</strong> {new Date(transaction.handoverDeadline).toLocaleDateString() || 'N/A'}<br />
+                                                <strong>Rok:</strong> {new Date(transaction.handoverDeadline).toLocaleDateString() || 'N/A'}<br />
                                                 <strong>Agents/Odvetnik:</strong> {transaction.agents?.map(b => `${b.firstName} ${b.lastName}`).join(', ') || 'N/A'} <br />
                                             </Link>
                                         </div>
