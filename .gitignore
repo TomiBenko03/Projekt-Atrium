@@ -133,6 +133,6 @@ dist
 .pnp.*
 
 # big file and credentials
-/backend/utils/templateProvizije.docx
 /backend/utils/credentials.enc
-backend/utils/creds.json
+/backend/utils/creds.json
+/backend/utils/serv_acc_creds.json

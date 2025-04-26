@@ -13,6 +13,7 @@ const {
 const {
     generateCommissionReport,
     generateSalesContract,
+    generatePrimopredajniZapisnik,
 } = require('../utils/documentGen');
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, BorderStyle, VerticalAlign, WidthType } = require("docx");
 
@@ -335,6 +336,22 @@ const handleSalesContract = async (req, res) => {
     }
 };
 
+const handlePrimopredajniZapisnik = async (req, res) => {
+    try {
+        const { buffer, fileName } = await generatePrimopredajniZapisnik(req.params.id);
+        
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Content-Disposition': `attachment; filename=${fileName}`
+        });
+        
+        res.send(buffer);
+    } catch (error) {
+        console.error('Error generating report:', error);
+        res.status(500).json({ message: 'Error generating report' });
+    }
+};
+
 const handleCalculationOfRealEstateCosts = async (req, res) => {
     try {
         const { buffer, filename } = await generateCalculationOfRealEstateCosts(req.params.id);
@@ -408,5 +425,6 @@ module.exports = {
     generateBindingOffer: handleBindingOffer,
     generateSalesContract: handleSalesContract,
     generateCalculationOfRealEstateCosts: handleCalculationOfRealEstateCosts,
+    generatePrimopredajniZapisnik: handlePrimopredajniZapisnik,
     updateFFDetails,
 };

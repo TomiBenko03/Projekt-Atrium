@@ -32,6 +32,9 @@ class TemplateMapper {
                 access: (property) => `${property.type === 'Apartment' ? 
                             (property.access || 'Ni podatka o dostopu') : 'Ni relevantno - ne gre za parcelo'}`,
                 equipmentDetails: (property) => `${property.equipmentIncluded.join(", ")}`,
+                buildingPermit: prop => prop.buildingPermitNumber || 'Ni podatka',
+                energyCertificate: prop => prop.energyCertificateNumber || 'Ni podatka',
+                intendedUse: prop => prop.intendedUseCertificateNumber || 'Ni podatka',
             }
         },
         seller: {
@@ -66,6 +69,75 @@ class TemplateMapper {
                         `${expense.description}: ${expense.amount}€`
                     ).join(", ") || 'Ni stroškov';
                 },
+                isMortgageReleaseProvided: tx => tx.hypothecReleaseDate
+                            ? 'Izbrisna pobotnica je bila izdana.'
+                            : 'Izbrisna pobotnica ni bila izdana ali pa ni podanega podatka.',
+                legalApprovalDecisionNumber: tx => tx.legalApproval?.number || 'Ni podatka',
+                legalApprovalDecisionDate:   tx => tx.legalApproval?.date
+                    ? new Date(tx.legalApproval.date).toLocaleDateString('sl-SI')
+                    : 'Ni podatka',
+                contractPrice: tx => {
+                const { property } = tx;
+                const sum = (property.sellingPrice.property||0)
+                            + (property.sellingPrice.equipment||0)
+                            + (property.sellingPrice.other||0);
+                return sum.toLocaleString('sl-SI') + ' €';
+                },
+                // dates
+                handoverDate: tx => new Date(tx.handoverDate).toLocaleDateString('sl-SI'),
+                contractDate: tx => new Date(tx.contractDate).toLocaleDateString('sl-SI'),
+
+                // payer
+                payerName: tx => tx.paymentDetails.deposit.alreadyPaid?.account || 'Ni podatka',
+
+                // meter readings
+                electricMeterLocation: tx => tx.electricMeterLocation || 'Ni podatka o lokaciji.',
+                electricMeterNumber:   tx => tx.electricMeterNumber   || 'Ni podatka o stevcu za elektriko.',
+                electricTariff1:       tx => tx.electricTariff1       || 'Ni podatka o prvi tarifi.',
+                electricTariff2:       tx => tx.electricTariff2       || 'Ni podatka o drugi tarifi.',
+                electricTotal:         tx => tx.electricTotal != null
+                                            ? tx.electricTotal
+                                            : ((Number(tx.electricTariff1)||0) + (Number(tx.electricTariff2)||0)),
+
+                hotWaterMeterNumber:   tx => tx.hotWaterMeterNumber   || 'Ni podatka o stevcu za vroco vodo.',
+                hotWaterReading:       tx => tx.hotWaterReading       || 'Ni podatka o stanju.',
+
+                coldWaterMeterNumber:  tx => tx.coldWaterMeterNumber  || 'Ni podatka o stevcu za mrzlo vodo.',
+                coldWaterReading:      tx => tx.coldWaterReading      || 'Ni podatka o stanju.',
+
+                gasMeterNumber:        tx => tx.gasMeterNumber        || 'Ni podatka o stevcu za plin.',
+                gasReading:            tx => tx.gasReading            || 'Ni podatka o stanju.',
+
+                heatingReading:        tx => tx.heatingReading        || 'Ni podatka.',
+
+                // transfers
+                manager:             tx => tx.manager             || 'Ni podatka.',
+                electricityTransfer: tx => tx.electricityTransfer || 'Ni podatka.',
+                gasTransfer:         tx => tx.gasTransfer         || 'Ni podatka.',
+                waterTransfer:       tx => tx.waterTransfer       || 'Ni podatka.',
+                heatingTransfer:     tx => tx.heatingTransfer     || 'Ni podatka.',
+
+                // keys (nested object)
+                keys: tx => ({
+                    mainEntrance: tx.keys?.mainEntrance || 'Ni podatka.',
+                    apartment:    tx.keys?.apartment    || 'Ni podatka.',
+                    cellar:       tx.keys?.cellar       || 'Ni podatka.',
+                    mailbox:      tx.keys?.mailbox      || 'Ni podatka.',
+                    other1:       tx.keys?.other1       || 'Ni podatka.',
+                    other2:       tx.keys?.other2       || 'Ni podatka.',
+                }),
+
+                // docs, remarks, obligations
+                documentationList: tx => Array.isArray(tx.documentationList)
+                    ? tx.documentationList.join(', ')
+                    : (tx.documentationList || 'Ni podatkov.'),
+
+                buyerRemarks:      tx => tx.buyerRemarks      || 'Ni podatka',
+                sellerObligations: tx => tx.sellerObligations || 'Ni podatka',
+                obligationsDeadline: tx =>
+                    tx.obligationsDeadline
+                    ? new Date(tx.obligationsDeadline).toLocaleDateString('sl-SI')
+                    : 'Ni podatka.',
             }
         }
     }

@@ -10,6 +10,7 @@ const {
     generateSalesContract, 
     assignTransactionToLawyer,
     generateCalculationOfRealEstateCosts,
+    generatePrimopredajniZapisnik,
     updateFFDetails
 } = require('../controllers/transactionController');
 
@@ -24,5 +25,6 @@ router.get('/report/:id', generateCommissionReport);
 router.get('/bindingOffer/:id', generateBindingOffer);
 router.get('/salesContract/:id', generateSalesContract);
 router.get('/calcEstateCosts/:id', generateCalculationOfRealEstateCosts);
+router.get('/primopredajniZapisnik/:id', generatePrimopredajniZapisnik);
 router.put('/updateFF/:id', updateFFDetails);
 module.exports = router;

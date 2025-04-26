@@ -215,6 +215,22 @@ const TransactionSearchPage = () => {
     }
   };
 
+  const fetchPrimopredajniZapisnik = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/transactions/primopredajniZapisnik/${transaction._id}`,
+        {
+          withCredentials: true,
+          responseType: 'blob'
+        }
+      )
+      const filename = transaction.agents.map(s => `${s.firstName} ${s.lastName}`).join(', ') + "_primopredajni_zapisnik.docx";
+      saveAs(new Blob([response.data]), filename);
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
+  };
+
   const fetchSalesContract = async () => {
     try {
       const response = await axios.get(
@@ -653,6 +669,12 @@ const TransactionSearchPage = () => {
             <div>
               <button onClick={fetchCalcOfRealEstateCosts} className='button-primary'>
                 Generate Calculation of Real Estate Costs
+              </button>
+            </div>
+            <br />
+            <div>
+              <button onClick={fetchPrimopredajniZapisnik} className='button-primary'>
+                Generate Primopredajni Zapisnik
               </button>
             </div>
             <br />
