@@ -1,19 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    createTransaction, 
-    searchTransaction, 
-    getAgentTransactions, 
+const {
+    createTransaction,
+    searchTransaction,
+    getAgentTransactions,
     getAdminTransactions,
-    generateCommissionReport, 
+    generateCommissionReport,
     generateBindingOffer,
-    updateTransaction, 
-    generateSalesContract, 
+    updateTransaction,
+    generateSalesContract,
     assignTransactionToLawyer,
     generateCalculationOfRealEstateCosts,
     generatePrimopredajniZapisnik,
-    updateFFDetails
+    updateFFDetails,
+    updateTransactionDetails,
+    updateRelatedEntity,
+    getAuditLogs
 } = require('../controllers/transactionController');
+const authMiddleware = require('../middleware/auth');
 
 
 router.post('/', createTransaction);
@@ -29,4 +33,10 @@ router.get('/salesContract/:id', generateSalesContract);
 router.get('/calcEstateCosts/:id', generateCalculationOfRealEstateCosts);
 router.get('/primopredajniZapisnik/:id', generatePrimopredajniZapisnik);
 router.put('/updateFF/:id', updateFFDetails);
+router.put('/:id', authMiddleware, updateTransactionDetails);
+router.put(
+    '/:id/:entityType(buyer|seller|property)/:entityId',
+    authMiddleware,
+    updateRelatedEntity
+); router.get('/audit/:id', authMiddleware, getAuditLogs);
 module.exports = router;

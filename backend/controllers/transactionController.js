@@ -5,10 +5,11 @@ const Seller = require('../models/Seller');
 const Buyer = require('../models/Buyer');
 const Property = require('../models/Property');
 const sendEmailNotification = require('../utils/emailService');
+const AuditLog = require('../models/AuditLog');
 
-const { 
-    generateBindingOffer, 
-    generateCalculationOfRealEstateCosts 
+const {
+    generateBindingOffer,
+    generateCalculationOfRealEstateCosts
 } = require('../utils/documentGenerator');
 const {
     generateCommissionReport,
@@ -61,10 +62,10 @@ const createTransaction = async (req, res) => {
         // Resolve sellers by names
         const sellerIds = await Promise.all(
             (sellers || []).map(async (name, index) => {
-                const seller = await Seller.findOne({ 
-                    firstName: name.trim(), 
-                    lastName: sellerSurnames[index]?.trim(), 
-                    agentId: agent._id 
+                const seller = await Seller.findOne({
+                    firstName: name.trim(),
+                    lastName: sellerSurnames[index]?.trim(),
+                    agentId: agent._id
                 });
                 if (!seller) throw new Error(`Seller ${name} ${sellerSurnames[index]} not found`);
                 return seller._id;
@@ -74,10 +75,10 @@ const createTransaction = async (req, res) => {
         // Resolve buyers by names
         const buyerIds = await Promise.all(
             (buyers || []).map(async (name, index) => {
-                const buyer = await Buyer.findOne({ 
-                    firstName: name.trim(), 
-                    lastName: buyerSurnames[index]?.trim(), 
-                    agentId: agent._id 
+                const buyer = await Buyer.findOne({
+                    firstName: name.trim(),
+                    lastName: buyerSurnames[index]?.trim(),
+                    agentId: agent._id
                 });
                 if (!buyer) throw new Error(`Buyer ${name} ${buyerSurnames[index]} not found`);
                 return buyer._id;
@@ -98,7 +99,7 @@ const createTransaction = async (req, res) => {
                 deposit: {
                     amount: Number(paymentDetailsDepositAmount) || 0,
                     deadline: paymentDetailsDepositDeadline || null,
-                    alreadyPaid: { amount: 0},
+                    alreadyPaid: { amount: 0 },
                 },
                 remaining: {
                     amount: Number(property.price) || 0,
@@ -151,7 +152,7 @@ const searchTransaction = async (req, res) => {
         const { id } = req.params;
         const userId = req.session.agentId;
         const userRole = req.session.role;
-        
+
         // Validate ID format
         if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ message: 'Invalid transaction ID format' });
@@ -169,19 +170,19 @@ const searchTransaction = async (req, res) => {
             return res.status(404).json({ message: 'Transaction not found' });
         }
 
-        if(userRole === 'odvetnik' && !transaction.agents.includes(userId)) {
+        if (userRole === 'odvetnik' && !transaction.agents.includes(userId)) {
             return res.status(403).json({ message: 'Access denied. Transaction not assigned to you.' });
         }
-        
+
         console.log('Transaction found:', transaction._id);
-        
+
         res.json(transaction);
     } catch (error) {
         console.error('Search error details:', {
             message: error.message,
             stack: error.stack
         });
-        res.status(500).json({ 
+        res.status(500).json({
             message: 'Error searching transaction',
             error: error.message
         });
@@ -224,14 +225,14 @@ const updateTransaction = async (req, res) => {
     try {
         const { Id } = req.params;
         const { status } = req.body;
-  
+
         const transaction = await Transaction.findById(Id)
             .populate('agents', 'email firstName lastName role')
 
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
-  
+
         const previousStatus = transaction.status;
         transaction.status = status;
         await transaction.save();
@@ -260,7 +261,7 @@ const updateTransaction = async (req, res) => {
                 }
             }
         }
-  
+
         res.status(200).json({
             message: 'Transaction status updated successfully',
             status: transaction.status,
@@ -297,9 +298,9 @@ const assignTransactionToLawyer = async (req, res) => {
         res.status(200).json({ message: 'Transaction assigned to lawyer' });
     } catch (error) {
         console.error('Error assigning transaction: ', error);
-        res.status(500).json({ 
-            message: 'Failed to assign transaction', 
-            error: error.message 
+        res.status(500).json({
+            message: 'Failed to assign transaction',
+            error: error.message
         });
     }
 };
@@ -307,12 +308,12 @@ const assignTransactionToLawyer = async (req, res) => {
 const handleCommissionReport = async (req, res) => {
     try {
         const { buffer, fileName } = await generateCommissionReport(req.params.id);
-        
+
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'Content-Disposition': `attachment; filename=${fileName}`
         });
-        
+
         res.send(buffer);
     } catch (error) {
         console.error('Error generating report:', error);
@@ -323,7 +324,7 @@ const handleCommissionReport = async (req, res) => {
 const handleBindingOffer = async (req, res) => {
     try {
         const { buffer, filename } = await generateBindingOffer(req.params.id);
-        
+
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'Content-Disposition': `attachment; filename=${filename}`
@@ -338,12 +339,12 @@ const handleBindingOffer = async (req, res) => {
 const handleSalesContract = async (req, res) => {
     try {
         const { buffer, fileName } = await generateSalesContract(req.params.id);
-        
+
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'Content-Disposition': `attachment; filename=${fileName}`
         });
-        
+
         res.send(buffer);
     } catch (error) {
         console.error('Error generating report:', error);
@@ -354,12 +355,12 @@ const handleSalesContract = async (req, res) => {
 const handlePrimopredajniZapisnik = async (req, res) => {
     try {
         const { buffer, fileName } = await generatePrimopredajniZapisnik(req.params.id);
-        
+
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'Content-Disposition': `attachment; filename=${fileName}`
         });
-        
+
         res.send(buffer);
     } catch (error) {
         console.error('Error generating report:', error);
@@ -383,51 +384,249 @@ const handleCalculationOfRealEstateCosts = async (req, res) => {
 
 const updateFFDetails = async (req, res) => {
     try {
-      const { id } = req.params; // ID transakcije
-      const {
-        kontrola,
-        referral,
-        vpisanoFF,
-        zakljucenoFF,
-        stRacDoStranke,
-        strankaPlacala,
-        stRacunaAgenta,
-        agentPlacano,
-        arhivOk,
-      } = req.body;
-  
-      // Posodobimo FF polja. Pretvorimo vrednosti, če je potrebno.
-      const updatedTransaction = await Transaction.findByIdAndUpdate(
-        id,
-        {
-          kontrola: Number(kontrola) || 0,
-          referral: Boolean(referral),
-          vpisanoFF: Boolean(vpisanoFF),
-          zakljucenoFF: Boolean(zakljucenoFF),
-          stRacDoStranke: stRacDoStranke || '',
-          strankaPlacala: Boolean(strankaPlacala),
-          stRacunaAgenta: stRacunaAgenta || '',
-          agentPlacano: Boolean(agentPlacano),
-          arhivOk: Boolean(arhivOk),
-        },
-        { new: true } // Vrne posodobljen dokument
-      );
-  
-      if (!updatedTransaction) {
-        return res.status(404).json({ message: 'Transaction not found' });
-      }
-  
-      res.json(updatedTransaction);
-    } catch (error) {
-      console.error('Error updating FF details:', error);
-      res.status(500).json({
-        message: 'Failed to update FF details',
-        error: error.message,
-      });
-    }
-  };
-  
+        const { id } = req.params; // ID transakcije
+        const {
+            kontrola,
+            referral,
+            vpisanoFF,
+            zakljucenoFF,
+            stRacDoStranke,
+            strankaPlacala,
+            stRacunaAgenta,
+            agentPlacano,
+            arhivOk,
+        } = req.body;
 
+        // Posodobimo FF polja. Pretvorimo vrednosti, če je potrebno.
+        const updatedTransaction = await Transaction.findByIdAndUpdate(
+            id,
+            {
+                kontrola: Number(kontrola) || 0,
+                referral: Boolean(referral),
+                vpisanoFF: Boolean(vpisanoFF),
+                zakljucenoFF: Boolean(zakljucenoFF),
+                stRacDoStranke: stRacDoStranke || '',
+                strankaPlacala: Boolean(strankaPlacala),
+                stRacunaAgenta: stRacunaAgenta || '',
+                agentPlacano: Boolean(agentPlacano),
+                arhivOk: Boolean(arhivOk),
+            },
+            { new: true } // Vrne posodobljen dokument
+        );
+
+        if (!updatedTransaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        res.json(updatedTransaction);
+    } catch (error) {
+        console.error('Error updating FF details:', error);
+        res.status(500).json({
+            message: 'Failed to update FF details',
+            error: error.message,
+        });
+    }
+};
+
+const createAuditLog = async (transactionId, agentId, action, changes) => {
+    try {
+        const auditLog = new AuditLog({
+            transactionId,
+            agentId,
+            action,
+            changes
+        });
+        await auditLog.save();
+    }
+    catch (error) {
+        console.error('Error creating audit log:', error);
+        res.status(500).json({
+            message: 'Failed to create audit log',
+            error: error.message,
+        });
+    }
+};
+
+const updateTransactionDetails = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const agentId = req.session.agentId;
+        const updateData = req.body;
+
+        const originalTransaction = await transaction.findById(id);
+        if (!originalTransaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        const updatedTransaction = await transaction.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+        );
+
+        const changes = {};
+
+        Object.keys(updateData).forEach(key => {
+            if (JSON.stringify(originalTransaction[key]) !== JSON.stringify(updateData[key])) {
+                changes[key] = {
+                    old: originalTransaction[key],
+                    new: updateData[key]
+                };
+            }
+        });
+
+        if (Object.keys(changes).length > 0) {
+            await createAuditLog(
+                id,
+                agentId,
+                'UPDATE_TRANSACTION',
+                changes
+            );
+        }
+
+        res.status(200).json({
+            message: 'Transaction updated successfully',
+            transaction: updatedTransaction
+        });
+    }
+    catch (error) {
+        console.error('Error updating transaction details:', error);
+        res.status(500).json({
+            message: 'Failed to update transaction details',
+            error: error.message,
+        });
+    }
+};
+
+const updateRelatedEntity = async (req, res) => {
+    try {
+        const { id: transactionId, entityType, entityId } = req.params;
+        const updateData = req.body;
+        const agentId = req.session.agentId;
+
+        // Validate entity type
+        const validEntityTypes = ['buyer', 'seller', 'property'];
+        if (!validEntityTypes.includes(entityType)) {
+            return res.status(400).json({
+                message: 'Invalid entity type. Must be buyer, seller, or property'
+            });
+        }
+
+        // Get the appropriate model based on entity type
+        const Model = {
+            buyer: Buyer,
+            seller: Seller,
+            property: Property
+        }[entityType];
+
+        // Verify the entity exists and belongs to this transaction
+        const entity = await Model.findById(entityId);
+        if (!entity) {
+            return res.status(404).json({ message: `${entityType} not found` });
+        }
+
+        // For properties, verify they're referenced in this transaction
+        if (entityType === 'property') {
+            const transaction = await Transaction.findById(transactionId);
+            if (!transaction.property.equals(entityId)) {
+                return res.status(403).json({
+                    message: 'Property not associated with this transaction'
+                });
+            }
+        }
+
+        // For buyers/sellers, verify they're referenced in this transaction
+        if (['buyer', 'seller'].includes(entityType)) {
+            const transaction = await Transaction.findById(transactionId);
+            const entityIds = transaction[`${entityType}s`].map(id => id.toString());
+            if (!entityIds.includes(entityId.toString())) {
+                return res.status(403).json({
+                    message: `${entityType} not associated with this transaction`
+                });
+            }
+        }
+
+        // Create deep clone of original for comparison
+        const originalEntity = JSON.parse(JSON.stringify(entity.toObject()));
+
+        // Update the entity
+        const updatedEntity = await Model.findByIdAndUpdate(
+            entityId,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        // Identify changed fields
+        const changes = {};
+        Object.keys(updateData).forEach(key => {
+            if (!originalEntity[key] ||
+                JSON.stringify(originalEntity[key]) !== JSON.stringify(updateData[key])) {
+                changes[key] = {
+                    old: originalEntity[key],
+                    new: updateData[key]
+                };
+            }
+        });
+
+        // Only log if changes were made
+        if (Object.keys(changes).length > 0) {
+            await createAuditLog(
+                transactionId,
+                agentId,
+                `UPDATE_${entityType.toUpperCase()}`,
+                {
+                    entityId,
+                    entityType,
+                    changes
+                }
+            );
+
+            // For property price updates, update transaction payment amounts if needed
+            if (entityType === 'property' && updateData.price) {
+                const transaction = await Transaction.findById(transactionId);
+                const newRemainingAmount = updateData.price -
+                    (transaction.paymentDetails.deposit.amount || 0);
+
+                await Transaction.findByIdAndUpdate(transactionId, {
+                    $set: {
+                        'paymentDetails.remaining.amount': newRemainingAmount
+                    }
+                });
+            }
+        }
+
+        res.status(200).json({
+            message: `${entityType} updated successfully`,
+            [entityType]: updatedEntity
+        });
+    }
+    catch (error) {
+        console.error('Error updating related entities:', error);
+        res.status(500).json({
+            message: 'Failed to update related entities',
+            error: error.message,
+        });
+    }
+};
+
+const getAuditLogs = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const logs = await AuditLog.find({ transactionId: id })
+            .populate('agentId', 'firstName lastName email')
+            .sort({ timestamp: -1 });
+
+        res.status(200).json(logs);
+    }
+    catch (error) {
+        console.error('Error getting audit logs:', error);
+        res.status(500).json({
+            message: 'Failed to get audit logs',
+            error: error.message,
+        });
+    }
+}
 
 
 module.exports = {
@@ -443,4 +642,7 @@ module.exports = {
     generateCalculationOfRealEstateCosts: handleCalculationOfRealEstateCosts,
     generatePrimopredajniZapisnik: handlePrimopredajniZapisnik,
     updateFFDetails,
+    updateTransactionDetails,
+    updateRelatedEntity,
+    getAuditLogs
 };

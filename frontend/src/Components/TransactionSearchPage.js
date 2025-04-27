@@ -19,6 +19,12 @@ const TransactionSearchPage = () => {
   const [transactionStatus, setTransactionStatus] = useState('');
   const [lawyerEmail, setLawyerEmail] = useState('');
   const [userRole, setUserRole] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editedTransaction, setEditedTransaction] = useState(null);
+  const [editedEntity, setEditedEntity] = useState(null);
+  const [entityType, setEntityType] = useState('');
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [showAuditLogs, setShowAuditLogs] = useState(false);
 
   // New state for FF details
   const [ffDetails, setFFDetails] = useState({
@@ -319,13 +325,102 @@ const TransactionSearchPage = () => {
     }
   };
 
+  const toggleEditMode = () => {
+    if (editMode) {
+      // If exiting edit mode, reset edited data
+      setEditedTransaction(null);
+      setEditedEntity(null);
+      setEntityType('');
+    } else {
+      // If entering edit mode, initialize edited data
+      setEditedTransaction({ ...transaction });
+      setAuditLogs([]);
+      setShowAuditLogs(false);
+    }
+    setEditMode(!editMode);
+  };
+
+  const handleTransactionUpdate = async () => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/transactions/${transaction._id}`,
+        editedTransaction,
+        { withCredentials: true }
+      );
+
+      setTransaction(response.data.transaction);
+      setEditedTransaction({ ...response.data.transaction });
+      alert('Tranzakcija uspešno posodobljena!');
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      alert('Failed to update transaction');
+    }
+  };
+
+  const handleEntityUpdate = async () => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/transactions/${transaction._id}/${entityType}/${editedEntity._id}`,
+        editedEntity,
+        { withCredentials: true }
+      );
+
+      // Update the appropriate state based on entity type
+      if (entityType === 'buyer') {
+        const updatedBuyers = buyers.map(b =>
+          b._id === editedEntity._id ? response.data.buyer : b
+        );
+        setBuyers(updatedBuyers);
+      } else if (entityType === 'seller') {
+        const updatedSellers = sellers.map(s =>
+          s._id === editedEntity._id ? response.data.seller : s
+        );
+        setSellers(updatedSellers);
+      } else if (entityType === 'property') {
+        setTransaction(prev => ({
+          ...prev,
+          property: response.data.property
+        }));
+      }
+
+      alert(`${entityType} uspešno posodobljeno!`);
+      setEditedEntity(null);
+      setEntityType('');
+    } catch (error) {
+      console.error(`Error updating ${entityType}:`, error);
+      alert(`Failed to update ${entityType}`);
+    }
+  };
+
+  const fetchAuditLogs = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/transactions/audit/${transaction._id}`,
+        { withCredentials: true }
+      );
+      setAuditLogs(response.data);
+      setShowAuditLogs(true);
+    } catch (error) {
+      console.error('Error fetching audit logs:', error);
+      alert('Failed to fetch audit logs');
+    }
+  };
+
+  const toggleAuditLogs = () => {
+    if (showAuditLogs) {
+      setShowAuditLogs(false);
+    } else {
+      fetchAuditLogs();
+    }
+  };
+
   // Tab gumbi (dodali smo nov zavihek "FF Details")
   const tabs = ['Agent', 'Prodajalci', 'Kupci', 'Nepremičnina', 'Podrobnosti plačila', 'Kontrolne Značke'];
   return (
     <div className='page-container'>
       <div className='form-container'>
 
-      <h1 className='form-header'>Iskanje transakcij</h1>
+        <h1 className='form-header'>Iskanje transakcij</h1>
         {/* Search form: na voljo tudi, če je URL parameter uporabljen */}
         <form onSubmit={handleSearch} className='search-form'>
           <input
@@ -339,7 +434,7 @@ const TransactionSearchPage = () => {
             className='search-input'
           />
           <button type="submit" className='button-primary'>
-          Išči
+            Išči
           </button>
         </form>
 
@@ -359,6 +454,29 @@ const TransactionSearchPage = () => {
               ))}
             </div>
 
+            {/* Add this new edit button section right after tab buttons */}
+            {['Prodajalci', 'Kupci', 'Nepremičnina', 'Podrobnosti plačila'].includes(activeTab) && (
+              <div className='tab-details' style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={toggleEditMode}
+                  className='button-primary'
+                  style={{ width: 'auto' }}
+                >
+                  {editMode ? 'Prekini urejanje' : 'Uredi'}
+                </button>
+
+                {editMode && (
+                  <button
+                    onClick={toggleAuditLogs}
+                    className='button-primary'
+                    style={{ width: 'auto' }}
+                  >
+                    {showAuditLogs ? 'Skrij zgodovino sprememb' : 'Prikaži zgodovino sprememb'}
+                  </button>
+                )}
+              </div>
+            )}
+
             {activeTab === 'Agent' && transaction.agents && (
               <div className={`tab-content ${activeTab === 'Agent' ? 'active' : ''}`}>
                 {transaction.agents.map((agentItem, index) => (
@@ -374,128 +492,780 @@ const TransactionSearchPage = () => {
               </div>
             )}
 
-          
-{activeTab === 'Prodajalci' && sellers.length > 0 && (
+            {activeTab === 'Prodajalci' && sellers.length > 0 && (
               <div className='tab-content active'>
                 {sellers.map((seller, index) => (
                   <div key={index} className='tab-details'>
-                    <h3>Podatki o prodajalcu</h3>
-                    <p><strong>Ime:</strong> {`${seller.firstName} ${seller.lastName}`}</p>
-                    <p><strong>Naslov:</strong> {seller.address}</p>
-                    <p><strong>Telefon:</strong> {seller.gsm}</p>
-                    <p><strong>E-pošta:</strong> {seller.email}</p>
-                    <p><strong>EMŠO:</strong> {seller.emso}</p>
-                    <p><strong>Davčna številka:</strong> {seller.taxNumber}</p>
-                    <p><strong>Bančni račun:</strong> {seller.bankAccount}</p>
-                    <p><strong>Banka:</strong> {seller.bankName}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h3>Podatki o prodajalcu</h3>
+                      {editMode && entityType !== 'seller' && (
+                        <button
+                          onClick={() => {
+                            setEntityType('seller');
+                            setEditedEntity({ ...seller });
+                          }}
+                          className='button-primary'
+                          style={{ width: 'auto', padding: '5px 10px' }}
+                        >
+                          Uredi
+                        </button>
+                      )}
+                    </div>
+
+                    {entityType === 'seller' && editedEntity?._id === seller._id ? (
+                      <div className='edit-form'>
+                        <div className='form-group'>
+                          <label>Ime:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.firstName}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              firstName: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Priimek:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.lastName}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              lastName: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Naslov:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.address}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              address: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Telefon:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.gsm}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              gsm: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>E-pošta:</label>
+                          <input
+                            type="email"
+                            value={editedEntity.email}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              email: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>EMŠO:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.emso}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              emso: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Davčna številka:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.taxNumber}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              taxNumber: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Bančni račun:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.bankAccount}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              bankAccount: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Banka:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.bankName}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              bankName: e.target.value
+                            }))}
+                          />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          <button
+                            onClick={handleEntityUpdate}
+                            className='button-primary'
+                            style={{ width: 'auto' }}
+                          >
+                            Shrani
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditedEntity(null);
+                              setEntityType('');
+                            }}
+                            className='button-primary'
+                            style={{ width: 'auto', backgroundColor: '#666' }}
+                          >
+                            Prekliči
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p><strong>Ime:</strong> {`${seller.firstName} ${seller.lastName}`}</p>
+                        <p><strong>Naslov:</strong> {seller.address}</p>
+                        <p><strong>Telefon:</strong> {seller.gsm}</p>
+                        <p><strong>E-pošta:</strong> {seller.email}</p>
+                        <p><strong>EMŠO:</strong> {seller.emso}</p>
+                        <p><strong>Davčna številka:</strong> {seller.taxNumber}</p>
+                        <p><strong>Bančni račun:</strong> {seller.bankAccount}</p>
+                        <p><strong>Banka:</strong> {seller.bankName}</p>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
             )}
 
-{activeTab === 'Kupci' && buyers.length > 0 && (
+
+            {activeTab === 'Kupci' && buyers.length > 0 && (
               <div className='tab-content active'>
                 {buyers.map((buyer, index) => (
                   <div key={index} className='tab-details'>
-                    <h3>Podatki o kupcu</h3>
-                    <p><strong>Ime:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
-                    <p><strong>Naslov:</strong> {buyer.address}</p>
-                    <p><strong>Telefon:</strong> {buyer.gsm}</p>
-                    <p><strong>E-pošta:</strong> {buyer.email}</p>
-                    <p><strong>EMŠO:</strong> {buyer.emso}</p>
-                    <p><strong>Davčna številka:</strong> {buyer.taxNumber}</p>
-                    <p><strong>Bančni račun:</strong> {buyer.bankAccount}</p>
-                    <p><strong>Banka:</strong> {buyer.bankName}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h3>Podatki o kupcu</h3>
+                      {editMode && entityType !== 'buyer' && (
+                        <button
+                          onClick={() => {
+                            setEntityType('buyer');
+                            setEditedEntity({ ...buyer });
+                          }}
+                          className='button-primary'
+                          style={{ width: 'auto', padding: '5px 10px' }}
+                        >
+                          Uredi
+                        </button>
+                      )}
+                    </div>
+
+                    {entityType === 'buyer' && editedEntity?._id === buyer._id ? (
+                      <div className='edit-form'>
+                        <div className='form-group'>
+                          <label>Ime:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.firstName}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              firstName: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Priimek:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.lastName}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              lastName: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Naslov:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.address}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              address: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Telefon:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.gsm}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              gsm: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>E-pošta:</label>
+                          <input
+                            type="email"
+                            value={editedEntity.email}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              email: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>EMŠO:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.emso}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              emso: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Davčna številka:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.taxNumber}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              taxNumber: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Bančni račun:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.bankAccount}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              bankAccount: e.target.value
+                            }))}
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label>Banka:</label>
+                          <input
+                            type="text"
+                            value={editedEntity.bankName}
+                            onChange={(e) => setEditedEntity(prev => ({
+                              ...prev,
+                              bankName: e.target.value
+                            }))}
+                          />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          <button
+                            onClick={handleEntityUpdate}
+                            className='button-primary'
+                            style={{ width: 'auto' }}
+                          >
+                            Shrani
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditedEntity(null);
+                              setEntityType('');
+                            }}
+                            className='button-primary'
+                            style={{ width: 'auto', backgroundColor: '#666' }}
+                          >
+                            Prekliči
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p><strong>Ime:</strong> {`${buyer.firstName} ${buyer.lastName}`}</p>
+                        <p><strong>Naslov:</strong> {buyer.address}</p>
+                        <p><strong>Telefon:</strong> {buyer.gsm}</p>
+                        <p><strong>E-pošta:</strong> {buyer.email}</p>
+                        <p><strong>EMŠO:</strong> {buyer.emso}</p>
+                        <p><strong>Davčna številka:</strong> {buyer.taxNumber}</p>
+                        <p><strong>Bančni račun:</strong> {buyer.bankAccount}</p>
+                        <p><strong>Banka:</strong> {buyer.bankName}</p>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
             )}
 
-{activeTab === 'Nepremičnina' && transaction.property && (
+            {activeTab === 'Nepremičnina' && transaction.property && (
               <div className='tab-content active'>
-                <h3>Podatki o nepremičnini</h3>
-                <div className='tab-details'>
-                  <p>
-                    <strong>ID:</strong> {transaction.property.mainPropertyId}
-                    <span className="info-icon-container">
-                      <span className="info-icon">
-                        <Info size={12} />
-                        <span className="info-tooltip">ID značka</span>
-                      </span>
-                    </span>
-                  </p>
-                  <p><strong>Naslov:</strong> {transaction.property.address}</p>
-                  <p><strong>Tip:</strong> {transaction.property.type}</p>
-                  <p><strong>Cena:</strong> €{transaction.property.price}</p>
-                  <p><strong>Nova gradnja:</strong> {transaction.property.isNewBuild ? 'Da' : 'Ne'}</p>
-                  <p><strong>Kmetijsko zemljišče:</strong> {transaction.property.isAgriculturalLand ? 'Da' : 'Ne'}</p>
-                  <p><strong>Predkupna pravica:</strong> {transaction.property.preemptionRight ? 'Da' : 'Ne'}</p>
-                  <h3 className='tab-details'>Podrobnosti cen</h3>
-                  <p><strong>Nepremičnina:</strong> €{transaction.property.sellingPrice.property}</p>
-                  <p><strong>Oprema:</strong> €{transaction.property.sellingPrice.equipment}</p>
-                  <p><strong>Drugo:</strong> €{transaction.property.sellingPrice.other}</p>
-                  <p><strong>Skupaj:</strong> €{(
-                    (transaction.property.sellingPrice.property || 0) +
-                    (transaction.property.sellingPrice.equipment || 0) +
-                    (transaction.property.sellingPrice.other || 0)
-                  )}</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3>Podatki o nepremičnini</h3>
+                  {editMode && entityType !== 'property' && (
+                    <button
+                      onClick={() => {
+                        setEntityType('property');
+                        setEditedEntity({ ...transaction.property });
+                      }}
+                      className='button-primary'
+                      style={{ width: 'auto', padding: '5px 10px' }}
+                    >
+                      Uredi
+                    </button>
+                  )}
                 </div>
+
+                {entityType === 'property' ? (
+                  <div className='edit-form'>
+                    <div className='form-group'>
+                      <label>ID:</label>
+                      <input
+                        type="text"
+                        value={editedEntity.mainPropertyId}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          mainPropertyId: e.target.value
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Naslov:</label>
+                      <input
+                        type="text"
+                        value={editedEntity.address}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          address: e.target.value
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Tip:</label>
+                      <input
+                        type="text"
+                        value={editedEntity.type}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          type: e.target.value
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Cena (€):</label>
+                      <input
+                        type="number"
+                        value={editedEntity.price}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          price: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Nova gradnja:</label>
+                      <input
+                        type="checkbox"
+                        checked={editedEntity.isNewBuild}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          isNewBuild: e.target.checked
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Kmetijsko zemljišče:</label>
+                      <input
+                        type="checkbox"
+                        checked={editedEntity.isAgriculturalLand}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          isAgriculturalLand: e.target.checked
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Predkupna pravica:</label>
+                      <input
+                        type="checkbox"
+                        checked={editedEntity.preemptionRight}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          preemptionRight: e.target.checked
+                        }))}
+                      />
+                    </div>
+
+                    <h4>Podrobnosti cen</h4>
+                    <div className='form-group'>
+                      <label>Nepremičnina (€):</label>
+                      <input
+                        type="number"
+                        value={editedEntity.sellingPrice?.property || 0}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          sellingPrice: {
+                            ...prev.sellingPrice,
+                            property: Number(e.target.value)
+                          }
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Oprema (€):</label>
+                      <input
+                        type="number"
+                        value={editedEntity.sellingPrice?.equipment || 0}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          sellingPrice: {
+                            ...prev.sellingPrice,
+                            equipment: Number(e.target.value)
+                          }
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Drugo (€):</label>
+                      <input
+                        type="number"
+                        value={editedEntity.sellingPrice?.other || 0}
+                        onChange={(e) => setEditedEntity(prev => ({
+                          ...prev,
+                          sellingPrice: {
+                            ...prev.sellingPrice,
+                            other: Number(e.target.value)
+                          }
+                        }))}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      <button
+                        onClick={handleEntityUpdate}
+                        className='button-primary'
+                        style={{ width: 'auto' }}
+                      >
+                        Shrani
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditedEntity(null);
+                          setEntityType('');
+                        }}
+                        className='button-primary'
+                        style={{ width: 'auto', backgroundColor: '#666' }}
+                      >
+                        Prekliči
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p>
+                      <strong>ID:</strong> {transaction.property.mainPropertyId}
+                      <span className="info-icon-container">
+                        <span className="info-icon">
+                          <Info size={12} />
+                          <span className="info-tooltip">ID značka</span>
+                        </span>
+                      </span>
+                    </p>
+                    <p><strong>Naslov:</strong> {transaction.property.address}</p>
+                    <p><strong>Tip:</strong> {transaction.property.type}</p>
+                    <p><strong>Cena:</strong> €{transaction.property.price}</p>
+                    <p><strong>Nova gradnja:</strong> {transaction.property.isNewBuild ? 'Da' : 'Ne'}</p>
+                    <p><strong>Kmetijsko zemljišče:</strong> {transaction.property.isAgriculturalLand ? 'Da' : 'Ne'}</p>
+                    <p><strong>Predkupna pravica:</strong> {transaction.property.preemptionRight ? 'Da' : 'Ne'}</p>
+                    <h3 className='tab-details'>Podrobnosti cen</h3>
+                    <p><strong>Nepremičnina:</strong> €{transaction.property.sellingPrice.property}</p>
+                    <p><strong>Oprema:</strong> €{transaction.property.sellingPrice.equipment}</p>
+                    <p><strong>Drugo:</strong> €{transaction.property.sellingPrice.other}</p>
+                    <p><strong>Skupaj:</strong> €{(
+                      (transaction.property.sellingPrice.property || 0) +
+                      (transaction.property.sellingPrice.equipment || 0) +
+                      (transaction.property.sellingPrice.other || 0)
+                    )}</p>
+                  </>
+                )}
               </div>
             )}
 
 
-{activeTab === 'Podrobnosti plačila' && transaction.paymentDetails && (
+            {activeTab === 'Podrobnosti plačila' && transaction.paymentDetails && (
               <div className='tab-content active'>
-                <h3>
-                  Podrobnosti plačila
-                  <span className="info-icon-container">
-                    <span className="info-icon">
-                      <Info size={12} />
-                      <span className="info-tooltip">Opis plačila</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3>
+                    Podrobnosti plačila
+                    <span className="info-icon-container">
+                      <span className="info-icon">
+                        <Info size={12} />
+                        <span className="info-tooltip">Opis plačila</span>
+                      </span>
                     </span>
-                  </span>
-                </h3>
-                <p><strong>Dodatne opombe:</strong> {transaction.paymentDescriptor}</p>
-                <p><strong>Že plačano:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
-                <div className='tab-details'>
-                  <p>
-                    <strong>Provizija:</strong> {
-                      transaction.commissionGross !== 0
-                        ? `${transaction.commissionGross}€`
-                        : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
-                    }
-                  </p>
-                  <p>
-                  <strong>Vrednost:</strong>
-                    {
-                      transaction.commissionGross !== 0
-                        ? `${ transaction.commissionGross}€`
-                        : (transaction.commissionPercent !== 0 ? `${transaction.paymentDetails.remaining.amount/100*transaction.commissionPercent}€` : '0')
-                    }
-                  </p>
-
-                  <h3>Polog</h3>
-                  <p><strong>Znesek:</strong> €{transaction.paymentDetails.deposit.amount}</p>
-                  <p>
-                    <strong>Rok:</strong>{' '}
-                    {transaction.paymentDetails.deposit.deadline &&
-                      new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
-                  </p>
-                
-                  <h3>Preostanek</h3>
-                  <p><strong>Znesek:</strong> €{transaction.paymentDetails.remaining.amount - transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
-                  <p>
-                    <strong>Rok:</strong>{' '}
-                    {transaction.paymentDetails.remaining.deadline &&
-                      new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
-                  </p>
-                  
-                  <h3>Podatki o hipoteki</h3>
-                  <div className='tab-details'>
-                    <p><strong>Stanje hipoteke:</strong> {transaction.buyerMortgage ? 'Da' : 'Ne'}</p>
-                    <p><strong>Znesek:</strong> €{transaction.mortgageAmount || 0}</p>
-                  </div>
+                  </h3>
+                  {editMode && (
+                    <button
+                      onClick={() => {
+                        setEditedTransaction({
+                          ...transaction,
+                          paymentDetails: {
+                            ...transaction.paymentDetails,
+                            deposit: {
+                              ...transaction.paymentDetails.deposit,
+                              alreadyPaid: {
+                                ...transaction.paymentDetails.deposit.alreadyPaid
+                              }
+                            },
+                            remaining: {
+                              ...transaction.paymentDetails.remaining
+                            }
+                          }
+                        });
+                      }}
+                      className='button-primary'
+                      style={{ width: 'auto', padding: '5px 10px' }}
+                    >
+                      Uredi
+                    </button>
+                  )}
                 </div>
+
+                {editMode && editedTransaction ? (
+                  <div className='edit-form'>
+                    <div className='form-group'>
+                      <label>Dodatne opombe:</label>
+                      <textarea
+                        value={editedTransaction.paymentDescriptor}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          paymentDescriptor: e.target.value
+                        }))}
+                      />
+                    </div>
+
+                    <div className='form-group'>
+                      <label>Provizija (%):</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={editedTransaction.commissionPercent}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          commissionPercent: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+
+                    <div className='form-group'>
+                      <label>Provizija (€):</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={editedTransaction.commissionGross}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          commissionGross: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+
+                    <h4>Polog</h4>
+                    <div className='form-group'>
+                      <label>Znesek (€):</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={editedTransaction.paymentDetails.deposit.amount}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          paymentDetails: {
+                            ...prev.paymentDetails,
+                            deposit: {
+                              ...prev.paymentDetails.deposit,
+                              amount: Number(e.target.value)
+                            }
+                          }
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Rok:</label>
+                      <input
+                        type="date"
+                        value={editedTransaction.paymentDetails.deposit.deadline?.split('T')[0] || ''}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          paymentDetails: {
+                            ...prev.paymentDetails,
+                            deposit: {
+                              ...prev.paymentDetails.deposit,
+                              deadline: e.target.value
+                            }
+                          }
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Že plačano (€):</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={editedTransaction.paymentDetails.deposit.alreadyPaid.amount}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          paymentDetails: {
+                            ...prev.paymentDetails,
+                            deposit: {
+                              ...prev.paymentDetails.deposit,
+                              alreadyPaid: {
+                                amount: Number(e.target.value)
+                              }
+                            }
+                          }
+                        }))}
+                      />
+                    </div>
+
+                    <h4>Preostanek</h4>
+                    <div className='form-group'>
+                      <label>Znesek (€):</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={editedTransaction.paymentDetails.remaining.amount}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          paymentDetails: {
+                            ...prev.paymentDetails,
+                            remaining: {
+                              ...prev.paymentDetails.remaining,
+                              amount: Number(e.target.value)
+                            }
+                          }
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Rok:</label>
+                      <input
+                        type="date"
+                        value={editedTransaction.paymentDetails.remaining.deadline?.split('T')[0] || ''}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          paymentDetails: {
+                            ...prev.paymentDetails,
+                            remaining: {
+                              ...prev.paymentDetails.remaining,
+                              deadline: e.target.value
+                            }
+                          }
+                        }))}
+                      />
+                    </div>
+
+                    <h4>Podatki o hipoteki</h4>
+                    <div className='form-group'>
+                      <label>Stanje hipoteke:</label>
+                      <input
+                        type="checkbox"
+                        checked={editedTransaction.buyerMortgage}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          buyerMortgage: e.target.checked
+                        }))}
+                      />
+                    </div>
+                    <div className='form-group'>
+                      <label>Znesek hipoteke (€):</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={editedTransaction.mortgageAmount}
+                        onChange={(e) => setEditedTransaction(prev => ({
+                          ...prev,
+                          mortgageAmount: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      <button
+                        onClick={handleTransactionUpdate}
+                        className='button-primary'
+                        style={{ width: 'auto' }}
+                      >
+                        Shrani
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditedTransaction(null);
+                        }}
+                        className='button-primary'
+                        style={{ width: 'auto', backgroundColor: '#666' }}
+                      >
+                        Prekliči
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p><strong>Dodatne opombe:</strong> {transaction.paymentDescriptor}</p>
+                    <p><strong>Že plačano:</strong> {transaction.paymentDetails.deposit.alreadyPaid.amount}€</p>
+                    <div className='tab-details'>
+                      <p>
+                        <strong>Provizija:</strong> {
+                          transaction.commissionGross !== 0
+                            ? `${transaction.commissionGross}€`
+                            : (transaction.commissionPercent !== 0 ? `${transaction.commissionPercent}%` : '0')
+                        }
+                      </p>
+                      <p>
+                        <strong>Vrednost:</strong>
+                        {
+                          transaction.commissionGross !== 0
+                            ? `${transaction.commissionGross}€`
+                            : (transaction.commissionPercent !== 0 ? `${transaction.paymentDetails.remaining.amount / 100 * transaction.commissionPercent}€` : '0')
+                        }
+                      </p>
+
+                      <h3>Polog</h3>
+                      <p><strong>Znesek:</strong> €{transaction.paymentDetails.deposit.amount}</p>
+                      <p>
+                        <strong>Rok:</strong>{' '}
+                        {transaction.paymentDetails.deposit.deadline &&
+                          new Date(transaction.paymentDetails.deposit.deadline).toLocaleDateString()}
+                      </p>
+
+                      <h3>Preostanek</h3>
+                      <p><strong>Znesek:</strong> €{transaction.paymentDetails.remaining.amount - transaction.paymentDetails.deposit.alreadyPaid.amount}</p>
+                      <p>
+                        <strong>Rok:</strong>{' '}
+                        {transaction.paymentDetails.remaining.deadline &&
+                          new Date(transaction.paymentDetails.remaining.deadline).toLocaleDateString()}
+                      </p>
+
+                      <h3>Podatki o hipoteki</h3>
+                      <div className='tab-details'>
+                        <p><strong>Stanje hipoteke:</strong> {transaction.buyerMortgage ? 'Da' : 'Ne'}</p>
+                        <p><strong>Znesek:</strong> €{transaction.mortgageAmount || 0}</p>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -504,8 +1274,8 @@ const TransactionSearchPage = () => {
               <div className='tab-content active'>
                 <h3>Kontrolne Značke</h3>
                 <div className='tab-details'>
-                 
-                   
+
+
                   <div className='form-group'>
                     <label>Referral:</label>
                     <input
@@ -604,6 +1374,73 @@ const TransactionSearchPage = () => {
               </div>
             )}
 
+            {/* Audit logs */}
+            {showAuditLogs && (
+              <div className='audit-logs-container'>
+                <h3>Zgodovina sprememb</h3>
+                {auditLogs.length > 0 ? (
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Spremenil</th>
+                        <th>Datum</th>
+                        <th>Spremembe</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.map((log, index) => {
+                        // Extract the actual field changes from the nested structure
+                        const fieldChanges = log.changes?.changes || log.changes;
+
+                        return (
+                          <tr key={index}>
+                            <td>{log.changedBy?.name || 'Sistem'}</td>
+                            <td>{new Date(log.timestamp).toLocaleString()}</td>
+                            <td>
+                              {fieldChanges && typeof fieldChanges === 'object' ? (
+                                Object.entries(fieldChanges).map(([field, values]) => {
+                                  if (field === 'entityId' || field === 'entityType') return null;
+
+                                  const oldValue = values.oldValue !== undefined ? values.oldValue : values.old;
+                                  const newValue = values.newValue !== undefined ? values.newValue : values.new;
+
+                                  // Skip if no actual change in values
+                                  if (String(oldValue) === String(newValue)) return null;
+
+                                  // Format field names to be more readable
+                                  const formattedField = {
+                                    'firstName': 'Ime',
+                                    'lastName': 'Priimek',
+                                    'address': 'Naslov',
+                                    'gsm': 'Telefon',
+                                    'email': 'E-pošta',
+                                    'emso': 'EMŠO',
+                                    'taxNumber': 'Davčna številka',
+                                    'bankAccount': 'Bančni račun',
+                                    'bankName': 'Banka'
+                                  }[field] || field;
+
+                                  return (
+                                    <div key={field}>
+                                      <strong>{formattedField}:</strong> {String(oldValue || '')} → {String(newValue || '')}
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div>Brez sprememb</div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p>Ni zgodovine sprememb za to transakcijo.</p>
+                )}
+              </div>
+            )}
+
             {/* Status dropdown and update button */}
             <div className='tab-details' style={{ marginTop: '20px' }}>
               <label><strong>Status:</strong></label>
@@ -643,7 +1480,7 @@ const TransactionSearchPage = () => {
                   className='button-primary'
                   style={{ marginLeft: '10px', width: 'auto' }}
                 >
-                 Dodeli odvetniku
+                  Dodeli odvetniku
                 </button>
               </div>
             )}
@@ -691,7 +1528,7 @@ const TransactionSearchPage = () => {
       {transaction && (
         <div className='search-container'>
           <h2 className="form-header">Comments</h2>
-          <MessageComponent transactionId={transaction._id} />      
+          <MessageComponent transactionId={transaction._id} />
         </div>
       )}
 
