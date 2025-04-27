@@ -4,6 +4,7 @@ const {
     createTransaction, 
     searchTransaction, 
     getAgentTransactions, 
+    getAdminTransactions,
     generateCommissionReport, 
     generateBindingOffer,
     updateTransaction, 
@@ -18,6 +19,7 @@ const {
 router.post('/', createTransaction);
 router.get('/search/:id', searchTransaction);
 router.get('/agentTransactions', getAgentTransactions);
+router.get('/adminTransactions', getAdminTransactions);
 router.put('/updatestatus/:Id', updateTransaction);
 router.put('/assignLawyer/:transactionId', assignTransactionToLawyer);
 

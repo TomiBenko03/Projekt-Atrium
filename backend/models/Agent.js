@@ -12,7 +12,7 @@ const agentSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { 
         type: String, 
-        enum: ['agent', 'odvetnik'], 
+        enum: ['agent', 'odvetnik', 'admin'], 
         required: true,
         default: 'agent' // Default role
     }

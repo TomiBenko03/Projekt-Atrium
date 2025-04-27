@@ -199,12 +199,27 @@ const getAgentTransactions = async (req, res) => {
             .populate('property');
 
         res.status(200).json(transactions);
+        console.log("nekeje12");
     } catch (error) {
         console.error('Error fetching transactions:', error);
         res.status(500).json({ message: 'Failed to fetch transactions', error });
     }
 };
+const getAdminTransactions = async (req, res) => {
+    try {
+        const transactions = await Transaction.find()
+            .populate('agents')
+            .populate('buyers')
+            .populate('sellers')
+            .populate('property');
 
+        res.status(200).json(transactions);
+        console.log("nekeje3");
+    } catch (error) {
+        console.error('Error fetching all transactions:', error);
+        res.status(500).json({ message: 'Failed to fetch transactions', error });
+    }
+};
 const updateTransaction = async (req, res) => {
     try {
         const { Id } = req.params;
@@ -419,6 +434,7 @@ module.exports = {
     createTransaction,
     searchTransaction,
     getAgentTransactions,
+    getAdminTransactions,
     updateTransaction,
     assignTransactionToLawyer,
     generateCommissionReport: handleCommissionReport,
