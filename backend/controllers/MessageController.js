@@ -1,7 +1,7 @@
 const Message = require('../models/Message');
 const Transaction = require('../models/Transaction');
 const Agent = require('../models/Agent');
-const sendEmailNotification = require('../utils/emailService');
+const sendEmailWithServiceAccount = require('../utils/emailService');
 
 const addComment = async (req, res) => {
     const { userId, transactionId, comment } = req.body;
@@ -46,16 +46,48 @@ const addComment = async (req, res) => {
         const recipientEmails = transaction.agents
             .map(agent => agent.email)
             .filter(email => email !== sender.email);
+        
+        console.log('Transaction agents:', transaction.agents);
+        console.log('Sender email:', sender.email);
+        console.log('Recipient emails after filtering:', recipientEmails);
+
+        if (recipientEmails.length === 0) {
+            console.log('No recipients to send to after filtering out sender');
+        }
+
+        let emailsToSend = [...recipientEmails];
+
+        if (emailsToSend.length === 0) {
+            console.log('No recipients found, adding test email');
+            emailsToSend.push('mark.zunkovic@gmail.com');
+        }
 
         // Send notifications
-        recipientEmails.forEach(async (email) => {
-            await sendEmailNotification(
-                "info@kwslovenia.si", //
-                "KW Info",
+        for (const email of emailsToSend) {
+            console.log('Filtered recipient emails:', emailsToSend);
+            try {
+              const success = await sendEmailWithServiceAccount(
                 email,
-                comment
-            );
-        });
+                "New Comment on Transaction",
+                `A new comment has been added by ${sender.firstName} ${sender.lastName}:
+                          
+          "${comment}"
+          
+          View the full conversation by logging in to the system.
+          
+          Best regards,
+          KW Slovenia`
+              );
+              
+              if (success) {
+                console.log(`Email sent to ${email}`);
+              } else {
+                console.warn(`Failed to send email to ${email}`);
+              }
+            } catch (err) {
+              console.error(`Error sending to ${email}:`, err);
+            }
+          }
 
         res.status(201).json({ message: 'Comment added successfully', comment: newComment });
     } catch (error) {
